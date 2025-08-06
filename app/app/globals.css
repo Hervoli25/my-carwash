@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 0 73% 41%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 224 64% 33%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 224 64% 33%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 0 73% 41%;
+ 
+    --radius: 0.5rem;
+    
+    /* Ekhaya Brand Colors */
+    --ekhaya-red: 0 73% 41%;
+    --ekhaya-red-light: 0 86% 97%;
+    --ekhaya-red-dark: 0 75% 30%;
+    --ekhaya-blue: 224 64% 33%;
+    --ekhaya-blue-light: 221 100% 97%;
+    --ekhaya-blue-dark: 224 70% 20%;
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Ekhaya Custom Styles */
+.ekhaya-gradient {
+  background: linear-gradient(135deg, hsl(var(--ekhaya-red)) 0%, hsl(var(--ekhaya-blue)) 100%);
+}
+
+.ekhaya-red {
+  color: hsl(var(--ekhaya-red));
+}
+
+.ekhaya-blue {
+  color: hsl(var(--ekhaya-blue));
+}
+
+.service-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border-color: hsl(var(--ekhaya-red));
+}
+
+.service-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.logo-large {
+  height: 60px;
+  width: auto;
+}
+
+.btn-ekhaya-red {
+  background: hsl(var(--ekhaya-red));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-ekhaya-red:hover {
+  background: hsl(var(--ekhaya-red-dark));
+  transform: translateY(-1px);
+}
+
+.btn-ekhaya-blue {
+  background: hsl(var(--ekhaya-blue));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-ekhaya-blue:hover {
+  background: hsl(var(--ekhaya-blue-dark));
+  transform: translateY(-1px);
+}
