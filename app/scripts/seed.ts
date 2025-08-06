@@ -39,7 +39,7 @@ async function main() {
         shortDesc: 'Exterior rinse, soap application, high-pressure wash, spot-free rinse, air dry',
         price: 8000, // R80 in cents
         duration: 30,
-        category: 'Express',
+        category: 'EXPRESS',
         features: [
           'Exterior rinse',
           'Soap application',
@@ -56,7 +56,7 @@ async function main() {
         shortDesc: 'Complete wash, wax protection, tire shine, interior vacuum, trim protection',
         price: 15000, // R150 in cents
         duration: 60,
-        category: 'Premium',
+        category: 'PREMIUM',
         features: [
           'Pre-rinse',
           'Soap application',
@@ -76,7 +76,7 @@ async function main() {
         shortDesc: 'Full interior and exterior cleaning with premium treatments',
         price: 20000, // R200 in cents
         duration: 90,
-        category: 'Deluxe',
+        category: 'DELUXE',
         features: [
           'Complete exterior wash',
           'Interior deep clean',
@@ -95,7 +95,7 @@ async function main() {
         shortDesc: 'Complete detailing service with premium treatments and protection',
         price: 30000, // R300 in cents
         duration: 120,
-        category: 'Executive',
+        category: 'EXECUTIVE',
         features: [
           'Premium exterior detailing',
           'Complete interior detailing',
@@ -200,7 +200,7 @@ async function main() {
         year: 2020,
         color: 'Silver',
         licensePlate: 'CA 123 GP',
-        vehicleType: 'Sedan',
+        vehicleType: 'SEDAN',
         isPrimary: true,
       },
     });
@@ -221,7 +221,7 @@ async function main() {
         vehicleId: testVehicle.id,
         bookingDate: tomorrow,
         timeSlot: '10:00 AM',
-        status: 'confirmed',
+        status: 'CONFIRMED',
         totalAmount: 15000,
         baseAmount: 15000,
         addOnAmount: 0,
@@ -269,25 +269,25 @@ async function main() {
         userId: testUser.id,
         title: 'Premium Wash',
         message: 'Your booking for Apr 25, 2024 at 10:00 AM is confirmed.',
-        type: 'booking',
+        type: 'BOOKING',
       },
       {
         userId: testUser.id,
         title: 'Update on account settings updated',
         message: 'Your account settings have been successfully updated.',
-        type: 'system',
+        type: 'SYSTEM',
       },
       {
         userId: testUser.id,
         title: 'Special promotion',
         message: 'Get 20% off your next premium service!',
-        type: 'promotion',
+        type: 'PROMOTION',
       },
       {
         userId: testUser.id,
         title: 'Reminder: car wash',
         message: 'Don\'t forget your upcoming car wash appointment.',
-        type: 'reminder',
+        type: 'REMINDER',
       },
     ];
 
@@ -303,20 +303,26 @@ async function main() {
     const paymentMethods = [
       {
         userId: testUser.id,
-        type: 'visa',
+        type: 'STRIPE_CARD',
         lastFour: '4532',
         expiryMonth: 12,
         expiryYear: 25,
         cardholderName: 'John Doe',
+        stripeBrand: 'VISA',
+        stripePaymentMethodId: 'pm_test_visa_4532',
+        stripeFingerprint: 'test_fingerprint_visa',
         isDefault: true,
       },
       {
         userId: testUser.id,
-        type: 'mastercard',
+        type: 'STRIPE_CARD',
         lastFour: '8901',
         expiryMonth: 8,
         expiryYear: 25,
         cardholderName: 'John Doe',
+        stripeBrand: 'MASTERCARD',
+        stripePaymentMethodId: 'pm_test_mastercard_8901',
+        stripeFingerprint: 'test_fingerprint_mastercard',
         isDefault: false,
       }
     ];

@@ -9,6 +9,73 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+// Enums for better type safety
+enum VehicleType {
+  SEDAN
+  SUV
+  HATCHBACK
+  BAKKIE
+  COUPE
+  CONVERTIBLE
+  WAGON
+  TRUCK
+}
+
+enum ServiceCategory {
+  EXPRESS
+  PREMIUM
+  DELUXE
+  EXECUTIVE
+}
+
+enum BookingStatus {
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum PaymentMethodType {
+  VISA
+  MASTERCARD
+  AMERICAN_EXPRESS
+  DISCOVERY
+  CASH
+  EFT
+  STRIPE_CARD
+  STRIPE_WALLET
+}
+
+enum MembershipPlan {
+  BASIC
+  PREMIUM
+  ELITE
+}
+
+enum NotificationType {
+  BOOKING
+  PROMOTION
+  REMINDER
+  SYSTEM
+  PAYMENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
 // NextAuth.js Models
 model Account {
   id                String  @id @default(cuid())
@@ -55,7 +122,7 @@ model User {
   lastName      String?
   phone         String?
   dateOfBirth   DateTime?
-  gender        String?
+  gender        Gender?
   address       String?
   city          String?
   province      String?
@@ -75,140 +142,236 @@ model User {
   membership       Membership?
   reviews          Review[]
   notifications    Notification[]
+  stripeCustomer   StripeCustomer?
+
+  // Indexes for performance
+  @@index([email])
+  @@index([isAdmin])
+  @@index([loyaltyPoints])
+  @@index([createdAt])
+}
+
+model StripeCustomer {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  stripeCustomerId  String   @unique  // Stripe Customer ID
+  email             String?  // Email used in Stripe
+  name              String?  // Name used in Stripe
+  phone             String?  // Phone used in Stripe
+  defaultPaymentMethodId String? // Default Stripe Payment Method ID
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([stripeCustomerId])
+  @@index([email])
 }
 
 model Vehicle {
-  id           String @id @default(cuid())
+  id           String      @id @default(cuid())
   userId       String
   make         String
   model        String
   year         Int
   color        String
   licensePlate String
-  vehicleType  String // Sedan, SUV, Hatchback, Bakkie
-  isPrimary    Boolean @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  vehicleType  VehicleType
+  isPrimary    Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   bookings Booking[]
+
+  // Indexes for performance
+  @@index([userId])
+  @@index([licensePlate])
+  @@index([isPrimary])
+  @@unique([licensePlate]) // License plates should be unique
 }
 
 model Service {
-  id          String @id @default(cuid())
-  name        String @unique
+  id          String          @id @default(cuid())
+  name        String          @unique
   description String
   shortDesc   String
-  price       Int    // Price in cents (R80 = 8000)
-  duration    Int    // Duration in minutes
-  category    String // Express, Premium, Deluxe, Executive
-  features    String[] // Array of features
-  isActive    Boolean @default(true)
-  rating      Float   @default(0)
-  reviewCount Int     @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  price       Int             // Price in cents (R80 = 8000)
+  duration    Int             // Duration in minutes
+  category    ServiceCategory
+  features    String[]        // Array of features
+  isActive    Boolean         @default(true)
+  rating      Float           @default(0)
+  reviewCount Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   // Relations
-  bookings    Booking[]
-  addOns      ServiceAddOn[]
-  reviews     Review[]
+  bookings Booking[]
+  addOns   ServiceAddOn[]
+  reviews  Review[]
+
+  // Indexes for performance
+  @@index([category])
+  @@index([isActive])
+  @@index([price])
+  @@index([rating])
 }
 
 model ServiceAddOn {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   serviceId   String
   name        String
   description String
-  price       Int    // Price in cents
-  isActive    Boolean @default(true)
+  price       Int      // Price in cents
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  service        Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  bookingAddOns  BookingAddOn[]
+  service       Service        @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  bookingAddOns BookingAddOn[]
+
+  // Indexes for performance
+  @@index([serviceId])
+  @@index([isActive])
+  @@index([price])
 }
 
 model Booking {
-  id            String    @id @default(cuid())
-  userId        String
-  serviceId     String
-  vehicleId     String
-  bookingDate   DateTime
-  timeSlot      String
-  status        String    @default("confirmed") // confirmed, completed, cancelled, in-progress
-  totalAmount   Int       // Total in cents
-  baseAmount    Int       // Service base price
-  addOnAmount   Int       @default(0)
-  notes         String?
+  id                 String        @id @default(cuid())
+  userId             String
+  serviceId          String
+  vehicleId          String
+  bookingDate        DateTime
+  timeSlot           String
+  status             BookingStatus @default(CONFIRMED)
+  totalAmount        Int           // Total in cents
+  baseAmount         Int           // Service base price
+  addOnAmount        Int           @default(0)
+  notes              String?
   cancellationReason String?
-  cancelledAt   DateTime?
-  completedAt   DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  cancelledAt        DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
-  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  service    Service        @relation(fields: [serviceId], references: [id])
-  vehicle    Vehicle        @relation(fields: [vehicleId], references: [id])
-  addOns     BookingAddOn[]
-  payment    Payment?
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service Service        @relation(fields: [serviceId], references: [id])
+  vehicle Vehicle        @relation(fields: [vehicleId], references: [id])
+  addOns  BookingAddOn[]
+  payment Payment?
+
+  // Indexes for performance
+  @@index([userId])
+  @@index([serviceId])
+  @@index([vehicleId])
+  @@index([bookingDate])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model BookingAddOn {
-  id          String @id @default(cuid())
-  bookingId   String
-  addOnId     String
-  quantity    Int    @default(1)
-  price       Int    // Price at time of booking
+  id        String @id @default(cuid())
+  bookingId String
+  addOnId   String
+  quantity  Int    @default(1)
+  price     Int    // Price at time of booking
 
   booking Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   addOn   ServiceAddOn @relation(fields: [addOnId], references: [id])
+
+  // Indexes for performance
+  @@index([bookingId])
+  @@index([addOnId])
 }
 
 model PaymentMethod {
-  id           String  @id @default(cuid())
-  userId       String
-  type         String  // visa, mastercard, etc.
-  lastFour     String
-  expiryMonth  Int
-  expiryYear   Int
-  cardholderName String
-  isDefault    Boolean @default(false)
-  isActive     Boolean @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                String            @id @default(cuid())
+  userId            String
+  type              PaymentMethodType
+  lastFour          String?           // Optional for non-card payments
+  expiryMonth       Int?              // Optional for non-card payments
+  expiryYear        Int?              // Optional for non-card payments
+  cardholderName    String?           // Optional for non-card payments
+  isDefault         Boolean           @default(false)
+  isActive          Boolean           @default(true)
+
+  // Stripe-specific fields
+  stripePaymentMethodId String?       // Stripe Payment Method ID
+  stripeBrand           String?       // Card brand from Stripe (visa, mastercard, etc.)
+  stripeFingerprint     String?       // Stripe card fingerprint for duplicate detection
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   payments Payment[]
+
+  // Indexes for performance
+  @@index([userId])
+  @@index([isDefault])
+  @@index([isActive])
+  @@index([stripePaymentMethodId])
 }
 
 model Payment {
-  id              String    @id @default(cuid())
-  bookingId       String    @unique
+  id              String         @id @default(cuid())
+  bookingId       String         @unique
   paymentMethodId String?
-  amount          Int       // Amount in cents
-  status          String    @default("pending") // pending, completed, failed, refunded
-  transactionId   String?
+  amount          Int            // Amount in cents
+  status          PaymentStatus  @default(PENDING)
+  transactionId   String?        // Generic transaction ID
   paymentDate     DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+
+  // Stripe-specific fields
+  stripePaymentIntentId String?  // Stripe Payment Intent ID
+  stripeChargeId        String?  // Stripe Charge ID
+  stripeCustomerId      String?  // Stripe Customer ID
+  stripeFee             Int?     // Stripe processing fee in cents
+  stripeReceiptUrl      String?  // Stripe receipt URL
+
+  // Additional payment metadata
+  currency        String         @default("ZAR") // South African Rand
+  description     String?        // Payment description
+  failureReason   String?        // Reason for payment failure
+  refundReason    String?        // Reason for refund
+  refundedAmount  Int?           // Amount refunded in cents
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   booking       Booking        @relation(fields: [bookingId], references: [id])
   paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+
+  // Indexes for performance
+  @@index([status])
+  @@index([paymentDate])
+  @@index([transactionId])
+  @@index([stripePaymentIntentId])
+  @@index([stripeChargeId])
+  @@index([stripeCustomerId])
+  @@index([createdAt])
 }
 
 model Membership {
-  id         String   @id @default(cuid())
-  userId     String   @unique
-  plan       String   // Basic, Premium, Elite
-  price      Int      // Monthly price in cents
-  startDate  DateTime
-  endDate    DateTime?
-  isActive   Boolean  @default(true)
-  autoRenew  Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String         @id @default(cuid())
+  userId    String         @unique
+  plan      MembershipPlan
+  price     Int            // Monthly price in cents
+  startDate DateTime
+  endDate   DateTime?
+  isActive  Boolean        @default(true)
+  autoRenew Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([plan])
+  @@index([isActive])
+  @@index([startDate])
+  @@index([endDate])
 }
 
 model Review {
@@ -223,16 +386,32 @@ model Review {
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([userId])
+  @@index([serviceId])
+  @@index([rating])
+  @@index([isVisible])
+  @@index([createdAt])
+
+  // Ensure one review per user per service
+  @@unique([userId, serviceId])
 }
 
 model Notification {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
   title     String
   message   String
-  type      String   // booking, promotion, reminder, system
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
 }

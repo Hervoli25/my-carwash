@@ -116,9 +116,161 @@
   object-fit: cover;
 }
 
-.logo-large {
-  height: 60px;
-  width: auto;
+/* Logo Styles */
+.logo-container {
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.logo-animated {
+  transition: all 0.3s ease;
+  animation: logoEntrance 2s ease-out;
+}
+
+.logo-animated:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* Car Motion Animation on Page Load */
+@keyframes logoEntrance {
+  0% {
+    transform: translateX(-100px) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(10px) scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Car driving animation for hero section */
+@keyframes carDriveIn {
+  0% {
+    transform: translateX(-200px) scale(0.8);
+    opacity: 0;
+  }
+  25% {
+    transform: translateX(-50px) scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(20px) scale(1.1);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateX(-10px) scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.car-entrance {
+  animation: carDriveIn 3s ease-out;
+}
+
+/* Logo pulse animation for brand recognition */
+@keyframes logoPulse {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 12px 40px rgba(201, 42, 42, 0.2);
+  }
+}
+
+.logo-container:hover {
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+/* Mobile responsive logo */
+@media (max-width: 768px) {
+  .logo-container {
+    height: 3rem !important;
+    width: 12rem !important;
+  }
+  
+  .logo-animated {
+    animation-duration: 1.5s;
+  }
+  
+  @keyframes logoEntrance {
+    0% {
+      transform: translateX(-50px) scale(0.9);
+      opacity: 0;
+    }
+    50% {
+      transform: translateX(5px) scale(1.02);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+/* Enhanced car trail effect */
+.car-trail {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255,255,255,0.1) 10%, 
+    rgba(255,255,255,0.3) 50%, 
+    rgba(255,255,255,0.1) 90%, 
+    transparent 100%);
+  height: 3px;
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+/* Smooth page load animation */
+.page-entrance {
+  animation: pageLoad 1s ease-out;
+}
+
+@keyframes pageLoad {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Logo shadow enhancement */
+.logo-container {
+  position: relative;
+}
+
+.logo-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(201, 42, 42, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+  border-radius: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.logo-container:hover::before {
+  opacity: 1;
 }
 
 .btn-ekhaya-red {

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
@@ -24,6 +24,15 @@ import {
 export function Header() {
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navigationItems = [
     { name: 'Home', href: '/' },
@@ -33,17 +42,17 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${scrolled ? 'bg-background/98 shadow-lg' : 'bg-background/95'} backdrop-blur supports-[backdrop-filter]:bg-background/60`}>
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="relative h-16 w-48">
+            <div className={`relative h-20 w-64 logo-container transition-transform duration-300 ${scrolled ? 'scale-95' : 'scale-100'}`}>
               <Image
-                src="/logo.jpg"
-                alt="Ekhaya Intel Trading"
+                src="/logocarwash.jpg"
+                alt="Ekhaya Car Wash"
                 fill
-                className="object-contain logo-large"
+                className="object-contain logo-animated"
                 priority
               />
             </div>
