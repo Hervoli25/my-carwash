@@ -21,14 +21,16 @@ interface RecentBookingsProps {
 
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case 'confirmed':
+    case 'CONFIRMED':
       return <Badge className="bg-blue-100 text-blue-700">Confirmed</Badge>;
-    case 'completed':
+    case 'COMPLETED':
       return <Badge className="bg-green-100 text-green-700">Complete</Badge>;
-    case 'cancelled':
+    case 'CANCELLED':
       return <Badge className="bg-red-100 text-red-700">Cancelled</Badge>;
-    case 'in-progress':
+    case 'IN_PROGRESS':
       return <Badge className="bg-yellow-100 text-yellow-700">In Progress</Badge>;
+    case 'NO_SHOW':
+      return <Badge className="bg-gray-100 text-gray-700">No Show</Badge>;
     default:
       return <Badge variant="outline">{status}</Badge>;
   }

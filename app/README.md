@@ -49,43 +49,84 @@ Welcome to the **PRESTIGE Car Wash BY: EKHAYA INTEL. TRADING** website - a moder
 
 ### Prerequisites
 - Node.js 18+ installed
-- Yarn package manager
-- PostgreSQL database (provided in environment)
+- PostgreSQL database running
+- Git (for version control)
 
 ### Installation Steps
 
-1. **Navigate to project directory**:
+1. **Install dependencies**:
    ```bash
-   cd /home/ubuntu/prestige_car_wash/app
+   npm install --legacy-peer-deps
    ```
 
-2. **Install dependencies**:
-   ```bash
-   yarn install
+2. **Set up environment variables**:
+   Create/update your `.env` file with:
+   ```env
+   # Database Configuration - PostgreSQL
+   DATABASE_URL="postgresql://postgres:postgres2@localhost/Ekhaya_car_wash"
+
+   # NextAuth.js Configuration
+   NEXTAUTH_SECRET="ekhaya-car-wash-secret-key-2024"
+   NEXTAUTH_URL="http://localhost:3000"
+
+   # Optional: Stripe (for payments - can be added later)
+   # NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+   # STRIPE_SECRET_KEY=""
+   # STRIPE_WEBHOOK_SECRET=""
    ```
 
-3. **Set up environment variables** (already configured):
-   - Database connection
-   - NextAuth configuration
-   - API keys
-
-4. **Run database migrations**:
+3. **Set up database**:
    ```bash
-   npx prisma migrate dev
+   # Generate Prisma client
+   npm run db:generate
+
+   # Push schema to PostgreSQL database
+   npm run db:push
+
+   # Seed database with sample data
+   npm run db:seed
    ```
 
-5. **Seed the database** (optional):
+4. **Start development server**:
    ```bash
-   yarn run seed
+   npm run dev
    ```
 
-6. **Start development server**:
-   ```bash
-   yarn dev
-   ```
+5. **Open your browser**:
+   Visit `http://localhost:3002` (or next available port)
 
-7. **Open your browser**:
-   Visit `http://localhost:3000`
+6. **Open Database Studio** (optional):
+   ```bash
+   npm run db:studio
+   ```
+   Visit `http://localhost:5555` for visual database management
+
+## 🔧 **Available Scripts**
+
+### Development
+```bash
+npm run dev              # Start development server
+npm run build           # Build for production
+npm run start           # Start production server
+npm run lint            # Run ESLint
+```
+
+### Database Management
+```bash
+npm run db:generate     # Generate Prisma client
+npm run db:push        # Push schema to database
+npm run db:pull        # Pull schema from database
+npm run db:seed        # Seed with sample data
+npm run db:studio      # Open Prisma Studio (Visual DB)
+npm run db:reset       # Reset and reseed database
+npm run db:validate    # Validate database integrity
+npm run db:migrate     # Run Prisma migrations
+npm run db:deploy      # Deploy migrations to production
+```
+
+### Application URLs
+- **Main App**: http://localhost:3002 (development)
+- **Database Studio**: http://localhost:5555 (when running `npm run db:studio`)
 
 ## 🧪 **Testing Credentials**
 
@@ -343,6 +384,6 @@ This project was created for **PRESTIGE Car Wash BY: EKHAYA INTEL. TRADING** and
 
 ---
 
-**Built with ❤️ for PRESTIGE Car Wash**
+**Built By Herve Tshombe with ❤️ for PRESTIGE Ekhaya Car Wash**
 
 For technical support or customization requests, refer to the component documentation and API reference within the codebase.

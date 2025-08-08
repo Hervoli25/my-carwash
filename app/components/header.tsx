@@ -1,9 +1,11 @@
 
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { AnimatedLogo } from '@/components/animations/animated-logo';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -24,38 +26,39 @@ import {
 export function Header() {
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const navigationItems = [
-    { name: 'Home', href: '/' },
-    { name: 'Services', href: '/services' },
+    { name: 'Home', href: '#home', scrollTo: 'home' },
+    { name: 'Services', href: '#services', scrollTo: 'services' },
+    { name: 'Features', href: '/features' },
     { name: 'Book Online', href: '/book' },
-    { name: 'Membership', href: '/membership' },
   ];
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+    setMobileMenuOpen(false);
+  };
+
+  const handleNavClick = (item: any, e: React.MouseEvent) => {
+    if (item.scrollTo) {
+      e.preventDefault();
+      scrollToSection(item.scrollTo);
+    }
+  };
+
   return (
-    <header className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${scrolled ? 'bg-background/98 shadow-lg' : 'bg-background/95'} backdrop-blur supports-[backdrop-filter]:bg-background/60`}>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className={`relative h-20 w-64 logo-container transition-transform duration-300 ${scrolled ? 'scale-95' : 'scale-100'}`}>
-              <Image
-                src="/logocarwash.jpg"
-                alt="Ekhaya Car Wash"
-                fill
-                className="object-contain logo-animated"
-                priority
-              />
-            </div>
+        <div className="flex h-44 items-center justify-between">
+          {/* Animated Logo */}
+          <Link href="/" className="flex items-center justify-center py-2">
+            <AnimatedLogo size="large" className="transition-all duration-300 hover:scale-105" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -64,7 +67,8 @@ export function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium text-foreground/60 transition-colors hover:text-primary ekhaya-red hover:font-semibold"
+                onClick={(e) => handleNavClick(item, e)}
+                className="text-sm font-medium text-foreground/60 transition-colors hover:text-primary ekhaya-red hover:font-semibold cursor-pointer"
               >
                 {item.name}
               </Link>
@@ -160,8 +164,8 @@ export function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="block px-3 py-2 text-base font-medium text-foreground/60 hover:text-foreground"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => handleNavClick(item, e)}
+                  className="block px-3 py-2 text-base font-medium text-foreground/60 hover:text-foreground cursor-pointer"
                 >
                   {item.name}
                 </Link>

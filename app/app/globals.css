@@ -273,6 +273,48 @@
   opacity: 1;
 }
 
+/* Carousel Styles */
+.embla {
+  overflow: hidden;
+}
+
+.embla__container {
+  display: flex;
+  transition: transform 0.3s ease-in-out;
+}
+
+.embla__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+/* Smooth carousel slide transition */
+.carousel-slide {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.5s ease-in-out;
+}
+
+.carousel-slide.entering {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.carousel-slide.exiting {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+/* Carousel dots hover effect */
+.carousel-dot {
+  transition: all 0.2s ease;
+}
+
+.carousel-dot:hover {
+  scale: 1.2;
+  opacity: 0.8;
+}
+
 .btn-ekhaya-red {
   background: hsl(var(--ekhaya-red));
   color: white;

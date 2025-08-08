@@ -99,9 +99,13 @@ async function main() {
     // Check referential integrity
     console.log('\n🔗 Checking referential integrity...');
 
-    // Check orphaned vehicles
+    // Check orphaned vehicles (vehicles without users)
     const orphanedVehicles = await prisma.vehicle.count({
-      where: { user: null }
+      where: {
+        user: {
+          is: null
+        }
+      }
     });
     if (orphanedVehicles > 0) {
       console.warn(`⚠️  ${orphanedVehicles} orphaned vehicles found`);
@@ -109,13 +113,13 @@ async function main() {
       console.log('✅ No orphaned vehicles');
     }
 
-    // Check orphaned bookings
+    // Check orphaned bookings (bookings without required relations)
     const orphanedBookings = await prisma.booking.count({
-      where: { 
+      where: {
         OR: [
-          { user: null },
-          { service: null },
-          { vehicle: null }
+          { user: { is: null } },
+          { service: { is: null } },
+          { vehicle: { is: null } }
         ]
       }
     });

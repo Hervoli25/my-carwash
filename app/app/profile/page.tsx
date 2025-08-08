@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { User, Car, Shield, Settings } from 'lucide-react';
+import { GDPRCompliance } from '@/components/legal/gdpr-compliance';
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
@@ -120,6 +121,19 @@ export default async function ProfilePage() {
                 <Button className="bg-blue-600 hover:bg-blue-700">Save Changes</Button>
               </div>
             </div>
+
+            {/* GDPR Compliance Section */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Shield className="w-5 h-5 mr-2 text-green-600" />
+                  Data Privacy & GDPR Compliance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <GDPRCompliance showManagement={true} />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

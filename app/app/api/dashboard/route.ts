@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
         bookingDate: {
           gte: new Date(),
         },
-        status: 'confirmed',
+        status: 'CONFIRMED',
       },
       include: {
         service: true,
