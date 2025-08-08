@@ -18,6 +18,9 @@ Create/update your `.env` file with:
 # Database Configuration - PostgreSQL
 DATABASE_URL="postgresql://postgres:postgres2@localhost/Ekhaya_car_wash"
 
+# Public site URL used in links and QR codes (set to your domain in production)
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+
 # NextAuth.js Configuration
 NEXTAUTH_SECRET="ekhaya-car-wash-secret-key-2024"
 NEXTAUTH_URL="http://localhost:3000"

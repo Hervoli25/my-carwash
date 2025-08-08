@@ -22,7 +22,7 @@ import Image from 'next/image';
 interface TrackingStage {
   id: string;
   name: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   completed: boolean;
   current: boolean;
   estimatedTime: number;
@@ -38,90 +38,53 @@ interface RealTimeTrackingProps {
 
 export function RealTimeTracking({ bookingId, isDemo = false }: RealTimeTrackingProps) {
   const [currentStage, setCurrentStage] = useState(0);
-  const [stages, setStages] = useState<TrackingStage[]>([
-    {
-      id: 'arrival',
-      name: 'Vehicle Arrival Check-in',
-      icon: <MapPin className="w-5 h-5" />,
-      completed: true,
-      current: false,
-      estimatedTime: 2,
-      actualTime: 2,
-      photo: 'https://cdn.abacus.ai/images/77100dd7-e945-43aa-a419-5bf5249fd87a.png',
-      notes: 'Vehicle checked in and initial inspection completed'
-    },
-    {
-      id: 'prep',
-      name: 'Pre-Wash Inspection',
-      icon: <Camera className="w-5 h-5" />,
-      completed: true,
-      current: false,
-      estimatedTime: 5,
-      actualTime: 4,
-      photo: 'https://cdn.abacus.ai/images/7935c3d8-5a9c-4cdb-8d4e-f0f63c93186c.png',
-      notes: 'Before photos taken, damage inspection completed'
-    },
-    {
-      id: 'wash',
-      name: 'Premium Wash Process',
-      icon: <Car className="w-5 h-5" />,
-      completed: false,
-      current: true,
-      estimatedTime: 25,
-      notes: 'High-pressure wash and premium soap application in progress'
-    },
-    {
-      id: 'detail',
-      name: 'Detail & Wax Application',
-      icon: <Sparkles className="w-5 h-5" />,
-      completed: false,
-      current: false,
-      estimatedTime: 20
-    },
-    {
-      id: 'quality',
-      name: 'Quality Check & Final Photos',
-      icon: <Star className="w-5 h-5" />,
-      completed: false,
-      current: false,
-      estimatedTime: 5
-    },
-    {
-      id: 'complete',
-      name: 'Ready for Pickup',
-      icon: <CheckCircle className="w-5 h-5" />,
-      completed: false,
-      current: false,
-      estimatedTime: 2
-    }
-  ]);
+  const [stages, setStages] = useState<TrackingStage[]>([]);
+  const [totalProgress, setTotalProgress] = useState(0);
+  const [estimatedCompletion, setEstimatedCompletion] = useState<string>('');
+  const [actualCompletion, setActualCompletion] = useState<string>('');
+  const [startsAt, setStartsAt] = useState<string>('');
+  const [overdue, setOverdue] = useState<boolean>(false);
+  const [overdueMinutes, setOverdueMinutes] = useState<number>(0);
 
-  const [totalProgress, setTotalProgress] = useState(33);
-  const [estimatedCompletion, setEstimatedCompletion] = useState('4:45 PM');
-  const [actualCompletion, setActualCompletion] = useState('');
-
+  // Production: fetch tracking data from backend and poll
   useEffect(() => {
-    if (isDemo) {
-      const interval = setInterval(() => {
-        setStages(prev => {
-          const next = [...prev];
-          const currentIndex = next.findIndex(stage => stage.current);
-          
-          if (currentIndex < next.length - 1) {
-            next[currentIndex].completed = true;
-            next[currentIndex].current = false;
-            next[currentIndex + 1].current = true;
-            setCurrentStage(currentIndex + 1);
-            setTotalProgress(((currentIndex + 1) / (next.length - 1)) * 100);
-          }
-          
-          return next;
-        });
-      }, 3000);
+    let timer: any;
 
-      return () => clearInterval(interval);
+    async function load() {
+      try {
+        const res = await fetch(`/api/bookings/${bookingId}/tracking`, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        setStages(
+          data.stages.map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            completed: !!s.completed,
+            current: !!s.current,
+            estimatedTime: s.estimatedTime,
+          }))
+        );
+        setTotalProgress(data.totalProgress ?? 0);
+        if (data.estimatedCompletion) {
+          const d = new Date(data.estimatedCompletion);
+          setEstimatedCompletion(d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        }
+        if (data.actualCompletion) {
+          const d = new Date(data.actualCompletion);
+          setActualCompletion(d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        } else {
+          setActualCompletion('');
+        }
+      } catch (e) {
+        // swallow
+      }
     }
-  }, [isDemo]);
+
+    load();
+    timer = setInterval(load, 10000); // poll every 10s
+
+    return () => clearInterval(timer);
+  }, [bookingId]);
 
   const completedStages = stages.filter(stage => stage.completed).length;
   const currentStageData = stages.find(stage => stage.current);
@@ -135,6 +98,12 @@ export function RealTimeTracking({ bookingId, isDemo = false }: RealTimeTracking
             <div>
               <h3 className="text-xl font-semibold text-gray-900">Live Service Tracking</h3>
               <p className="text-sm text-gray-600">Booking #EKH-{bookingId}</p>
+              {startsAt && (
+                <p className="text-xs text-gray-500">Starts at {new Date(startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+              )}
+              {overdue && (
+                <p className="text-xs text-red-600">Overdue start by {overdueMinutes} min</p>
+              )}
             </div>
             <Badge className="bg-green-500 text-white animate-pulse">
               <Bell className="w-3 h-3 mr-1" />

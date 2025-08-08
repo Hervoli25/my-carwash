@@ -1,27 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/db';
+import { ServiceCategory } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
+    console.log('🔐 Session check:', { 
+      hasSession: !!session, 
+      userEmail: session?.user?.email,
+      userId: session?.user?.id
+    });
+    
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.error('❌ Unauthorized: No session or email');
+      return NextResponse.json({ error: 'Unauthorized - Please log in' }, { status: 401 });
     }
 
     const data = await request.json();
+    console.log('📝 Booking data received:', JSON.stringify(data, null, 2));
     
     // Find or create user
     let user = await prisma.user.findUnique({
       where: { email: session.user.email }
     });
+    
+    console.log('👤 User lookup:', { found: !!user, email: session.user.email });
 
     if (!user) {
       // Create user if doesn't exist
+      console.log('🆕 Creating new user...');
       user = await prisma.user.create({
         data: {
           email: session.user.email,
@@ -31,6 +41,7 @@ export async function POST(request: NextRequest) {
           phone: data.phone,
         }
       });
+      console.log('✅ User created:', { id: user.id, email: user.email });
     }
 
     // Find or create vehicle
@@ -75,16 +86,45 @@ export async function POST(request: NextRequest) {
     if (!service) {
       // Create service if doesn't exist
       const serviceData = getServiceData(data.serviceType);
+      const categoryValue = ServiceCategory[serviceData.category as keyof typeof ServiceCategory] ?? ServiceCategory.EXPRESS;
       service = await prisma.service.create({
-        data: serviceData
+        data: {
+          name: serviceData.name,
+          description: serviceData.description,
+          shortDesc: serviceData.shortDesc,
+          price: serviceData.price,
+          duration: serviceData.duration,
+          category: categoryValue,
+          features: serviceData.features,
+        }
       });
     }
 
     // Calculate total amount (convert from Rand to cents)
     const totalAmount = Math.round(data.totalPrice * 100);
-    const baseAmount = Math.round(service.price);
+    const baseAmount = service.price; // service.price is already in cents
+    
+    console.log('💰 Price calculation:', {
+      frontendTotal: data.totalPrice,
+      totalAmountInCents: totalAmount,
+      serviceBasePriceInCents: baseAmount,
+      convertedDisplay: {
+        total: totalAmount / 100,
+        base: baseAmount / 100
+      }
+    });
 
     // Create booking
+    console.log('📅 Creating booking with data:', {
+      userId: user.id,
+      serviceId: service.id,
+      vehicleId: vehicle.id,
+      bookingDate: new Date(data.preferredDate),
+      timeSlot: data.preferredTime,
+      totalAmount: totalAmount,
+      baseAmount: baseAmount
+    });
+    
     const booking = await prisma.booking.create({
       data: {
         userId: user.id,
@@ -104,6 +144,36 @@ export async function POST(request: NextRequest) {
         vehicle: true
       }
     });
+    
+    console.log('🎉 Booking created successfully:', {
+      id: booking.id,
+      status: booking.status,
+      totalAmount: booking.totalAmount,
+      date: booking.bookingDate,
+      timeSlot: booking.timeSlot
+    });
+
+    // Create payment record with selected payment method
+    let paymentRecord = null;
+    if (data.paymentMethod) {
+      console.log('💳 Creating payment record:', {
+        paymentMethod: data.paymentMethod,
+        amount: totalAmount
+      });
+
+      paymentRecord = await prisma.payment.create({
+        data: {
+          bookingId: booking.id,
+          amount: totalAmount,
+          status: 'PENDING',
+          description: `Payment for ${service.name}`,
+          currency: 'ZAR',
+          paymentDate: data.paymentMethod === 'cash' ? null : new Date(),
+        }
+      });
+
+      console.log('✅ Payment record created:', paymentRecord.id);
+    }
 
     // Handle add-ons if any
     if (data.addOns && data.addOns.length > 0) {
@@ -151,10 +221,16 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Booking creation error:', error);
+    console.error('💥 Booking creation error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      type: typeof error
+    });
+    
     return NextResponse.json({ 
       error: 'Failed to create booking',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
     }, { status: 500 });
   }
 }

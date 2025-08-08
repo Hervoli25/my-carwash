@@ -8,8 +8,11 @@ import { prisma } from './db';
 declare module 'next-auth' {
   interface User {
     isAdmin?: boolean;
+    role?: string;
+    username?: string;
+    image?: string | null;
   }
-  
+
   interface Session {
     user: {
       id: string;
@@ -17,6 +20,8 @@ declare module 'next-auth' {
       name?: string | null;
       image?: string | null;
       isAdmin?: boolean;
+      role?: string;
+      username?: string;
     };
   }
 }
@@ -24,6 +29,8 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     isAdmin?: boolean;
+    role?: string;
+    username?: string;
   }
 }
 

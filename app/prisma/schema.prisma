@@ -110,6 +110,51 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// Admin Models
+model AdminUser {
+  id            String    @id @default(cuid())
+  username      String    @unique
+  email         String    @unique
+  password      String    // Hashed password
+  name          String
+  role          String    @default("ADMIN") // ADMIN, SUPER_ADMIN
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  failedLogins  Int       @default(0)
+  lockedUntil   DateTime?
+  twoFactorSecret String? // For 2FA
+  twoFactorEnabled Boolean @default(false)
+  allowedIPs    String[]  // IP whitelist
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  auditLogs     AdminAuditLog[]
+
+  @@index([email])
+  @@index([username])
+  @@index([isActive])
+}
+
+model AdminAuditLog {
+  id            String    @id @default(cuid())
+  adminUserId   String
+  action        String    // "CREATE_SERVICE", "UPDATE_PRICE", "DELETE_USER", etc.
+  resourceType  String    // "SERVICE", "USER", "BOOKING", etc.
+  resourceId    String?   // ID of affected resource
+  oldValue      String?   // Previous value (JSON)
+  newValue      String?   // New value (JSON)
+  ipAddress     String
+  userAgent     String?
+  createdAt     DateTime  @default(now())
+
+  adminUser     AdminUser @relation(fields: [adminUserId], references: [id])
+
+  @@index([adminUserId])
+  @@index([action])
+  @@index([createdAt])
+}
+
 // Core Application Models
 model User {
   id            String    @id @default(cuid())
@@ -202,6 +247,10 @@ model Service {
   isActive    Boolean         @default(true)
   rating      Float           @default(0)
   reviewCount Int             @default(0)
+  imageUrl    String?         // Service image URL
+  isPromoted  Boolean         @default(false) // For promotions
+  promotionPrice Int?         // Promotional price in cents
+  promotionEndDate DateTime?  // When promotion ends
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
@@ -224,6 +273,9 @@ model ServiceAddOn {
   description String
   price       Int      // Price in cents
   isActive    Boolean  @default(true)
+  imageUrl    String?  // Add-on image URL
+  isPromoted  Boolean  @default(false)
+  promotionPrice Int?  // Promotional price in cents
   createdAt   DateTime @default(now())
 
   service       Service        @relation(fields: [serviceId], references: [id], onDelete: Cascade)
@@ -320,6 +372,9 @@ model Payment {
   status          PaymentStatus  @default(PENDING)
   transactionId   String?        // Generic transaction ID
   paymentDate     DateTime?
+
+  // Payment method type for display
+  paymentMethodType String?      // 'card', 'cash', 'eft', 'payfast', etc.
 
   // Stripe-specific fields
   stripePaymentIntentId String?  // Stripe Payment Intent ID

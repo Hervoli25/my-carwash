@@ -65,6 +65,9 @@ Welcome to the **PRESTIGE Car Wash BY: EKHAYA INTEL. TRADING** website - a moder
    # Database Configuration - PostgreSQL
    DATABASE_URL="postgresql://postgres:postgres2@localhost/Ekhaya_car_wash"
 
+   # Public site URL used in links and QR codes (set to your domain in production)
+   NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+
    # NextAuth.js Configuration
    NEXTAUTH_SECRET="ekhaya-car-wash-secret-key-2024"
    NEXTAUTH_URL="http://localhost:3000"
@@ -250,8 +253,14 @@ All components follow the shadcn/ui design system with custom Ekhaya Intel styli
 
 ### Environment Variables for Production
 ```bash
+# Public site URL used in links and QR codes
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+
+# NextAuth config
 NEXTAUTH_URL=https://yourdomain.com
 NEXTAUTH_SECRET=your-secret-key
+
+# Database
 DATABASE_URL=your-production-database-url
 ```
 

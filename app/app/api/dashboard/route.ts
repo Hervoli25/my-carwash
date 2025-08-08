@@ -10,13 +10,20 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id) {
+    console.log('🔐 Dashboard session check:', { 
+      hasSession: !!session, 
+      userEmail: session?.user?.email,
+      userId: session?.user?.id 
+    });
+
+    if (!session?.user?.email) {
+      console.error('❌ Dashboard unauthorized: No session or email');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch user data
+    // Fetch user data by email (more reliable than user.id)
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { email: session.user.email },
       include: {
         vehicles: true,
         membership: true,
@@ -24,12 +31,15 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
+      console.error('❌ User not found in database:', session.user.email);
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    console.log('👤 User found:', { id: user.id, email: user.email });
+
     // Fetch recent bookings
     const bookings = await prisma.booking.findMany({
-      where: { userId: session.user.id },
+      where: { userId: user.id },
       include: {
         service: true,
         vehicle: true,
@@ -46,14 +56,16 @@ export async function GET(request: NextRequest) {
       take: 10,
     });
 
+    console.log('📊 Fetched bookings:', bookings.length);
+
     // Calculate stats
     const totalBookings = await prisma.booking.count({
-      where: { userId: session.user.id }
+      where: { userId: user.id }
     });
 
     const nextBooking = await prisma.booking.findFirst({
       where: {
-        userId: session.user.id,
+        userId: user.id,
         bookingDate: {
           gte: new Date(),
         },
@@ -69,7 +81,7 @@ export async function GET(request: NextRequest) {
     // Get most used service
     const serviceCounts = await prisma.booking.groupBy({
       by: ['serviceId'],
-      where: { userId: session.user.id },
+      where: { userId: user.id },
       _count: {
         serviceId: true,
       },
@@ -104,7 +116,8 @@ export async function GET(request: NextRequest) {
         id: booking.id,
         date: booking.bookingDate,
         service: booking.service.name,
-        vehicle: `${booking.vehicle.make} ${booking.vehicle.model}`,
+        vehicle: `${booking.vehicle.make} ${booking.vehicle.model} ${booking.vehicle.year}`,
+        plateNumber: booking.vehicle.licensePlate,
         status: booking.status,
         amount: booking.totalAmount,
         timeSlot: booking.timeSlot,
@@ -133,7 +146,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(dashboardData);
   } catch (error) {
-    console.error('Dashboard API error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('💥 Dashboard API error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      type: typeof error
+    });
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
   }
 }

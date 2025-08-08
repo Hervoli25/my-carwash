@@ -10,6 +10,7 @@ interface Booking {
   date: string;
   service: string;
   vehicle: string;
+  plateNumber: string;
   status: string;
   amount: number;
   timeSlot: string;
@@ -52,6 +53,7 @@ export function RecentBookings({ bookings }: RecentBookingsProps) {
                 <tr className="border-b">
                   <th className="text-left py-2 text-sm font-medium text-gray-600">Date</th>
                   <th className="text-left py-2 text-sm font-medium text-gray-600">Service</th>
+                  <th className="text-left py-2 text-sm font-medium text-gray-600">Vehicle</th>
                   <th className="text-left py-2 text-sm font-medium text-gray-600">Status</th>
                   <th className="text-right py-2 text-sm font-medium text-gray-600">Amount</th>
                 </tr>
@@ -68,9 +70,12 @@ export function RecentBookings({ bookings }: RecentBookingsProps) {
                       </div>
                     </td>
                     <td className="py-3">
+                      <div className="text-sm font-medium text-gray-900">{booking.service}</div>
+                    </td>
+                    <td className="py-3">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{booking.service}</div>
-                        <div className="text-xs text-gray-500">{booking.vehicle}</div>
+                        <div className="text-sm font-medium text-gray-900">{booking.vehicle}</div>
+                        <div className="text-xs text-gray-500 font-mono">{booking.plateNumber}</div>
                       </div>
                     </td>
                     <td className="py-3">

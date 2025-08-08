@@ -276,7 +276,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
     console.log('Processing invoice.payment_succeeded:', invoice.id);
     
     // Handle subscription payments if you implement memberships
-    if (invoice.subscription) {
+    if ((invoice as any).subscription) {
       // Update membership status
       const membership = await prisma.membership.findFirst({
         where: {

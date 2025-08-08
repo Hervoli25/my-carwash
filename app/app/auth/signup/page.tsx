@@ -5,12 +5,13 @@ import { useState, FormEvent } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, Phone, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { AnimatedLogo } from '@/components/animations/animated-logo';
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -22,6 +23,8 @@ export default function SignUpPage() {
     confirmPassword: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,17 +98,17 @@ export default function SignUpPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="relative h-12 w-40 mx-auto mb-4">
-              <Image
-                src="/ekhaya-logo.jpg"
-                alt="Ekhaya Intel Trading"
-                fill
-                className="object-contain"
-                priority
+            <div className="flex justify-center mb-6">
+              <AnimatedLogo 
+                size="medium" 
+                variant="auth"
+                className="mx-auto"
+                enableEntrance={true}
+                enableHover={true}
               />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Create Your Account</h1>
-            <p className="text-gray-600 mt-2">Join Ekhaya Intel Car Wash</p>
+            <p className="text-gray-600 mt-2">Join Prestige Car Wash</p>
           </div>
 
           {/* Sign Up Form */}
@@ -179,14 +182,27 @@ export default function SignUpPage() {
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       name="password"
                       placeholder="Create a password"
                       value={formData.password}
                       onChange={handleChange}
-                      className="pl-10"
+                      className="pl-10 pr-10"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-pressed={showPassword ? 'true' : 'false'}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
@@ -195,14 +211,27 @@ export default function SignUpPage() {
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       name="confirmPassword"
                       placeholder="Confirm your password"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="pl-10"
+                      className="pl-10 pr-10"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      aria-pressed={showConfirmPassword ? 'true' : 'false'}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
 

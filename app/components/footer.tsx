@@ -1,24 +1,31 @@
+'use client';
 
-import Image from 'next/image';
+
 import Link from 'next/link';
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
+import {
+  MapPin,
+  Phone,
+  Mail,
   Clock,
   Facebook,
   Instagram,
   Twitter,
   Youtube,
   QrCode,
-  Gift
+  Gift,
+  Download,
+  Share2
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { WorkingQR } from '@/components/qr-code/working-qr';
+import { AnimatedLogo } from '@/components/animations/animated-logo';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const baseOrigin = (process.env.NEXT_PUBLIC_SITE_URL as string) || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+  const registrationUrl = `${baseOrigin}/auth/signup?ref=qr`;
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -26,21 +33,20 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="flex items-center space-x-2 mb-4">
-              <div className="relative h-16 w-64">
-                <Image
-                  src="/logocarwash.jpg"
-                  alt="PRESTIGE Car Wash BY: EKHAYA INTEL. TRADING"
-                  fill
-                  className="object-contain filter brightness-110 contrast-125"
-                />
-              </div>
+            <Link href="/" className="inline-block mb-4">
+              <AnimatedLogo
+                size="large"
+                variant="footer"
+                className="transition-all duration-300 hover:scale-105"
+                enableEntrance={true}
+                enableHover={true}
+              />
             </Link>
             <p className="text-gray-300 mb-6 max-w-md">
-              Premium car wash services in Cape Town with productive customer lounge experience. 
+              Premium car wash services in Cape Town with productive customer lounge experience.
               Where waiting becomes productive.
             </p>
-            
+
             {/* Social Media Icons */}
             <div className="flex space-x-4 mb-6">
               <Link href="https://facebook.com/prestigecarwash" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-400 transition-colors duration-300 transform hover:scale-110">
@@ -140,9 +146,9 @@ export function Footer() {
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-center mb-2">
-                  <Badge className="bg-yellow-500 text-black px-2 py-1 text-xs">
+                  <Badge className="bg-blue-500 text-white px-2 py-1 text-xs">
                     <Gift className="w-3 h-3 mr-1" />
-                    VIP INVITATION
+                    Quick Access
                   </Badge>
                 </div>
                 <CardTitle className="text-sm text-white text-center">
@@ -151,9 +157,9 @@ export function Footer() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {/* Functional QR Code */}
-                <div className="flex justify-center bg-white p-3 rounded-lg shadow-inner">
-                  <WorkingQR 
-                    value="http://localhost:3000/auth/signup?ref=qr"
+                <div id="footer-qr-container" className="flex justify-center bg-white p-3 rounded-lg shadow-inner">
+                  <WorkingQR
+                    value={registrationUrl}
                     size={120}
                     className="mx-auto"
                   />
@@ -161,14 +167,66 @@ export function Footer() {
 
                 {/* Instructions */}
                 <div className="text-center space-y-1">
-                  <p className="text-xs text-gray-300">Scan to register for VIP</p>
-                  <p className="text-xs text-yellow-400">Get 10% off + rewards</p>
+                  <p className="text-xs text-gray-300">Scan to register quickly</p>
+                  <p className="text-xs text-yellow-400">Create your account in seconds</p>
+                </div>
+
+                {/* Actions: Download / Share */}
+                <div className="flex items-center justify-center gap-3 pt-1">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      const container = document.querySelector('#footer-qr-container');
+                      const canvas = container?.querySelector('canvas') as HTMLCanvasElement | null;
+                      if (!canvas) return;
+                      const link = document.createElement('a');
+                      link.href = canvas.toDataURL('image/png');
+                      link.download = 'ekhaya-qr.png';
+                      link.click();
+                    }}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download QR
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      const container = document.querySelector('#footer-qr-container');
+                      const canvas = container?.querySelector('canvas') as HTMLCanvasElement | null;
+                      if (!canvas) return;
+                      const dataUrl = canvas.toDataURL('image/png');
+                      const res = await fetch(dataUrl);
+                      const blob = await res.blob();
+                      const file = new File([blob], 'ekhaya-qr.png', { type: 'image/png' });
+
+                      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                          await navigator.share({
+                            title: 'Ekhaya QR',
+                            text: 'Scan to register for Ekhaya Car Wash',
+                            files: [file]
+                          });
+                          return;
+                        } catch (e) {
+                          // fall through to fallback
+                        }
+                      }
+
+                      // Fallback: open image directly in a new tab for manual save/share
+                      window.open(dataUrl, '_blank');
+                    }}
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share QR
+                  </Button>
                 </div>
 
                 {/* Link for manual access */}
                 <div className="text-center">
-                  <Link 
-                    href="/auth/signup?ref=qr" 
+                  <Link
+                    href="/auth/signup?ref=qr"
                     className="text-xs text-blue-400 hover:text-blue-300 underline"
                   >
                     Or register online
