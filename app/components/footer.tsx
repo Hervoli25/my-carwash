@@ -328,6 +328,9 @@ export function Footer() {
                 <Link href="/legal-disclaimer" className="text-gray-300 hover:text-white transition-colors">
                   Legal Disclaimer
                 </Link>
+                <Link href="/admin/login" className="text-gray-500 hover:text-orange-400 transition-colors text-xs">
+                  Admin
+                </Link>
               </div>
               <div className="mt-2">
                 <span className="text-gray-400">Data Protection Officer:</span>

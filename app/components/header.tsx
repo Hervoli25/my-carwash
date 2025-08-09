@@ -20,7 +20,8 @@ import {
   Settings, 
   Calendar,
   Menu,
-  X
+  X,
+  Shield
 } from 'lucide-react';
 
 export function Header() {
@@ -113,6 +114,12 @@ export function Header() {
                       <Link href="/profile" className="flex items-center">
                         <Settings className="mr-2 h-4 w-4" />
                         Profile Settings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/login" className="flex items-center text-orange-600">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Access
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem
