@@ -9,13 +9,17 @@ export default async function AdminDashboardPage() {
   if (!session) {
     redirect('/admin/login');
   }
+
   const isAdmin = await requireAdmin(session);
   if (!isAdmin) {
     redirect('/admin/login');
   }
-  const has2FA = await requireAdminWith2FA(session);
+
+  // Professional 2FA enforcement for production security
+  const has2FA = session?.user?.twoFactorEnabled;
   if (!has2FA) {
-    redirect('/admin/security/2fa');
+    // Redirect to secure 2FA setup with mandatory enrollment
+    redirect('/admin/security/2fa/setup?required=true');
   }
 
   return <AdminDashboardClient session={session} />;
