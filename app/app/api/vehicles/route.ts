@@ -20,12 +20,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { make, model, year, color, licensePlate } = body;
+    const { make, model, year, color, licensePlate, vehicleType } = body;
 
     // Validate required fields
-    if (!make || !model || !year || !color || !licensePlate) {
+    if (!make || !model || !year || !color || !licensePlate || !vehicleType) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: 'All fields including vehicle type are required' },
         { status: 400 }
       );
     }
@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
         year: parseInt(year),
         color: color.trim(),
         licensePlate: licensePlate.toUpperCase().trim(),
+        vehicleType: vehicleType,
         userId: user.id,
       },
     });
