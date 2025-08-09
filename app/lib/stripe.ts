@@ -1,10 +1,13 @@
 import Stripe from 'stripe';
 
 // Initialize Stripe with secret key
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-07-30.basil',
-  typescript: true,
-});
+export const stripe = new Stripe(
+  process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder_key_for_build',
+  {
+    apiVersion: '2025-07-30.basil',
+    typescript: true,
+  }
+);
 
 // Stripe configuration
 export const STRIPE_CONFIG = {
