@@ -152,7 +152,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
   };
 
   const handleEnable2FA = () => {
-    toast.info('2FA setup will be implemented in a future update');
+    toast('2FA setup will be implemented in a future update');
     // router.push('/profile/2fa/setup');
   };
 
