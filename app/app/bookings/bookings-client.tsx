@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
 import { Header } from '@/components/header';
 import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Car, Clock, CreditCard } from 'lucide-react';
+import { Calendar, Car, Clock, CreditCard, CheckCircle } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 interface BookingData {
@@ -84,6 +86,136 @@ const getPaymentMethodLabel = (method?: string) => {
 
 export function BookingsClient({ bookings }: BookingsClientProps) {
   const [filter, setFilter] = useState('all');
+  const router = useRouter();
+  
+  // Check for success messages from URL params
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('rescheduled')) {
+      setSuccessMessage('Booking rescheduled successfully!');
+      // Clean up URL
+      router.replace('/bookings');
+    } else if (urlParams.get('modified')) {
+      setSuccessMessage('Booking modified successfully!');
+      router.replace('/bookings');
+    } else if (urlParams.get('cancelled')) {
+      setSuccessMessage('Booking cancelled successfully!');
+      router.replace('/bookings');
+    }
+  }, [router]);
+
+  const handleViewReceipt = (bookingId: string) => {
+    // Open receipt in new window/tab
+    window.open(`/bookings/${bookingId}/receipt`, '_blank');
+  };
+
+  const handleReschedule = (bookingId: string) => {
+    router.push(`/bookings/${bookingId}/reschedule`);
+  };
+
+  const handleModify = (bookingId: string) => {
+    router.push(`/bookings/${bookingId}/modify`);
+  };
+
+  const handleLeaveReview = (bookingId: string) => {
+    router.push(`/bookings/${bookingId}/review`);
+  };
+
+  const handleCancel = async (bookingId: string) => {
+    const result = await Swal.fire({
+      title: 'Cancel Booking?',
+      text: 'Are you sure you want to cancel this booking? This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Cancel Booking',
+      cancelButtonText: 'Keep Booking',
+      reverseButtons: true,
+      allowOutsideClick: false,
+      allowEscapeKey: true,
+      buttonsStyling: true,
+      customClass: {
+        popup: 'font-sans !important',
+        title: 'text-gray-900 font-semibold !important',
+        htmlContainer: 'text-gray-600 !important',
+        confirmButton: 'swal2-confirm !important',
+        cancelButton: 'swal2-cancel !important',
+        actions: 'swal2-actions !important'
+      },
+      didOpen: () => {
+        // Ensure buttons are visible
+        const confirmBtn = document.querySelector('.swal2-confirm') as HTMLElement;
+        const cancelBtn = document.querySelector('.swal2-cancel') as HTMLElement;
+        const actionsContainer = document.querySelector('.swal2-actions') as HTMLElement;
+
+        if (confirmBtn) {
+          confirmBtn.style.display = 'inline-block';
+          confirmBtn.style.margin = '0 8px';
+        }
+        if (cancelBtn) {
+          cancelBtn.style.display = 'inline-block';
+          cancelBtn.style.margin = '0 8px';
+        }
+        if (actionsContainer) {
+          actionsContainer.style.display = 'flex';
+          actionsContainer.style.justifyContent = 'center';
+          actionsContainer.style.gap = '16px';
+        }
+      }
+    });
+
+    if (result.isConfirmed) {
+      // Show loading
+      Swal.fire({
+        title: 'Cancelling...',
+        text: 'Please wait while we cancel your booking.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      try {
+        const response = await fetch(`/api/bookings/${bookingId}/cancel`, {
+          method: 'POST',
+        });
+        
+        if (response.ok) {
+          await Swal.fire({
+            title: 'Booking Cancelled!',
+            text: 'Your booking has been successfully cancelled.',
+            icon: 'success',
+            confirmButtonColor: '#10b981',
+            confirmButtonText: 'OK'
+          });
+          router.push('/bookings?cancelled=true');
+        } else {
+          const data = await response.json();
+          await Swal.fire({
+            title: 'Cancellation Failed',
+            text: data.error || 'Failed to cancel booking. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'OK'
+          });
+        }
+      } catch (error) {
+        await Swal.fire({
+          title: 'Error',
+          text: 'An error occurred while canceling the booking. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK'
+        });
+      }
+    }
+  };
+
 
   const filteredBookings = bookings.filter((booking) => {
     switch (filter) {
@@ -112,6 +244,15 @@ export function BookingsClient({ bookings }: BookingsClientProps) {
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-gray-900">My Bookings</h1>
               <p className="text-gray-600">Manage your car wash appointments</p>
+              
+              {successMessage && (
+                <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                    <p className="text-green-800 font-medium">{successMessage}</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Booking Status Tabs */}
@@ -157,7 +298,10 @@ export function BookingsClient({ bookings }: BookingsClientProps) {
                     ? "You haven't made any bookings yet. Ready to get your car sparkling clean?"
                     : `No ${filter} bookings found.`}
                 </p>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => router.push('/book')}
+                >
                   <Calendar className="w-4 h-4 mr-2" />
                   Book New Service
                 </Button>
@@ -222,7 +366,7 @@ export function BookingsClient({ bookings }: BookingsClientProps) {
                           <CreditCard className="w-5 h-5 text-gray-400 mt-0.5" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              {formatCurrency(booking.totalAmount / 100)}
+                              {formatCurrency(booking.totalAmount)}
                             </p>
                             <p className="text-sm text-gray-500">
                               {getPaymentMethodLabel(booking.payment?.paymentMethodType ?? undefined)}
@@ -259,9 +403,9 @@ export function BookingsClient({ bookings }: BookingsClientProps) {
                         <h4 className="font-medium text-gray-900 mb-2">Service Details</h4>
                         <p className="text-sm text-gray-600 mb-2">{booking.service.description}</p>
                         <div className="flex justify-between items-center text-sm">
-                          <span>Base Service: {formatCurrency(booking.baseAmount / 100)}</span>
+                          <span>Base Service: {formatCurrency(booking.baseAmount)}</span>
                           {booking.addOnAmount > 0 && (
-                            <span>Add-ons: {formatCurrency(booking.addOnAmount / 100)}</span>
+                            <span>Add-ons: {formatCurrency(booking.addOnAmount)}</span>
                           )}
                         </div>
                       </div>
@@ -274,7 +418,7 @@ export function BookingsClient({ bookings }: BookingsClientProps) {
                             {booking.addOns.map((addOn, index) => (
                               <div key={index} className="flex justify-between text-sm">
                                 <span>{addOn.addOn.name}</span>
-                                <span>{formatCurrency(addOn.price / 100)}</span>
+                                <span>{formatCurrency(addOn.price)}</span>
                               </div>
                             ))}
                           </div>
@@ -291,24 +435,24 @@ export function BookingsClient({ bookings }: BookingsClientProps) {
 
                       {/* Actions */}
                       <div className="flex flex-wrap gap-2 pt-4 border-t">
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => handleViewReceipt(booking.id)}>
                           View Receipt
                         </Button>
                         {booking.status === 'CONFIRMED' && (
                           <>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => handleReschedule(booking.id)}>
                               Reschedule
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => handleModify(booking.id)}>
                               Modify
                             </Button>
-                            <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                            <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700" onClick={() => handleCancel(booking.id)}>
                               Cancel
                             </Button>
                           </>
                         )}
                         {booking.status === 'COMPLETED' && (
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" onClick={() => handleLeaveReview(booking.id)}>
                             Leave Review
                           </Button>
                         )}
@@ -322,7 +466,10 @@ export function BookingsClient({ bookings }: BookingsClientProps) {
             {filteredBookings.length > 0 && (
               <div className="text-center py-8">
                 <p className="text-gray-500 mb-4">Need another car wash service?</p>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => router.push('/book')}
+                >
                   <Calendar className="w-4 h-4 mr-2" />
                   Book New Service
                 </Button>

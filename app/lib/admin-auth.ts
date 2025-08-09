@@ -11,6 +11,7 @@ declare module 'next-auth' {
     role?: string;
     username?: string;
     image?: string | null;
+    twoFactorEnabled?: boolean;
   }
 
   interface Session {
@@ -22,6 +23,7 @@ declare module 'next-auth' {
       isAdmin?: boolean;
       role?: string;
       username?: string;
+      twoFactorEnabled?: boolean;
     };
   }
 }
@@ -31,6 +33,7 @@ declare module 'next-auth/jwt' {
     isAdmin?: boolean;
     role?: string;
     username?: string;
+    twoFactorEnabled?: boolean;
   }
 }
 
@@ -201,6 +204,7 @@ export const adminAuthOptions: NextAuthOptions = {
             name: adminUser.name,
             role: adminUser.role,
             username: adminUser.username,
+            twoFactorEnabled: adminUser.twoFactorEnabled,
           };
 
         } catch (error) {
@@ -220,6 +224,7 @@ export const adminAuthOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role;
         token.username = (user as any).username;
+        token.twoFactorEnabled = (user as any).twoFactorEnabled;
       }
       return token;
     },
@@ -228,6 +233,7 @@ export const adminAuthOptions: NextAuthOptions = {
         session.user.id = token.sub || '';
         session.user.role = token.role;
         session.user.username = token.username;
+        session.user.twoFactorEnabled = (token as any).twoFactorEnabled;
       }
       return session;
     }
@@ -240,6 +246,12 @@ export const adminAuthOptions: NextAuthOptions = {
 // Admin middleware function
 export async function requireAdmin(session: any): Promise<boolean> {
   return session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN';
+}
+
+export async function requireAdminWith2FA(session: any): Promise<boolean> {
+  const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN';
+  if (!isAdmin) return false;
+  return !!session?.user?.twoFactorEnabled;
 }
 
 export async function requireStaff(session: any): Promise<boolean> {

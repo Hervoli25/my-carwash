@@ -281,7 +281,7 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-yellow-400">
-                      {formatCurrency(stats.totalRevenue / 100)}
+                      {formatCurrency(stats.totalRevenue)}
                     </div>
                   </CardContent>
                 </Card>
@@ -382,7 +382,7 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
                             <td className="py-3 px-4">
                               <div className="text-sm">
                                 <div>{user.bookingCount} bookings</div>
-                                <div className="text-slate-400">{formatCurrency(user.totalSpent / 100)} spent</div>
+                                <div className="text-slate-400">{formatCurrency(user.totalSpent)} spent</div>
                                 <div className="text-yellow-400">{user.loyaltyPoints} points</div>
                               </div>
                             </td>
@@ -479,7 +479,7 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
                             </td>
                             <td className="py-3 px-4">
                               <div>
-                                <div className="font-medium">{formatCurrency(booking.totalAmount / 100)}</div>
+                                <div className="font-medium">{formatCurrency(booking.totalAmount)}</div>
                                 <div className="text-sm text-slate-400">
                                   {booking.payment?.paymentMethodType || 'N/A'}
                                 </div>

@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
         price: service.price,
         duration: service.duration,
         isActive: service.isActive,
-        imageUrl: service.imageUrl,
+        imageUrl: null, // TODO: Add imageUrl column to Service table
         category: service.category,
         promotionPrice: service.promotionPrice,
         promotionEndDate: service.promotionEndDate,
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
         duration,
         category: category || 'BASIC',
         features: [],
-        imageUrl,
+        // imageUrl, // TODO: Add imageUrl column to Service table
         isActive,
         promotionPrice: promotionPrice ? Math.round(promotionPrice * 100) : null,
         promotionEndDate: promotionEndDate ? new Date(promotionEndDate) : null

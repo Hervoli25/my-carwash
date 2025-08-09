@@ -70,7 +70,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       price: service.price,
       duration: service.duration,
       category: service.category,
-      imageUrl: service.imageUrl,
+      imageUrl: null, // TODO: Add imageUrl column to Service table
       isActive: service.isActive,
       promotionPrice: service.promotionPrice,
       promotionEndDate: service.promotionEndDate,
@@ -171,7 +171,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (price !== undefined) updateData.price = Math.round(price * 100);
     if (duration !== undefined) updateData.duration = duration;
     if (category !== undefined) updateData.category = category;
-    if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+    // if (imageUrl !== undefined) updateData.imageUrl = imageUrl; // TODO: Add imageUrl column to Service table
     if (isActive !== undefined) updateData.isActive = isActive;
     if (promotionPrice !== undefined) {
       updateData.promotionPrice = promotionPrice ? Math.round(promotionPrice * 100) : null;

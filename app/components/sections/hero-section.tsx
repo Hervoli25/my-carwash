@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Car, Shield, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TypewriterPledge } from '@/components/animations/typewriter-pledge';
 
 const carouselImages = [
   {
@@ -210,6 +211,11 @@ export function HeroSection() {
               </div>
             </div>
           </motion.div>
+        </div>
+
+        {/* Environmental Pledge Section */}
+        <div className="mt-16">
+          <TypewriterPledge className="max-w-2xl mx-auto" />
         </div>
       </div>
     </section>

@@ -60,24 +60,97 @@ export function RegistrationQR({
     generateQRCode();
   }, [registrationUrl]);
 
-  const downloadQR = () => {
-    // Implementation for downloading QR code
-    if (canvasRef.current) {
-      const link = document.createElement('a');
-      link.download = 'ekhaya-carwash-registration-qr.png';
-      link.href = canvasRef.current.toDataURL();
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+  const downloadQR = async () => {
+    // Implementation for downloading QR code with descriptive text and pricing
+    if (!canvasRef.current) return;
+    
+    // Create a larger canvas with descriptive text and pricing
+    const printCanvas = document.createElement('canvas');
+    const ctx = printCanvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Set canvas size for print version
+    printCanvas.width = 400;
+    printCanvas.height = 580;
+    
+    // Fill background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, printCanvas.width, printCanvas.height);
+    
+    // Add header text
+    ctx.fillStyle = '#1f2937';
+    ctx.font = 'bold 28px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('PRESTIGE Car Wash', 200, 40);
+    
+    ctx.font = 'bold 20px Arial';
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillText('VIP Registration', 200, 70);
+    
+    // Add QR code
+    const qrSize = 200;
+    const qrX = (printCanvas.width - qrSize) / 2;
+    const qrY = 90;
+    ctx.drawImage(canvasRef.current, qrX, qrY, qrSize, qrSize);
+    
+    // Add VIP benefits
+    ctx.fillStyle = '#16a34a';
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText('VIP BENEFITS', 200, 320);
+    
+    ctx.fillStyle = '#1f2937';
+    ctx.font = '14px Arial';
+    const benefits = [
+      '• 10% off all services',
+      '• Free monthly wash',
+      '• Priority booking',
+      '• Loyalty points & rewards',
+      '• Exclusive member events'
+    ];
+    
+    benefits.forEach((benefit, index) => {
+      ctx.fillText(benefit, 200, 345 + (index * 20));
+    });
+    
+    // Add pricing information
+    ctx.fillStyle = '#dc2626';
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText('SERVICE PRICING', 200, 470);
+    
+    ctx.fillStyle = '#1f2937';
+    ctx.font = '14px Arial';
+    const services = [
+      'Express Wash - R80',
+      'Premium Wash & Wax - R120',
+      'Deluxe Detail - R180',
+      'Executive Package - R250'
+    ];
+    
+    services.forEach((service, index) => {
+      ctx.fillText(service, 200, 495 + (index * 18));
+    });
+    
+    // Add contact info
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '12px Arial';
+    ctx.fillText('30 Lower Piers Road, Wynberg, Cape Town', 200, 565);
+    ctx.fillText('+27 78 613 2969 | Mon-Sat: 8AM-6PM, Sun: 9AM-4PM', 200, 580);
+    
+    // Download the enhanced QR code
+    const link = document.createElement('a');
+    link.download = 'prestige-carwash-vip-registration-qr.png';
+    link.href = printCanvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const shareQR = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Join Ekhaya Car Wash VIP',
-          text: 'Scan this QR code to register for exclusive VIP membership!',
+          title: 'PRESTIGE Car Wash VIP Registration',
+          text: 'Join PRESTIGE Car Wash VIP and get 10% off all services, free monthly wash, priority booking, and more! Services from R80. Located at 30 Lower Piers Road, Wynberg, Cape Town.',
           url: registrationUrl,
         });
       } catch (error) {
@@ -86,8 +159,10 @@ export function RegistrationQR({
     } else {
       // Fallback: copy URL to clipboard
       try {
-        await navigator.clipboard.writeText(registrationUrl);
-        alert('Registration URL copied to clipboard!');
+        await navigator.clipboard.writeText(
+          `Join PRESTIGE Car Wash VIP! Get 10% off, free monthly wash & more benefits.\nServices from R80.\n${registrationUrl}`
+        );
+        alert('VIP Registration link copied to clipboard!');
       } catch (error) {
         console.error('Error copying to clipboard:', error);
       }
@@ -195,18 +270,20 @@ export function RegistrationQR({
               variant="outline"
               size="sm"
               onClick={downloadQR}
-              className="px-3"
+              className="px-2 text-xs h-8"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-3 h-3 mr-1" />
+              Download
             </Button>
             
             <Button
               variant="outline"
               size="sm"
               onClick={shareQR}
-              className="px-3"
+              className="px-2 text-xs h-8"
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 className="w-3 h-3 mr-1" />
+              Share
             </Button>
           </div>
         </CardContent>

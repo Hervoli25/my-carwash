@@ -129,19 +129,19 @@ function buildTracking(booking: any, service: any) {
   };
 }
 
-export async function GET(request: NextRequest, { params }: { params: { bookingId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const bookingId = params.bookingId;
+    const bookingId = params.id;
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
-        service: true,
+        service: { select: { duration: true, name: true } },
         user: { select: { id: true, email: true } },
       },
     });

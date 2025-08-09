@@ -22,6 +22,7 @@ declare module 'next-auth' {
       isAdmin?: boolean;
       role?: string;
       username?: string;
+      twoFactorEnabled?: boolean;
     };
   }
 }
@@ -31,6 +32,7 @@ declare module 'next-auth/jwt' {
     isAdmin?: boolean;
     role?: string;
     username?: string;
+    twoFactorEnabled?: boolean;
   }
 }
 

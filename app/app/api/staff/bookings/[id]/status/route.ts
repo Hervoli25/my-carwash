@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { adminAuthOptions, requireStaff, logAdminAction } from '@/lib/admin-auth';
 import { prisma } from '@/lib/db';
 
-export async function POST(request: NextRequest, { params }: { params: { bookingId: string } }) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(adminAuthOptions);
   if (!session || !(await requireStaff(session))) {
     // avoid revealing the endpoint
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest, { params }: { params: { booking
   }
 
   try {
-    const { bookingId } = params;
+    const { id: bookingId } = params;
     const form = await request.formData();
     const status = String(form.get('status') || '');
 

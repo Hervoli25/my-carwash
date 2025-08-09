@@ -18,6 +18,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -29,6 +30,7 @@ export default function SignInPage() {
         email,
         password,
         redirect: false,
+        rememberMe: rememberMe.toString(),
       });
 
       if (result?.error) {
@@ -116,7 +118,7 @@ export default function SignInPage() {
                       onClick={() => setShowPassword((prev) => !prev)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      aria-pressed={showPassword ? 'true' : 'false'}
+                      aria-pressed={showPassword}
                     >
                       {showPassword ? (
                         <EyeOff className="w-4 h-4" />
@@ -124,6 +126,28 @@ export default function SignInPage() {
                         <Eye className="w-4 h-4" />
                       )}
                     </button>
+                  </div>
+                </div>
+
+                {/* Remember Me Checkbox */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <input
+                      id="remember-me"
+                      name="remember-me"
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                      Remember me
+                    </label>
+                  </div>
+                  <div className="text-sm">
+                    <Link href="/auth/forgot-password" className="text-blue-600 hover:text-blue-700">
+                      Forgot password?
+                    </Link>
                   </div>
                 </div>
 

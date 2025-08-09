@@ -1,5 +1,5 @@
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, ServiceCategory, NotificationType, PaymentMethodType } from '@prisma/client';
 import bcryptjs from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -31,83 +31,88 @@ async function main() {
 
     console.log('✅ Created test user:', testUser.email);
 
-    // Create services based on wireframes
+    // Create services based on realistic car wash pricing
     const services = [
       {
-        name: 'Express Exterior Wash',
+        name: 'Thunder Wash & Vacuum',
         description: 'Quick clean for busy lifestyles! Our professional team provides regular maintenance for your vehicle.',
-        shortDesc: 'Exterior rinse, soap application, high-pressure wash, spot-free rinse, air dry',
-        price: 8000, // R80 in cents
+        shortDesc: 'Exterior rinse, soap application, high-pressure wash, spot-free rinse, air dry, vacuum',
+        price: 19000, // R190 in cents (average of small to large cars)
         duration: 30,
-        category: 'EXPRESS',
+        category: ServiceCategory.EXPRESS,
         features: [
           'Exterior rinse',
           'Soap application',
           'High-pressure wash', 
           'Spot-free rinse',
-          'Air dry'
+          'Air dry',
+          'Interior vacuum'
         ],
         rating: 4.9,
         reviewCount: 6904,
+        imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&crop=center',
       },
       {
-        name: 'Premium Wash & Wax',
-        description: 'Premium car care with productive customer lounge experience. Extended protection for frequent drivers.',
-        shortDesc: 'Complete wash, wax protection, tire shine, interior vacuum, trim protection',
-        price: 15000, // R150 in cents
-        duration: 60,
-        category: 'PREMIUM',
+        name: 'Classic Wash & Wax Express',
+        description: 'Premium car care with express wax protection. Perfect for frequent drivers who want lasting shine.',
+        shortDesc: 'Complete wash, vacuum plus express wax protection for enhanced shine',
+        price: 24000, // R240 in cents (average pricing)
+        duration: 45,
+        category: ServiceCategory.PREMIUM,
         features: [
           'Pre-rinse',
           'Soap application',
-          'Contact & wax protection',
+          'Express wax protection',
           'Professional drying',
           'Tire shine',
           'Interior vacuum',
           'Trim protection',
-          'Wheels & cleaning'
+          'Wheels cleaning'
         ],
         rating: 4.8,
         reviewCount: 367,
+        imageUrl: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=400&h=300&fit=crop&crop=center',
       },
       {
-        name: 'Deluxe Interior & Exterior',
-        description: 'Comprehensive interior and exterior cleaning service for complete vehicle care.',
-        shortDesc: 'Full interior and exterior cleaning with premium treatments',
-        price: 20000, // R200 in cents
-        duration: 90,
-        category: 'DELUXE',
+        name: 'Supreme Wash & Polish',
+        description: 'Comprehensive wash and premium wax polish service for superior protection and shine.',
+        shortDesc: 'Complete wash, vacuum plus premium radiant wax polish treatment',
+        price: 35000, // R350 in cents (average pricing)
+        duration: 60,
+        category: ServiceCategory.DELUXE,
         features: [
           'Complete exterior wash',
-          'Interior deep clean',
+          'Premium radiant wax polish',
+          'Interior vacuum',
           'Dashboard treatment',
-          'Leather conditioning',
-          'Window cleaning',
-          'Vacuum cleaning',
+          'Window cleaning inside & out',
+          'Tire shine treatment',
           'Air freshener'
         ],
         rating: 4.7,
         reviewCount: 892,
+        imageUrl: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=400&h=300&fit=crop&crop=center',
       },
       {
-        name: 'Executive Detail Package',
-        description: 'The ultimate car detailing experience with premium treatments and finishing.',
-        shortDesc: 'Complete detailing service with premium treatments and protection',
-        price: 30000, // R300 in cents
+        name: 'Ultimate Detail Experience',
+        description: 'The ultimate car detailing experience with clay bar treatment and premium machine buffing.',
+        shortDesc: 'Complete detailing with clay bar treatment, machine buff and premium HD wax',
+        price: 55000, // R550 in cents (average pricing)
         duration: 120,
-        category: 'EXECUTIVE',
+        category: ServiceCategory.EXECUTIVE,
         features: [
-          'Premium exterior detailing',
-          'Complete interior detailing',
-          'Paint protection',
+          'Complete exterior wash',
+          'Clay bar treatment',
+          'Machine buffing',
+          'Premium HD wax finish',
+          'Interior deep clean',
           'Leather conditioning',
           'Engine bay cleaning',
-          'Tire treatment',
-          'Premium wax finish',
           'Quality inspection'
         ],
         rating: 4.9,
         reviewCount: 1543,
+        imageUrl: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=300&fit=crop&crop=center',
       },
     ];
 
@@ -122,49 +127,56 @@ async function main() {
       console.log(`✅ Created service: ${service.name}`);
     }
 
-    // Create service add-ons
+    // Create service add-ons with realistic pricing
+    const createdAddOns = [];
     const addOns = [
       {
-        serviceId: createdServices[0].id, // Express
-        name: 'Interior vacuum',
-        description: 'Complete interior vacuum cleaning',
-        price: 2000, // R20
-      },
-      {
-        serviceId: createdServices[0].id, // Express
-        name: 'Tire shine',
-        description: 'Professional tire shine treatment',
-        price: 1500, // R15
-      },
-      {
-        serviceId: createdServices[0].id, // Express
-        name: 'Air freshener',
-        description: 'Premium air freshener application',
-        price: 1000, // R10
-      },
-      {
-        serviceId: createdServices[1].id, // Premium
-        name: 'Leather Conditioning',
-        description: 'Professional leather conditioning treatment',
-        price: 4000, // R40
-      },
-      {
-        serviceId: createdServices[1].id, // Premium
-        name: 'Engine cleaning',
-        description: 'Engine bay cleaning and detailing',
+        serviceId: createdServices[0].id, // Thunder Wash
+        name: 'Premium Tire Shine',
+        description: 'Professional tire shine and sidewall treatment',
         price: 5000, // R50
       },
       {
-        serviceId: createdServices[1].id, // Premium
-        name: 'Wheel cleaning',
-        description: 'Specialized wheel and rim cleaning',
-        price: 2500, // R25
+        serviceId: createdServices[0].id, // Thunder Wash
+        name: 'Dashboard Treatment',
+        description: 'Dashboard cleaning and UV protection treatment',
+        price: 4000, // R40
       },
       {
-        serviceId: createdServices[1].id, // Premium
-        name: 'Complete waxing',
-        description: 'Full vehicle wax protection',
-        price: 10000, // R100
+        serviceId: createdServices[0].id, // Thunder Wash
+        name: 'Premium Air Freshener',
+        description: 'Long-lasting premium air freshener application',
+        price: 3000, // R30
+      },
+      {
+        serviceId: createdServices[1].id, // Classic Wash & Wax
+        name: 'Leather Conditioning',
+        description: 'Professional leather conditioning and protection treatment',
+        price: 8000, // R80
+      },
+      {
+        serviceId: createdServices[1].id, // Classic Wash & Wax
+        name: 'Engine Bay Cleaning',
+        description: 'Complete engine bay cleaning and detailing service',
+        price: 12000, // R120
+      },
+      {
+        serviceId: createdServices[1].id, // Classic Wash & Wax
+        name: 'Premium Wheel Detail',
+        description: 'Specialized wheel and rim cleaning with protection coating',
+        price: 7000, // R70
+      },
+      {
+        serviceId: createdServices[2].id, // Supreme Wash & Polish
+        name: 'Headlight Restoration',
+        description: 'Professional headlight restoration service',
+        price: 15000, // R150
+      },
+      {
+        serviceId: createdServices[3].id, // Ultimate Detail
+        name: 'Paint Protection Treatment',
+        description: 'Advanced paint protection and ceramic coating application',
+        price: 25000, // R250
       },
     ];
 
@@ -177,10 +189,13 @@ async function main() {
       });
 
       if (!existingAddOn) {
-        await prisma.serviceAddOn.create({
+        const createdAddOn = await prisma.serviceAddOn.create({
           data: addOn,
         });
+        createdAddOns.push(createdAddOn);
         console.log(`✅ Created add-on: ${addOn.name}`);
+      } else {
+        createdAddOns.push(existingAddOn);
       }
     }
 
@@ -188,19 +203,27 @@ async function main() {
     const existingVehicle = await prisma.vehicle.findFirst({
       where: {
         userId: testUser.id,
-        licensePlate: 'CA 123 GP'
+        licensePlate: 'CA632JJ'
       }
     });
 
-    const testVehicle = existingVehicle || await prisma.vehicle.create({
-      data: {
+    const testVehicle = await prisma.vehicle.upsert({
+      where: { licensePlate: 'CA632JJ' },
+      update: {
+        make: 'BYD',
+        model: 'SUV',
+        year: 2024,
+        color: 'Blue',
+        vehicleType: 'SUV',
+      },
+      create: {
         userId: testUser.id,
-        make: 'Toyota',
-        model: 'Corolla',
-        year: 2020,
-        color: 'Silver',
-        licensePlate: 'CA 123 GP',
-        vehicleType: 'SEDAN',
+        make: 'BYD',
+        model: 'SUV',
+        year: 2024,
+        color: 'Blue',
+        licensePlate: 'CA632JJ',
+        vehicleType: 'SUV',
         isPrimary: true,
       },
     });
@@ -209,7 +232,7 @@ async function main() {
 
     // Create sample bookings
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setDate(tomorrow.getDate() + 3); // 3 days from now
     
     const sampleBooking = await prisma.booking.upsert({
       where: { id: 'sample-booking-1' },
@@ -217,18 +240,50 @@ async function main() {
       create: {
         id: 'sample-booking-1',
         userId: testUser.id,
-        serviceId: createdServices[1].id, // Premium service
+        serviceId: createdServices[0].id, // Express Exterior Wash (8000 cents = R80)
         vehicleId: testVehicle.id,
         bookingDate: tomorrow,
-        timeSlot: '10:00 AM',
+        timeSlot: '11:30',
         status: 'CONFIRMED',
-        totalAmount: 15000,
-        baseAmount: 15000,
-        addOnAmount: 0,
+        totalAmount: 10500, // R80 + R20 + R5 = R105
+        baseAmount: 8000,   // R80 for Express Wash
+        addOnAmount: 2500,  // R20 + R5 = R25
+        notes: 'Please pay attention to the interior as well.',
       },
     });
 
-    console.log('✅ Created sample booking');
+    // Create booking add-ons for this booking
+    const bookingAddOns = [
+      {
+        bookingId: sampleBooking.id,
+        addOnId: createdAddOns[0].id, // Interior vacuum - R20
+        quantity: 1,
+        price: 2000, // R20 in cents
+      },
+      {
+        bookingId: sampleBooking.id,
+        addOnId: createdAddOns[2].id, // Air freshener - R10
+        quantity: 1,
+        price: 1000, // R10 in cents
+      },
+    ];
+
+    for (const bookingAddOn of bookingAddOns) {
+      const existing = await prisma.bookingAddOn.findFirst({
+        where: {
+          bookingId: bookingAddOn.bookingId,
+          addOnId: bookingAddOn.addOnId,
+        },
+      });
+      
+      if (!existing) {
+        await prisma.bookingAddOn.create({
+          data: bookingAddOn,
+        });
+      }
+    }
+
+    console.log('✅ Created sample booking with add-ons');
 
     // Create sample reviews
     const reviews = [
@@ -269,25 +324,25 @@ async function main() {
         userId: testUser.id,
         title: 'Premium Wash',
         message: 'Your booking for Apr 25, 2024 at 10:00 AM is confirmed.',
-        type: 'BOOKING',
+        type: NotificationType.BOOKING,
       },
       {
         userId: testUser.id,
         title: 'Update on account settings updated',
         message: 'Your account settings have been successfully updated.',
-        type: 'SYSTEM',
+        type: NotificationType.SYSTEM,
       },
       {
         userId: testUser.id,
         title: 'Special promotion',
         message: 'Get 20% off your next premium service!',
-        type: 'PROMOTION',
+        type: NotificationType.PROMOTION,
       },
       {
         userId: testUser.id,
         title: 'Reminder: car wash',
         message: 'Don\'t forget your upcoming car wash appointment.',
-        type: 'REMINDER',
+        type: NotificationType.REMINDER,
       },
     ];
 
@@ -303,7 +358,7 @@ async function main() {
     const paymentMethods = [
       {
         userId: testUser.id,
-        type: 'STRIPE_CARD',
+        type: PaymentMethodType.STRIPE_CARD,
         lastFour: '4532',
         expiryMonth: 12,
         expiryYear: 25,
@@ -315,7 +370,7 @@ async function main() {
       },
       {
         userId: testUser.id,
-        type: 'STRIPE_CARD',
+        type: PaymentMethodType.STRIPE_CARD,
         lastFour: '8901',
         expiryMonth: 8,
         expiryYear: 25,

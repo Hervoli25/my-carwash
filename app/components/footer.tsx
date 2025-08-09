@@ -172,54 +172,115 @@ export function Footer() {
                 </div>
 
                 {/* Actions: Download / Share */}
-                <div className="flex items-center justify-center gap-3 pt-1">
+                <div className="flex items-center justify-center gap-2 pt-1">
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => {
-                      const container = document.querySelector('#footer-qr-container');
-                      const canvas = container?.querySelector('canvas') as HTMLCanvasElement | null;
-                      if (!canvas) return;
-                      const link = document.createElement('a');
-                      link.href = canvas.toDataURL('image/png');
-                      link.download = 'ekhaya-qr.png';
-                      link.click();
-                    }}
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download QR
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
+                    className="text-xs px-2 py-1 h-8 min-w-0 flex-1"
                     onClick={async () => {
                       const container = document.querySelector('#footer-qr-container');
                       const canvas = container?.querySelector('canvas') as HTMLCanvasElement | null;
                       if (!canvas) return;
-                      const dataUrl = canvas.toDataURL('image/png');
-                      const res = await fetch(dataUrl);
-                      const blob = await res.blob();
-                      const file = new File([blob], 'ekhaya-qr.png', { type: 'image/png' });
-
-                      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                      
+                      // Create a larger canvas with descriptive text and pricing
+                      const printCanvas = document.createElement('canvas');
+                      const ctx = printCanvas.getContext('2d');
+                      if (!ctx) return;
+                      
+                      // Set canvas size for print version
+                      printCanvas.width = 400;
+                      printCanvas.height = 520;
+                      
+                      // Fill background
+                      ctx.fillStyle = '#ffffff';
+                      ctx.fillRect(0, 0, printCanvas.width, printCanvas.height);
+                      
+                      // Add header text
+                      ctx.fillStyle = '#1f2937';
+                      ctx.font = 'bold 24px Arial';
+                      ctx.textAlign = 'center';
+                      ctx.fillText('PRESTIGE Car Wash', 200, 40);
+                      
+                      ctx.font = 'bold 18px Arial';
+                      ctx.fillStyle = '#3b82f6';
+                      ctx.fillText('Quick Registration', 200, 65);
+                      
+                      // Add QR code
+                      const qrSize = 200;
+                      const qrX = (printCanvas.width - qrSize) / 2;
+                      const qrY = 80;
+                      ctx.drawImage(canvas, qrX, qrY, qrSize, qrSize);
+                      
+                      // Add pricing information
+                      ctx.fillStyle = '#1f2937';
+                      ctx.font = 'bold 16px Arial';
+                      ctx.fillText('Our Services & Pricing', 200, 320);
+                      
+                      ctx.font = '14px Arial';
+                      const services = [
+                        'Express Wash - R80',
+                        'Premium Wash & Wax - R120',
+                        'Deluxe Detail - R180',
+                        'Executive Package - R250'
+                      ];
+                      
+                      services.forEach((service, index) => {
+                        ctx.fillText(service, 200, 345 + (index * 20));
+                      });
+                      
+                      // Add call to action
+                      ctx.fillStyle = '#16a34a';
+                      ctx.font = 'bold 16px Arial';
+                      ctx.fillText('Scan to Register & Get 10% Off!', 200, 450);
+                      
+                      // Add contact info
+                      ctx.fillStyle = '#6b7280';
+                      ctx.font = '12px Arial';
+                      ctx.fillText('30 Lower Piers Road, Wynberg, Cape Town', 200, 475);
+                      ctx.fillText('+27 78 613 2969', 200, 495);
+                      ctx.fillText('Mon-Sat: 8AM-6PM, Sun: 9AM-4PM', 200, 510);
+                      
+                      // Download the enhanced QR code
+                      const link = document.createElement('a');
+                      link.href = printCanvas.toDataURL('image/png');
+                      link.download = 'prestige-carwash-registration-qr.png';
+                      link.click();
+                    }}
+                  >
+                    <Download className="w-3 h-3 mr-1" />
+                    Download
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs px-2 py-1 h-8 min-w-0 flex-1"
+                    onClick={async () => {
+                      if (typeof navigator !== 'undefined' && navigator.share) {
                         try {
                           await navigator.share({
-                            title: 'Ekhaya QR',
-                            text: 'Scan to register for Ekhaya Car Wash',
-                            files: [file]
+                            title: 'PRESTIGE Car Wash - Quick Registration',
+                            text: 'Scan this QR code to register for PRESTIGE Car Wash and get 10% off your first service! Services from R80. Located at 30 Lower Piers Road, Wynberg, Cape Town.',
+                            url: registrationUrl
                           });
                           return;
                         } catch (e) {
                           // fall through to fallback
                         }
                       }
-
-                      // Fallback: open image directly in a new tab for manual save/share
-                      window.open(dataUrl, '_blank');
+                      
+                      // Fallback: copy URL to clipboard
+                      try {
+                        await navigator.clipboard.writeText(
+                          `Register for PRESTIGE Car Wash and get 10% off! Services from R80.\n${registrationUrl}`
+                        );
+                        alert('Registration link copied to clipboard!');
+                      } catch (e) {
+                        window.open(registrationUrl, '_blank');
+                      }
                     }}
                   >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Share QR
+                    <Share2 className="w-3 h-3 mr-1" />
+                    Share
                   </Button>
                 </div>
 
