@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { adminAuthOptions, requireAdmin } from '@/lib/admin-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import speakeasy from 'speakeasy';
 import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(adminAuthOptions);
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isAdmin = await requireAdmin(session);
+    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN';
     if (!isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }

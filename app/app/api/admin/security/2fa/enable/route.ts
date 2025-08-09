@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { adminAuthOptions, requireAdmin, logAdminAction } from '@/lib/admin-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import speakeasy from 'speakeasy';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(adminAuthOptions);
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isAdmin = await requireAdmin(session);
+    const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN';
     if (!isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
@@ -66,20 +66,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Log this critical security action
-    try {
-      await logAdminAction(
-        session.user.id,
-        'ENABLE_2FA',
-        'ADMIN_SECURITY',
-        session.user.id,
-        { twoFactorEnabled: false },
-        { twoFactorEnabled: true },
-        'system',
-        'Admin portal'
-      );
-    } catch (logError) {
-      console.warn('Failed to log 2FA enable action:', logError);
-    }
+    console.log(`✅ 2FA enabled for admin user: ${session.user.username} (${session.user.id})`);
 
     return NextResponse.json({
       success: true,
