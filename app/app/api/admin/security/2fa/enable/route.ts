@@ -72,7 +72,13 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Enterprise 2FA successfully enabled',
       securityLevel: 'MAXIMUM',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      user: {
+        id: session.user.id,
+        username: session.user.username,
+        twoFactorEnabled: true,
+        role: session.user.role
+      }
     });
 
   } catch (error) {

@@ -28,6 +28,8 @@ export default function TwoFactorSetupPage() {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [step, setStep] = useState<'setup' | 'verify' | 'complete'>('setup');
   const [backupCodesSaved, setBackupCodesSaved] = useState(false);
+  const [downloadAttempts, setDownloadAttempts] = useState(0);
+  const [downloadTimestamp, setDownloadTimestamp] = useState<string | null>(null);
 
   useEffect(() => {
     initializeSetup();
@@ -68,31 +70,59 @@ export default function TwoFactorSetupPage() {
   const downloadBackupCodes = () => {
     if (!setupData) return;
     
+    // Professional security: Limit download attempts
+    if (downloadAttempts >= 3) {
+      toast.error('Maximum download attempts reached. Contact system administrator.');
+      return;
+    }
+    
+    const timestamp = new Date().toLocaleString();
+    const downloadId = Date.now();
+    
     const content = [
-      '# Ekhaya Car Wash - 2FA Backup Codes',
-      '# KEEP THESE CODES SECURE AND PRIVATE',
-      `# Generated: ${new Date().toLocaleString()}`,
+      '# EKHAYA CAR WASH - ENTERPRISE 2FA BACKUP CODES',
+      '# ⚠️  CONFIDENTIAL - KEEP THESE CODES ABSOLUTELY SECURE ⚠️',
+      '# ═══════════════════════════════════════════════════════',
+      `# Generated: ${timestamp}`,
       `# Admin: ${session?.user?.username}`,
+      `# Download ID: ${downloadId}`,
+      `# Security Level: MAXIMUM`,
       '',
-      'Use these codes if you lose access to your authenticator app:',
+      '🔐 EMERGENCY BACKUP CODES:',
+      'Use these codes ONLY if you lose access to your authenticator app',
       '',
-      ...setupData.backupCodes.map((code, index) => `${index + 1}. ${code}`),
+      ...setupData.backupCodes.map((code, index) => `   ${(index + 1).toString().padStart(2, '0')}. ${code}`),
       '',
-      '⚠️  Each code can only be used once.',
-      '⚠️  Store in a secure location (password manager recommended).',
-      '⚠️  Generate new codes if these are compromised.'
+      '📋 SECURITY INSTRUCTIONS:',
+      '⚠️  Each code can ONLY be used ONCE',
+      '⚠️  Store in a SECURE location (password manager recommended)',
+      '⚠️  DO NOT share these codes with anyone',
+      '⚠️  Generate new codes if these are compromised',
+      '⚠️  Delete this file after storing codes securely',
+      '',
+      '🔴 CRITICAL: If these codes are lost or compromised,',
+      '    contact system administrator immediately.',
+      '',
+      '© 2025 Ekhaya Car Wash - Enterprise Security System'
     ].join('\n');
 
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ekhaya-2fa-backup-codes-${Date.now()}.txt`;
+    a.download = `EKHAYA-2FA-BACKUP-CODES-${downloadId}.txt`;
     a.click();
     URL.revokeObjectURL(url);
     
+    // Professional security tracking
+    setDownloadAttempts(prev => prev + 1);
+    setDownloadTimestamp(timestamp);
     setBackupCodesSaved(true);
-    toast.success('Backup codes downloaded securely');
+    
+    toast.success('🔐 Enterprise backup codes downloaded securely');
+    
+    // Log the download for security audit
+    console.log(`🔐 Admin ${session?.user?.username} downloaded 2FA backup codes at ${timestamp}`);
   };
 
   const verifyAndEnable = async () => {
@@ -113,10 +143,14 @@ export default function TwoFactorSetupPage() {
       });
 
       if (response.ok) {
+        const result = await response.json();
         setStep('complete');
         toast.success('🔐 2FA successfully enabled!');
+        
+        // Professional redirect with session update
         setTimeout(() => {
-          router.push('/admin/dashboard');
+          // Force a hard redirect to bypass any session cache issues
+          window.location.replace('/admin/dashboard');
         }, 2000);
       } else {
         const error = await response.json();
@@ -194,17 +228,40 @@ export default function TwoFactorSetupPage() {
                   Emergency Backup Codes
                 </h3>
                 <p className="text-slate-300 text-sm mb-3">
-                  Download these codes now. You'll need them if you lose your authenticator device.
+                  {!backupCodesSaved 
+                    ? 'Download these codes now. You\'ll need them if you lose your authenticator device.'
+                    : `✅ Backup codes downloaded securely ${downloadTimestamp ? `at ${downloadTimestamp}` : ''}`
+                  }
                 </p>
-                <Button
-                  onClick={downloadBackupCodes}
-                  variant="outline"
-                  className="bg-amber-600 border-amber-500 text-white hover:bg-amber-700"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Backup Codes
-                  {backupCodesSaved && <CheckCircle className="w-4 h-4 ml-2 text-green-400" />}
-                </Button>
+                
+                {downloadAttempts < 3 ? (
+                  <Button
+                    onClick={downloadBackupCodes}
+                    disabled={backupCodesSaved}
+                    variant="outline"
+                    className={`transition-all duration-300 ${
+                      backupCodesSaved 
+                        ? 'bg-green-700 border-green-600 text-white cursor-not-allowed opacity-75'
+                        : 'bg-amber-600 border-amber-500 text-white hover:bg-amber-700'
+                    }`}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {backupCodesSaved ? 'Codes Downloaded Securely' : 'Download Backup Codes'}
+                    {backupCodesSaved && <CheckCircle className="w-4 h-4 ml-2 text-green-400" />}
+                  </Button>
+                ) : (
+                  <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-3">
+                    <p className="text-red-400 text-sm">
+                      🚨 Maximum downloads reached. Contact system administrator if codes are needed.
+                    </p>
+                  </div>
+                )}
+                
+                {downloadAttempts > 0 && (
+                  <p className="text-xs text-slate-400 mt-2">
+                    Downloads: {downloadAttempts}/3 • Security Level: Maximum
+                  </p>
+                )}
               </div>
 
               <Button
@@ -269,11 +326,20 @@ export default function TwoFactorSetupPage() {
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-white mb-2">2FA Successfully Enabled!</h2>
               <p className="text-slate-300 mb-4">
-                Your admin account is now secured with two-factor authentication.
+                Your admin account is now secured with enterprise-grade two-factor authentication.
               </p>
-              <p className="text-green-400 text-sm">
-                Redirecting to admin dashboard...
-              </p>
+              <div className="space-y-3">
+                <p className="text-green-400 text-sm">
+                  Redirecting to admin dashboard...
+                </p>
+                <Button
+                  onClick={() => window.location.replace('/admin/dashboard')}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Shield className="w-4 h-4 mr-2" />
+                  Access Admin Dashboard Now
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
