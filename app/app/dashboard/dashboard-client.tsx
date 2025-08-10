@@ -23,6 +23,12 @@ interface DashboardData {
     totalServices: number;
     moneySaved: number;
     carbonFootprint: number;
+    profileCompletion: number;
+    profileFields: {
+      total: number;
+      completed: number;
+      missing: number;
+    };
   };
 }
 
