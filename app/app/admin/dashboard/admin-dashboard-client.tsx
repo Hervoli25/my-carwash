@@ -122,66 +122,7 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
     }
   };
 
-  const handleUserAction = async (userId: string, action: string) => {
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
-      });
 
-      if (response.ok) {
-        fetchDashboardData(); // Refresh data
-      }
-    } catch (error) {
-      console.error('User action failed:', error);
-    }
-  };
-
-  const sendPasswordReset = async (email: string) => {
-    try {
-      const response = await fetch('/api/admin/password-reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-
-      if (response.ok) {
-        alert('Password reset email sent successfully');
-      }
-    } catch (error) {
-      console.error('Password reset failed:', error);
-    }
-  };
-
-  const exportData = async () => {
-    try {
-      const response = await fetch('/api/admin/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          type: 'full_export',
-          format: 'csv' 
-        })
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `ekhaya-carwash-export-${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        alert('Data exported successfully!');
-      } else {
-        alert('Export failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Export failed:', error);
-      alert('Export failed. Please try again.');
-    }
-  };
 
   const performDBBackup = async () => {
     const result = await Swal.fire({
@@ -321,7 +262,7 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
                 <div class="bg-yellow-50 p-4 rounded-lg">
                   <h4 class="font-semibold text-yellow-900 mb-3">Registered Vehicles</h4>
                   <div class="space-y-2 text-sm">
-                    ${user.vehicles.map(vehicle => `
+                    ${user.vehicles.map((vehicle: any) => `
                       <div class="flex justify-between">
                         <span>${vehicle.make} ${vehicle.model} (${vehicle.year})</span>
                         <span class="text-gray-600">${vehicle.licensePlate}</span>
@@ -373,33 +314,7 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
     }
   };
 
-  const editUser = async (userId: string) => {
-    // For now, redirect to user management with the user selected
-    // Later we can implement inline editing or a modal
-    const newName = prompt('Enter new name for user:');
-    if (newName && newName.trim()) {
-      try {
-        const response = await fetch(`/api/admin/users/${userId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            action: 'update',
-            name: newName.trim()
-          })
-        });
 
-        if (response.ok) {
-          alert('User updated successfully!');
-          fetchDashboardData(); // Refresh data
-        } else {
-          alert('Failed to update user. Please try again.');
-        }
-      } catch (error) {
-        console.error('User update failed:', error);
-        alert('Failed to update user. Please try again.');
-      }
-    }
-  };
 
   const deleteUser = async (userId: string) => {
     const user = users.find(u => u.id === userId);
@@ -1278,7 +1193,7 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
           <div class="bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">
             <p class="text-sm text-yellow-800"><strong>Customer:</strong> ${booking.user?.name || booking.user?.email}</p>
             <p class="text-sm text-yellow-800"><strong>Service:</strong> ${booking.service?.name}</p>
-            <p class="text-sm text-yellow-800"><strong>Date:</strong> ${new Date(booking.scheduledDate).toLocaleDateString()}</p>
+            <p class="text-sm text-yellow-800"><strong>Date:</strong> ${new Date(booking.bookingDate).toLocaleDateString()}</p>
           </div>
           <p class="mt-3 text-sm text-gray-600">The customer will be notified of the cancellation.</p>
         </div>
