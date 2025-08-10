@@ -78,14 +78,26 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Find or create service
+    // Find or create service - try exact name match first, then fallback to key mapping
     let service = await prisma.service.findFirst({
-      where: { name: { contains: data.serviceType, mode: 'insensitive' } }
+      where: { 
+        OR: [
+          { name: { equals: data.serviceType, mode: 'insensitive' } },
+          { name: { contains: data.serviceType, mode: 'insensitive' } }
+        ]
+      }
     });
 
     if (!service) {
+      // Map service name to key for getServiceData function
+      const serviceKey = mapServiceNameToKey(data.serviceType);
+      console.log('🔄 Service mapping:', { 
+        originalServiceType: data.serviceType, 
+        mappedKey: serviceKey 
+      });
+      
       // Create service if doesn't exist
-      const serviceData = getServiceData(data.serviceType);
+      const serviceData = getServiceData(serviceKey);
       const categoryValue = ServiceCategory[serviceData.category as keyof typeof ServiceCategory] ?? ServiceCategory.EXPRESS;
       service = await prisma.service.create({
         data: {
@@ -98,6 +110,10 @@ export async function POST(request: NextRequest) {
           features: serviceData.features,
         }
       });
+      
+      console.log('✅ Service created:', { id: service.id, name: service.name });
+    } else {
+      console.log('✅ Service found:', { id: service.id, name: service.name });
     }
 
     // Calculate total amount (convert from Rand to cents)
@@ -233,6 +249,40 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
+}
+
+function mapServiceNameToKey(serviceName: string): string {
+  const nameToKeyMap = {
+    'Express Exterior Wash': 'express',
+    'Express Wash': 'express',
+    'Express': 'express',
+    'Premium Wash & Wax': 'premium',
+    'Premium Wash': 'premium',
+    'Premium': 'premium',
+    'Deluxe Interior & Exterior': 'deluxe',
+    'Deluxe Package': 'deluxe',
+    'Deluxe': 'deluxe',
+    'Executive Detail Package': 'executive',
+    'Executive Detail': 'executive',
+    'Executive': 'executive'
+  };
+
+  // Try exact match first
+  for (const [name, key] of Object.entries(nameToKeyMap)) {
+    if (serviceName.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(serviceName.toLowerCase())) {
+      return key;
+    }
+  }
+
+  // Fallback to keyword matching
+  const lowerServiceName = serviceName.toLowerCase();
+  if (lowerServiceName.includes('express')) return 'express';
+  if (lowerServiceName.includes('premium')) return 'premium';
+  if (lowerServiceName.includes('deluxe')) return 'deluxe';
+  if (lowerServiceName.includes('executive')) return 'executive';
+
+  // Default fallback
+  return 'express';
 }
 
 function getServiceData(serviceType: string) {
