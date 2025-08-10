@@ -51,12 +51,16 @@ export async function GET(request: NextRequest) {
 
     // Fetch notifications
     const notifications = await prisma.notification.findMany({
-      where: { userId: session.user.id },
+      where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
       take: 10,
     });
 
-    console.log('📊 Fetched bookings:', bookings.length);
+    console.log('📊 Fetched data:', { 
+      bookings: bookings.length, 
+      notifications: notifications.length,
+      userId: user.id 
+    });
 
     // Calculate stats
     const totalBookings = await prisma.booking.count({
