@@ -6,8 +6,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(cents: number): string {
-  return `R${(cents / 100).toFixed(0)}`;
+export function formatCurrency(amount: number): string {
+  // Always assume the amount is in cents and convert to rands
+  // For membership prices: 4900 cents = R49, 9900 cents = R99, 19900 cents = R199
+  const rands = Math.round(amount / 100);
+  return `R${rands}`;
 }
 
 export function formatDate(date: Date): string {

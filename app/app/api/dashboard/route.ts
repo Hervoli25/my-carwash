@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
     const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
     
     // Admin override for Herve - give him Elite membership if he doesn't have one
-    const isAdmin = user.email === 'herve@ekhayaintel.co.za';
+    const isAdmin = user.email === 'hervetshombe@gmail.com';
     let membershipData = user.membership;
     
     if (isAdmin && !membershipData) {

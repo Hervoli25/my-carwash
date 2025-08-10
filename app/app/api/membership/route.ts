@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         autoRenew: user.membership.autoRenew,
         price: user.membership.price
       } : null,
-      isAdmin: user.email === 'herve@ekhayaintel.co.za'
+      isAdmin: user.email === 'hervetshombe@gmail.com'
     });
 
   } catch (error) {
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Admin gets free membership
-    const isAdmin = user.email === 'herve@ekhayaintel.co.za';
+    const isAdmin = user.email === 'hervetshombe@gmail.com';
     
     const planPrices = {
       BASIC: 4900,
@@ -194,7 +194,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Admin memberships cannot be cancelled this way
-    const isAdmin = user.email === 'herve@ekhayaintel.co.za';
+    const isAdmin = user.email === 'hervetshombe@gmail.com';
     if (isAdmin) {
       return NextResponse.json({ 
         error: 'Admin membership cannot be cancelled' 

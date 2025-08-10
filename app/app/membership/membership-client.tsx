@@ -240,7 +240,7 @@ export function MembershipClient() {
                       <CreditCard className="w-5 h-5 text-amber-600" />
                       <div>
                         <p className="font-medium text-amber-900">
-                          {data.currentMembership.price === 0 ? 'FREE' : formatCurrency(data.currentMembership.price / 100)}/month
+                          {data.currentMembership.price === 0 ? 'FREE' : formatCurrency(data.currentMembership.price)}/month
                         </p>
                         <p className="text-sm text-amber-700">
                           {data.currentMembership.autoRenew ? 'Auto-renew enabled' : 'Manual renewal'}
@@ -301,7 +301,7 @@ export function MembershipClient() {
                       <div className="text-center mb-6">
                         <div className="text-3xl font-bold text-gray-900">
                           {data.isAdmin && plan.id === data.currentMembership?.plan ? 
-                            'FREE' : formatCurrency(plan.price / 100)
+                            'FREE' : formatCurrency(plan.price)
                           }
                         </div>
                         <p className="text-gray-600">per month</p>

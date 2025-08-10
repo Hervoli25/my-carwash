@@ -130,7 +130,7 @@ export function DashboardClient() {
             <MembershipBenefits 
               membership={data.user.membership} 
               stats={data.stats}
-              isAdmin={session?.user?.email === 'herve@ekhayaintel.co.za'} 
+              isAdmin={session?.user?.email === 'hervetshombe@gmail.com'} 
             />
           </div>
         </div>
