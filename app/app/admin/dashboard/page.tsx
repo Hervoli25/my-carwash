@@ -1,10 +1,11 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { adminAuthOptions } from '@/lib/admin-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/db';
 import { AdminDashboardClient } from './admin-dashboard-client';
 
 export default async function AdminDashboardPage() {
-  const session = await getServerSession(adminAuthOptions);
+  const session = await getServerSession(authOptions);
 
   // Check if user is logged in
   if (!session) {
@@ -17,8 +18,20 @@ export default async function AdminDashboardPage() {
     redirect('/admin/login');
   }
 
-  // Professional 2FA enforcement for production security
-  const has2FA = session?.user?.twoFactorEnabled;
+  // Professional 2FA enforcement - check database for current status
+  // (Session might be stale after 2FA enable, so we check database directly)
+  const adminUser = await prisma.adminUser.findFirst({
+    where: {
+      OR: [
+        { id: session.user.id },
+        ...(session.user.username ? [{ username: session.user.username }] : []),
+        ...(session.user.email ? [{ email: session.user.email }] : [])
+      ]
+    },
+    select: { twoFactorEnabled: true }
+  });
+  
+  const has2FA = adminUser?.twoFactorEnabled;
   if (!has2FA) {
     // Redirect to secure 2FA setup with mandatory enrollment
     redirect('/admin/security/2fa/setup?required=true');

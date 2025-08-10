@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { adminAuthOptions } from '@/lib/admin-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import speakeasy from 'speakeasy';
 import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(adminAuthOptions);
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
       where: {
         OR: [
           { id: session.user.id },
-          { username: session.user.username },
-          { email: session.user.email }
+          ...(session.user.username ? [{ username: session.user.username }] : []),
+          ...(session.user.email ? [{ email: session.user.email }] : [])
         ]
       }
     });

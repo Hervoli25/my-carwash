@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { signIn, getSession } from 'next-auth/react';
+import { useState, FormEvent, useEffect } from 'react';
+import { signIn, getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Lock, User, Key, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { Shield, Lock, User, Key, Eye, EyeOff, AlertTriangle, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminLoginPage() {
@@ -29,6 +29,50 @@ export default function AdminLoginPage() {
       return data.ip || 'unknown';
     } catch {
       return 'unknown';
+    }
+  };
+
+  // Clear any stuck sessions on component mount
+  useEffect(() => {
+    const clearStuckSession = async () => {
+      try {
+        // Check if we have any session that might be stuck
+        const session = await getSession();
+        if (session) {
+          console.log('🔍 Existing session detected, clearing for fresh login...');
+          await signOut({ redirect: false });
+          await fetch('/api/admin/session/clear', { method: 'POST' });
+          toast.info('Previous session cleared for fresh login');
+        }
+      } catch (error) {
+        console.log('Session check completed');
+      }
+    };
+
+    clearStuckSession();
+  }, []);
+
+  const clearSessionAndRetry = async () => {
+    setIsLoading(true);
+    try {
+      // Force sign out and clear session
+      await signOut({ redirect: false });
+      await fetch('/api/admin/session/clear', { method: 'POST' });
+      
+      // Reset form state
+      setAttempts(0);
+      setNeed2FA(false);
+      setCredentials({
+        username: '',
+        password: '',
+        twoFactorCode: ''
+      });
+
+      toast.success('Session cleared! Please login again.');
+    } catch (error) {
+      toast.error('Failed to clear session. Please refresh the page.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -210,6 +254,30 @@ export default function AdminLoginPage() {
                   </>
                 )}
               </Button>
+
+              {/* Session Management */}
+              <div className="flex space-x-2">
+                <Button
+                  type="button"
+                  onClick={clearSessionAndRetry}
+                  disabled={isLoading}
+                  variant="outline"
+                  className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Clear Session
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  disabled={isLoading}
+                  variant="outline"
+                  className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh Page
+                </Button>
+              </div>
 
               {attempts >= 3 && (
                 <div className="text-center text-red-400 text-sm">

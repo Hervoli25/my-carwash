@@ -167,16 +167,49 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 2 * 60 * 60, // 2 hours for admin sessions
+    updateAge: 5 * 60, // Update session every 5 minutes if user is active
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // Add user data on sign in
       if (user) {
         token.isAdmin = (user as any).isAdmin;
         token.role = (user as any).role;
         token.username = (user as any).username;
         token.twoFactorEnabled = (user as any).twoFactorEnabled;
       }
+      
+      // Refresh admin user data on session update for admin users
+      if (trigger === 'update' && token.role && (token.role === 'ADMIN' || token.role === 'SUPER_ADMIN')) {
+        try {
+          // Refresh admin user data from database
+          const adminUser = await prisma.adminUser.findFirst({
+            where: {
+              OR: [
+                { id: token.sub },
+                { username: token.username as string }
+              ]
+            },
+            select: {
+              id: true,
+              role: true,
+              twoFactorEnabled: true,
+              isActive: true
+            }
+          });
+          
+          if (adminUser) {
+            token.role = adminUser.role;
+            token.twoFactorEnabled = adminUser.twoFactorEnabled;
+            token.isActive = adminUser.isActive;
+          }
+        } catch (error) {
+          console.error('Failed to refresh admin token:', error);
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {

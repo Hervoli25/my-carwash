@@ -147,12 +147,10 @@ export default function TwoFactorSetupPage() {
         setStep('complete');
         toast.success('🔐 2FA successfully enabled!');
         
-        // Professional redirect with session update
-        setTimeout(async () => {
-          // Force session refresh and then redirect
-          await fetch('/api/auth/session', { method: 'GET' });
-          // Use router.push with force refresh
-          window.location.href = '/admin/dashboard';
+        // Professional redirect with proper session handling
+        setTimeout(() => {
+          // Use our custom redirect endpoint that checks database status
+          window.location.href = '/api/admin/redirect-dashboard';
         }, 2000);
       } else {
         const error = await response.json();
@@ -345,10 +343,9 @@ export default function TwoFactorSetupPage() {
                   Redirecting to admin dashboard...
                 </p>
                 <Button
-                  onClick={async () => {
-                    // Force session refresh and redirect
-                    await fetch('/api/auth/session', { method: 'GET' });
-                    window.location.href = '/admin/dashboard';
+                  onClick={() => {
+                    // Use our custom redirect endpoint that checks database status
+                    window.location.href = '/api/admin/redirect-dashboard';
                   }}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
