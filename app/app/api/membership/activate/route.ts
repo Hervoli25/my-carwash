@@ -90,7 +90,6 @@ export async function POST(request: NextRequest) {
     // Create payment record
     await prisma.payment.create({
       data: {
-        bookingId: null, // This is for membership, not booking
         amount: paymentIntent.amount,
         status: 'COMPLETED',
         paymentMethodType: 'stripe_card',

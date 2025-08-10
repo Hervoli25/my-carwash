@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
     // Create a pending payment record for tracking
     await prisma.payment.create({
       data: {
-        bookingId: null, // This is for membership, not booking
         amount: membershipData.price,
         status: 'PENDING',
         paymentMethodType: 'pay_at_location',

@@ -366,7 +366,7 @@ model PaymentMethod {
 
 model Payment {
   id              String         @id @default(cuid())
-  bookingId       String         @unique
+  bookingId       String?        @unique
   paymentMethodId String?
   amount          Int            // Amount in cents
   status          PaymentStatus  @default(PENDING)
@@ -393,7 +393,7 @@ model Payment {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
-  booking       Booking        @relation(fields: [bookingId], references: [id])
+  booking       Booking?       @relation(fields: [bookingId], references: [id])
   paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
 
   // Indexes for performance
