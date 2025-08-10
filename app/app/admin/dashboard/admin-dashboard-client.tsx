@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
-import { 
-  Users, 
-  Car, 
-  DollarSign, 
+import Swal from 'sweetalert2';
+import {
+  Users,
+  Car,
+  DollarSign,
   Calendar,
   Database,
   Settings,
@@ -183,9 +184,40 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
   };
 
   const performDBBackup = async () => {
-    if (!confirm('Are you sure you want to create a database backup? This may take a few minutes.')) {
-      return;
-    }
+    const result = await Swal.fire({
+      title: 'Create Database Backup?',
+      text: 'This will create a complete backup of your database. The process may take a few minutes.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3b82f6',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Create Backup',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      allowOutsideClick: false,
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600',
+        confirmButton: 'swal2-confirm',
+        cancelButton: 'swal2-cancel'
+      }
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Show loading dialog
+    Swal.fire({
+      title: 'Creating Backup...',
+      text: 'Please wait while we create your database backup.',
+      icon: 'info',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     try {
       const response = await fetch('/api/admin/database/backup', {
@@ -195,27 +227,149 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Database backup created successfully! Backup ID: ${result.backupId}`);
+        await Swal.fire({
+          title: 'Backup Created Successfully!',
+          html: `<div class="text-left">
+            <p class="mb-2">Your database backup has been created successfully.</p>
+            <p class="text-sm text-gray-600"><strong>Backup ID:</strong> ${result.backupId}</p>
+          </div>`,
+          icon: 'success',
+          confirmButtonColor: '#10b981',
+          confirmButtonText: 'Great!',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
       } else {
-        alert('Database backup failed. Please try again.');
+        await Swal.fire({
+          title: 'Backup Failed',
+          text: 'The database backup could not be created. Please try again or contact support.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
       }
     } catch (error) {
       console.error('Database backup failed:', error);
-      alert('Database backup failed. Please try again.');
+      await Swal.fire({
+        title: 'Backup Failed',
+        text: 'An error occurred while creating the backup. Please check your connection and try again.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'OK',
+        customClass: {
+          popup: 'font-sans',
+          title: 'text-gray-900 font-semibold',
+          htmlContainer: 'text-gray-600'
+        }
+      });
     }
   };
 
   const viewUserDetails = async (userId: string) => {
+    // Show loading dialog
+    Swal.fire({
+      title: 'Loading User Details...',
+      text: 'Please wait while we fetch the user information.',
+      icon: 'info',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
       const response = await fetch(`/api/admin/users/${userId}`);
       if (response.ok) {
         const userData = await response.json();
-        // For now, show alert with user info. Later we can create a modal
-        alert(`User Details:\nName: ${userData.user.name}\nEmail: ${userData.user.email}\nPhone: ${userData.user.phone || 'Not provided'}\nBookings: ${userData.user.bookingCount}\nTotal Spent: R${userData.user.totalSpent}\nLoyalty Points: ${userData.user.loyaltyPoints}\nMember Since: ${new Date(userData.user.createdAt).toLocaleDateString()}`);
+        const user = userData.user;
+
+        await Swal.fire({
+          title: `${user.name || 'User'} Profile`,
+          html: `
+            <div class="text-left space-y-4">
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-900 mb-3">Personal Information</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div><strong>Name:</strong> ${user.name || 'Not provided'}</div>
+                  <div><strong>Email:</strong> ${user.email}</div>
+                  <div><strong>Phone:</strong> ${user.phone || 'Not provided'}</div>
+                  <div><strong>Member Since:</strong> ${new Date(user.createdAt).toLocaleDateString()}</div>
+                </div>
+              </div>
+
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-blue-900 mb-3">Account Statistics</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div><strong>Total Bookings:</strong> ${user.bookingCount || 0}</div>
+                  <div><strong>Total Spent:</strong> R${user.totalSpent || '0.00'}</div>
+                  <div><strong>Loyalty Points:</strong> ${user.loyaltyPoints || 0}</div>
+                  <div><strong>Status:</strong> <span class="px-2 py-1 rounded text-xs ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${user.status || 'Active'}</span></div>
+                </div>
+              </div>
+
+              ${user.vehicles && user.vehicles.length > 0 ? `
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                  <h4 class="font-semibold text-yellow-900 mb-3">Registered Vehicles</h4>
+                  <div class="space-y-2 text-sm">
+                    ${user.vehicles.map(vehicle => `
+                      <div class="flex justify-between">
+                        <span>${vehicle.make} ${vehicle.model} (${vehicle.year})</span>
+                        <span class="text-gray-600">${vehicle.licensePlate}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonColor: '#3b82f6',
+          confirmButtonText: 'Close',
+          width: '600px',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
+      } else {
+        await Swal.fire({
+          title: 'Error Loading User',
+          text: 'Could not fetch user details. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
       }
     } catch (error) {
       console.error('Failed to fetch user details:', error);
-      alert('Failed to load user details. Please try again.');
+      await Swal.fire({
+        title: 'Connection Error',
+        text: 'Failed to load user details. Please check your connection and try again.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'OK',
+        customClass: {
+          popup: 'font-sans',
+          title: 'text-gray-900 font-semibold',
+          htmlContainer: 'text-gray-600'
+        }
+      });
     }
   };
 
@@ -251,15 +405,104 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
     const user = users.find(u => u.id === userId);
     if (!user) return;
 
-    if (!confirm(`Are you sure you want to permanently delete ${user.name || user.email}? This action cannot be undone and will also delete all their bookings and data.`)) {
+    // First confirmation
+    const firstConfirm = await Swal.fire({
+      title: 'Delete User Account?',
+      html: `
+        <div class="text-left">
+          <p class="mb-3">You are about to permanently delete:</p>
+          <div class="bg-red-50 p-3 rounded border-l-4 border-red-400">
+            <p class="font-semibold text-red-800">${user.name || user.email}</p>
+            <p class="text-sm text-red-600">${user.email}</p>
+          </div>
+          <div class="mt-4 p-3 bg-yellow-50 rounded border-l-4 border-yellow-400">
+            <p class="text-sm text-yellow-800"><strong>Warning:</strong> This action will:</p>
+            <ul class="text-sm text-yellow-700 mt-2 list-disc list-inside">
+              <li>Permanently delete the user account</li>
+              <li>Remove all booking history</li>
+              <li>Delete all associated data</li>
+              <li>This action cannot be undone</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Continue to Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      allowOutsideClick: false,
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600'
+      }
+    });
+
+    if (!firstConfirm.isConfirmed) return;
+
+    // Second confirmation with text input
+    const { value: confirmText } = await Swal.fire({
+      title: 'Final Confirmation Required',
+      html: `
+        <div class="text-left mb-4">
+          <p class="mb-3">To confirm permanent deletion of <strong>${user.name || user.email}</strong>, please type:</p>
+          <div class="bg-gray-100 p-2 rounded font-mono text-center text-lg font-bold">DELETE</div>
+        </div>
+      `,
+      input: 'text',
+      inputPlaceholder: 'Type DELETE here...',
+      icon: 'error',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Delete User',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      allowOutsideClick: false,
+      inputValidator: (value) => {
+        if (value !== 'DELETE') {
+          return 'You must type "DELETE" exactly to confirm';
+        }
+      },
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600',
+        input: 'text-center font-mono'
+      }
+    });
+
+    if (!confirmText || confirmText !== 'DELETE') {
+      await Swal.fire({
+        title: 'Deletion Cancelled',
+        text: 'User deletion was cancelled. No changes have been made.',
+        icon: 'info',
+        confirmButtonColor: '#3b82f6',
+        confirmButtonText: 'OK',
+        customClass: {
+          popup: 'font-sans',
+          title: 'text-gray-900 font-semibold',
+          htmlContainer: 'text-gray-600'
+        }
+      });
       return;
     }
 
-    const confirmText = prompt('Type "DELETE" to confirm permanent deletion:');
-    if (confirmText !== 'DELETE') {
-      alert('Deletion cancelled - confirmation text did not match.');
-      return;
-    }
+    // Show deletion progress
+    Swal.fire({
+      title: 'Deleting User...',
+      text: 'Please wait while we process the deletion.',
+      icon: 'info',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
@@ -268,64 +511,793 @@ export function AdminDashboardClient({ session }: AdminDashboardClientProps) {
       });
 
       if (response.ok) {
-        alert('User deleted successfully!');
+        await Swal.fire({
+          title: 'User Deleted Successfully',
+          text: 'The user account and all associated data have been permanently removed.',
+          icon: 'success',
+          confirmButtonColor: '#10b981',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
         fetchDashboardData(); // Refresh data
       } else {
-        alert('Failed to delete user. Please try again.');
+        const errorData = await response.json();
+        await Swal.fire({
+          title: 'Deletion Failed',
+          text: errorData.error || 'Failed to delete user. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
       }
     } catch (error) {
       console.error('User deletion failed:', error);
-      alert('Failed to delete user. Please try again.');
+      await Swal.fire({
+        title: 'Deletion Error',
+        text: 'An error occurred while deleting the user. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'OK',
+        customClass: {
+          popup: 'font-sans',
+          title: 'text-gray-900 font-semibold',
+          htmlContainer: 'text-gray-600'
+        }
+      });
+    }
+  };
+
+  // User Management Functions
+  const editUser = async (userId: string) => {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+
+    const { value: formValues } = await Swal.fire({
+      title: `Edit User: ${user.name || user.email}`,
+      html: `
+        <div class="text-left space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input id="swal-input1" class="swal2-input" placeholder="Full Name" value="${user.name || ''}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input id="swal-input2" class="swal2-input" placeholder="Email Address" value="${user.email}" type="email">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <input id="swal-input3" class="swal2-input" placeholder="Phone Number" value="${user.phone || ''}">
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonColor: '#3b82f6',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Update User',
+      cancelButtonText: 'Cancel',
+      preConfirm: () => {
+        return [
+          (document.getElementById('swal-input1') as HTMLInputElement).value,
+          (document.getElementById('swal-input2') as HTMLInputElement).value,
+          (document.getElementById('swal-input3') as HTMLInputElement).value
+        ];
+      },
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600'
+      }
+    });
+
+    if (formValues) {
+      const [name, email, phone] = formValues;
+
+      Swal.fire({
+        title: 'Updating User...',
+        text: 'Please wait while we update the user information.',
+        icon: 'info',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      try {
+        const response = await fetch(`/api/admin/users/${userId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone })
+        });
+
+        if (response.ok) {
+          await Swal.fire({
+            title: 'User Updated!',
+            text: 'User information has been updated successfully.',
+            icon: 'success',
+            confirmButtonColor: '#10b981',
+            confirmButtonText: 'Great!',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+          fetchDashboardData();
+        } else {
+          const errorData = await response.json();
+          await Swal.fire({
+            title: 'Update Failed',
+            text: errorData.error || 'Failed to update user information.',
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+        }
+      } catch (error) {
+        console.error('User update failed:', error);
+        await Swal.fire({
+          title: 'Update Error',
+          text: 'An error occurred while updating the user.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
+      }
+    }
+  };
+
+  const sendPasswordReset = async (email: string) => {
+    const result = await Swal.fire({
+      title: 'Send Password Reset?',
+      text: `Send a password reset email to ${email}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3b82f6',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Send Reset Email',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600'
+      }
+    });
+
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: 'Sending Email...',
+        text: 'Please wait while we send the password reset email.',
+        icon: 'info',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      try {
+        const response = await fetch('/api/admin/users/password-reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        if (response.ok) {
+          await Swal.fire({
+            title: 'Email Sent!',
+            text: 'Password reset email has been sent successfully.',
+            icon: 'success',
+            confirmButtonColor: '#10b981',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+        } else {
+          await Swal.fire({
+            title: 'Failed to Send Email',
+            text: 'Could not send password reset email. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Password reset failed:', error);
+        await Swal.fire({
+          title: 'Email Error',
+          text: 'An error occurred while sending the email.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
+      }
+    }
+  };
+
+  const handleUserAction = async (userId: string, action: 'suspend' | 'activate') => {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+
+    const actionText = action === 'suspend' ? 'suspend' : 'activate';
+    const result = await Swal.fire({
+      title: `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} User?`,
+      text: `Are you sure you want to ${actionText} ${user.name || user.email}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: action === 'suspend' ? '#ef4444' : '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: `Yes, ${actionText.charAt(0).toUpperCase() + actionText.slice(1)}`,
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600'
+      }
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`/api/admin/users/${userId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: action === 'suspend' ? 'suspended' : 'active' })
+        });
+
+        if (response.ok) {
+          await Swal.fire({
+            title: `User ${actionText.charAt(0).toUpperCase() + actionText.slice(1)}d!`,
+            text: `User has been ${actionText}d successfully.`,
+            icon: 'success',
+            confirmButtonColor: '#10b981',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+          fetchDashboardData();
+        } else {
+          await Swal.fire({
+            title: 'Action Failed',
+            text: `Failed to ${actionText} user. Please try again.`,
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+        }
+      } catch (error) {
+        console.error(`User ${actionText} failed:`, error);
+        await Swal.fire({
+          title: 'Action Error',
+          text: `An error occurred while trying to ${actionText} the user.`,
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
+      }
+    }
+  };
+
+  const exportData = async () => {
+    const { value: exportType } = await Swal.fire({
+      title: 'Export Data',
+      text: 'What data would you like to export?',
+      icon: 'question',
+      input: 'select',
+      inputOptions: {
+        'users': 'User Data',
+        'bookings': 'Booking Data',
+        'all': 'All Data'
+      },
+      inputPlaceholder: 'Select data type',
+      showCancelButton: true,
+      confirmButtonColor: '#3b82f6',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Export',
+      cancelButtonText: 'Cancel',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Please select a data type to export';
+        }
+      },
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600'
+      }
+    });
+
+    if (exportType) {
+      Swal.fire({
+        title: 'Exporting Data...',
+        text: 'Please wait while we prepare your export.',
+        icon: 'info',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      try {
+        const response = await fetch(`/api/admin/export?type=${exportType}`, {
+          method: 'GET'
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${exportType}-export-${new Date().toISOString().split('T')[0]}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+
+          await Swal.fire({
+            title: 'Export Complete!',
+            text: 'Your data has been exported and downloaded successfully.',
+            icon: 'success',
+            confirmButtonColor: '#10b981',
+            confirmButtonText: 'Great!',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+        } else {
+          await Swal.fire({
+            title: 'Export Failed',
+            text: 'Could not export data. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Export failed:', error);
+        await Swal.fire({
+          title: 'Export Error',
+          text: 'An error occurred while exporting data.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
+      }
     }
   };
 
   // Booking Management Functions
   const viewBookingDetails = async (bookingId: string) => {
+    Swal.fire({
+      title: 'Loading Booking Details...',
+      text: 'Please wait while we fetch the booking information.',
+      icon: 'info',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
       const response = await fetch(`/api/admin/bookings/${bookingId}`);
       if (response.ok) {
         const bookingData = await response.json();
         const booking = bookingData.booking;
-        alert(`Booking Details:\nID: ${booking.id}\nCustomer: ${booking.user.name}\nVehicle: ${booking.vehicle.make} ${booking.vehicle.model}\nService: ${booking.service.name}\nStatus: ${booking.status}`);
+
+        await Swal.fire({
+          title: `Booking #${booking.id.slice(-8)}`,
+          html: `
+            <div class="text-left space-y-4">
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-900 mb-3">Customer Information</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div><strong>Name:</strong> ${booking.user.name || 'Not provided'}</div>
+                  <div><strong>Email:</strong> ${booking.user.email}</div>
+                  <div><strong>Phone:</strong> ${booking.user.phone || 'Not provided'}</div>
+                </div>
+              </div>
+
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-blue-900 mb-3">Service Details</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div><strong>Service:</strong> ${booking.service.name}</div>
+                  <div><strong>Price:</strong> R${booking.service.price}</div>
+                  <div><strong>Duration:</strong> ${booking.service.duration} min</div>
+                  <div><strong>Status:</strong> <span class="px-2 py-1 rounded text-xs ${
+                    booking.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                    booking.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
+                    booking.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-800' :
+                    'bg-red-100 text-red-800'
+                  }">${booking.status}</span></div>
+                </div>
+              </div>
+
+              <div class="bg-yellow-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-yellow-900 mb-3">Vehicle Information</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div><strong>Vehicle:</strong> ${booking.vehicle.make} ${booking.vehicle.model}</div>
+                  <div><strong>Year:</strong> ${booking.vehicle.year}</div>
+                  <div><strong>License:</strong> ${booking.vehicle.licensePlate}</div>
+                  <div><strong>Color:</strong> ${booking.vehicle.color || 'Not specified'}</div>
+                </div>
+              </div>
+
+              <div class="bg-green-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-green-900 mb-3">Booking Information</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div><strong>Date:</strong> ${new Date(booking.scheduledDate).toLocaleDateString()}</div>
+                  <div><strong>Time:</strong> ${booking.scheduledTime}</div>
+                  <div><strong>Total Amount:</strong> R${booking.totalAmount}</div>
+                  <div><strong>Created:</strong> ${new Date(booking.createdAt).toLocaleDateString()}</div>
+                </div>
+              </div>
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonColor: '#3b82f6',
+          confirmButtonText: 'Close',
+          width: '700px',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
+      } else {
+        await Swal.fire({
+          title: 'Error Loading Booking',
+          text: 'Could not fetch booking details. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
       }
     } catch (error) {
       console.error('Failed to fetch booking details:', error);
-      alert('Failed to load booking details. Please try again.');
+      await Swal.fire({
+        title: 'Connection Error',
+        text: 'Failed to load booking details. Please check your connection and try again.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'OK',
+        customClass: {
+          popup: 'font-sans',
+          title: 'text-gray-900 font-semibold',
+          htmlContainer: 'text-gray-600'
+        }
+      });
     }
   };
 
   const editBooking = async (bookingId: string) => {
-    const newStatus = prompt('Enter new status (CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED):');
+    const { value: newStatus } = await Swal.fire({
+      title: 'Update Booking Status',
+      text: 'Select the new status for this booking:',
+      icon: 'question',
+      input: 'select',
+      inputOptions: {
+        'CONFIRMED': 'Confirmed',
+        'IN_PROGRESS': 'In Progress',
+        'COMPLETED': 'Completed',
+        'CANCELLED': 'Cancelled'
+      },
+      inputPlaceholder: 'Select new status',
+      showCancelButton: true,
+      confirmButtonColor: '#3b82f6',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Update Status',
+      cancelButtonText: 'Cancel',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Please select a status';
+        }
+      },
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600'
+      }
+    });
+
     if (newStatus) {
-      await updateBookingStatus(bookingId, newStatus.toUpperCase());
+      await updateBookingStatus(bookingId, newStatus);
     }
   };
 
   const updateBookingStatus = async (bookingId: string, status: string) => {
+    Swal.fire({
+      title: 'Updating Status...',
+      text: 'Please wait while we update the booking status.',
+      icon: 'info',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
       const response = await fetch(`/api/admin/bookings/${bookingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
+
       if (response.ok) {
-        alert('Booking status updated successfully!');
+        await Swal.fire({
+          title: 'Status Updated!',
+          text: 'Booking status has been updated successfully.',
+          icon: 'success',
+          confirmButtonColor: '#10b981',
+          confirmButtonText: 'Great!',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
         fetchDashboardData();
       } else {
-        alert('Failed to update booking status.');
+        await Swal.fire({
+          title: 'Update Failed',
+          text: 'Failed to update booking status. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
       }
     } catch (error) {
       console.error('Booking update failed:', error);
-      alert('Failed to update booking status.');
+      await Swal.fire({
+        title: 'Update Error',
+        text: 'An error occurred while updating the booking status.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'OK',
+        customClass: {
+          popup: 'font-sans',
+          title: 'text-gray-900 font-semibold',
+          htmlContainer: 'text-gray-600'
+        }
+      });
     }
   };
 
   const sendBookingNotification = async (bookingId: string) => {
-    alert('Notification sent to customer!'); // Placeholder - implement API later
+    const { value: notificationType } = await Swal.fire({
+      title: 'Send Notification',
+      text: 'What type of notification would you like to send?',
+      icon: 'question',
+      input: 'select',
+      inputOptions: {
+        'reminder': 'Booking Reminder',
+        'confirmation': 'Booking Confirmation',
+        'update': 'Status Update',
+        'custom': 'Custom Message'
+      },
+      inputPlaceholder: 'Select notification type',
+      showCancelButton: true,
+      confirmButtonColor: '#3b82f6',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Send Notification',
+      cancelButtonText: 'Cancel',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Please select a notification type';
+        }
+      },
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600'
+      }
+    });
+
+    if (notificationType) {
+      let customMessage = '';
+
+      if (notificationType === 'custom') {
+        const { value: message } = await Swal.fire({
+          title: 'Custom Message',
+          input: 'textarea',
+          inputPlaceholder: 'Enter your custom message...',
+          inputAttributes: {
+            'aria-label': 'Type your custom message here'
+          },
+          showCancelButton: true,
+          confirmButtonColor: '#3b82f6',
+          cancelButtonColor: '#6b7280',
+          confirmButtonText: 'Send Message',
+          cancelButtonText: 'Cancel',
+          inputValidator: (value) => {
+            if (!value) {
+              return 'Please enter a message';
+            }
+          },
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
+
+        if (!message) return;
+        customMessage = message;
+      }
+
+      Swal.fire({
+        title: 'Sending Notification...',
+        text: 'Please wait while we send the notification to the customer.',
+        icon: 'info',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      try {
+        const response = await fetch(`/api/admin/bookings/${bookingId}/notify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: notificationType,
+            message: customMessage
+          })
+        });
+
+        if (response.ok) {
+          await Swal.fire({
+            title: 'Notification Sent!',
+            text: 'The notification has been sent to the customer successfully.',
+            icon: 'success',
+            confirmButtonColor: '#10b981',
+            confirmButtonText: 'Great!',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+        } else {
+          await Swal.fire({
+            title: 'Failed to Send',
+            text: 'Could not send the notification. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'font-sans',
+              title: 'text-gray-900 font-semibold',
+              htmlContainer: 'text-gray-600'
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Notification failed:', error);
+        await Swal.fire({
+          title: 'Notification Error',
+          text: 'An error occurred while sending the notification.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'font-sans',
+            title: 'text-gray-900 font-semibold',
+            htmlContainer: 'text-gray-600'
+          }
+        });
+      }
+    }
   };
 
   const cancelBooking = async (bookingId: string) => {
-    if (confirm('Are you sure you want to cancel this booking?')) {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking) return;
+
+    const result = await Swal.fire({
+      title: 'Cancel Booking?',
+      html: `
+        <div class="text-left">
+          <p class="mb-3">Are you sure you want to cancel this booking?</p>
+          <div class="bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">
+            <p class="text-sm text-yellow-800"><strong>Customer:</strong> ${booking.user?.name || booking.user?.email}</p>
+            <p class="text-sm text-yellow-800"><strong>Service:</strong> ${booking.service?.name}</p>
+            <p class="text-sm text-yellow-800"><strong>Date:</strong> ${new Date(booking.scheduledDate).toLocaleDateString()}</p>
+          </div>
+          <p class="mt-3 text-sm text-gray-600">The customer will be notified of the cancellation.</p>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Cancel Booking',
+      cancelButtonText: 'Keep Booking',
+      reverseButtons: true,
+      customClass: {
+        popup: 'font-sans',
+        title: 'text-gray-900 font-semibold',
+        htmlContainer: 'text-gray-600'
+      }
+    });
+
+    if (result.isConfirmed) {
       await updateBookingStatus(bookingId, 'CANCELLED');
     }
   };

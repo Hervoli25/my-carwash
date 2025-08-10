@@ -85,12 +85,12 @@ export async function GET(request: NextRequest) {
 
       // Calculate membership insights
       const membershipValue = user.membership ? (
-        user.membership.price * (user.membership.endDate ? 
-          Math.ceil((new Date(user.membership.endDate) - new Date(user.membership.startDate)) / (1000 * 60 * 60 * 24 * 30)) : 1)
+        user.membership.price * (user.membership.endDate && user.membership.startDate ? 
+          Math.ceil((new Date(user.membership.endDate).getTime() - new Date(user.membership.startDate).getTime()) / (1000 * 60 * 60 * 24 * 30)) : 1)
       ) : 0;
 
       const daysRemaining = user.membership?.endDate ? 
-        Math.max(0, Math.ceil((new Date(user.membership.endDate) - new Date()) / (1000 * 60 * 60 * 24))) : null;
+        Math.max(0, Math.ceil((new Date(user.membership.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : null;
 
       return {
         // User Identity
@@ -128,8 +128,8 @@ export async function GET(request: NextRequest) {
           createdAt: user.membership.createdAt.toISOString(),
           
           // Calculated Fields for Admin Management
-          membershipDuration: user.membership.endDate ? 
-            Math.ceil((new Date(user.membership.endDate) - new Date(user.membership.startDate)) / (1000 * 60 * 60 * 24)) : null,
+          membershipDuration: user.membership.endDate && user.membership.startDate ? 
+            Math.ceil((new Date(user.membership.endDate).getTime() - new Date(user.membership.startDate).getTime()) / (1000 * 60 * 60 * 24)) : null,
           daysRemaining,
           isExpiringSoon: daysRemaining !== null && daysRemaining <= 7,
           lifetimeValue: membershipValue,
