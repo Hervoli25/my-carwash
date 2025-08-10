@@ -4,7 +4,7 @@ import { adminAuthOptions } from '@/lib/admin-auth';
 import { AdminDashboardClient } from './admin-dashboard-client';
 
 export default async function AdminDashboardPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(adminAuthOptions);
 
   // Check if user is logged in
   if (!session) {
