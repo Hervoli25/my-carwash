@@ -131,7 +131,10 @@ export async function GET(request: NextRequest) {
       user.dateOfBirth,
       user.gender
     ];
-    const completedFields = profileFields.filter(field => field && field.trim() !== '').length;
+    const completedFields = profileFields.filter(field => {
+      if (field instanceof Date) return true;
+      return field && typeof field === 'string' && field.trim() !== '';
+    }).length;
     const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
     
     // Admin override for Herve - give him Elite membership if he doesn't have one
