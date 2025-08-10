@@ -75,12 +75,7 @@ export async function POST(request: NextRequest) {
         stripeCustomerId: null,
         currency: 'ZAR',
         description: `${planId} Membership - Pay at Location`,
-        paymentDate: null, // Will be set when payment is received
-        metadata: {
-          membershipId: membership.id,
-          userId: user.id,
-          paymentMethod: 'pay_at_location'
-        }
+        paymentDate: null // Will be set when payment is received
       }
     });
 

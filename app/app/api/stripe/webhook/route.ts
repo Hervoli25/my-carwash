@@ -116,23 +116,27 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       },
     });
 
-    // Update booking status
-    await prisma.booking.update({
-      where: { id: payment.bookingId },
+    // Update booking status (only if payment has a booking)
+    if (payment.bookingId) {
+      await prisma.booking.update({
+        where: { id: payment.bookingId },
       data: {
         status: 'CONFIRMED',
       },
     });
+    }
 
-    // Create notification for successful payment
-    await prisma.notification.create({
-      data: {
-        userId: payment.booking.userId,
+    // Create notification for successful payment (only if payment has a booking)
+    if (payment.booking) {
+      await prisma.notification.create({
+        data: {
+          userId: payment.booking.userId,
         title: 'Payment Successful',
         message: `Your payment of ${formatAmount(payment.amount)} has been processed successfully.`,
         type: 'PAYMENT',
       },
     });
+    }
 
     console.log('Payment processed successfully:', payment.id);
 
@@ -169,15 +173,17 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
       },
     });
 
-    // Create notification for failed payment
-    await prisma.notification.create({
-      data: {
-        userId: payment.booking.userId,
-        title: 'Payment Failed',
-        message: `Your payment of ${formatAmount(payment.amount)} could not be processed. Please try again.`,
-        type: 'PAYMENT',
-      },
-    });
+    // Create notification for failed payment (only if payment has a booking)
+    if (payment.booking) {
+      await prisma.notification.create({
+        data: {
+          userId: payment.booking.userId,
+          title: 'Payment Failed',
+          message: `Your payment of ${formatAmount(payment.amount)} could not be processed. Please try again.`,
+          type: 'PAYMENT',
+        },
+      });
+    }
 
     console.log('Payment failure processed:', payment.id);
 
@@ -213,15 +219,17 @@ async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) 
       },
     });
 
-    // Create notification for canceled payment
-    await prisma.notification.create({
-      data: {
-        userId: payment.booking.userId,
-        title: 'Payment Canceled',
-        message: `Your payment of ${formatAmount(payment.amount)} has been canceled.`,
-        type: 'PAYMENT',
-      },
-    });
+    // Create notification for canceled payment (only if payment has a booking)
+    if (payment.booking) {
+      await prisma.notification.create({
+        data: {
+          userId: payment.booking.userId,
+          title: 'Payment Canceled',
+          message: `Your payment of ${formatAmount(payment.amount)} has been canceled.`,
+          type: 'PAYMENT',
+        },
+      });
+    }
 
     console.log('Payment cancellation processed:', payment.id);
 
@@ -253,15 +261,17 @@ async function handleChargeDisputeCreated(dispute: Stripe.Dispute) {
       return;
     }
 
-    // Create notification for dispute
-    await prisma.notification.create({
-      data: {
-        userId: payment.booking.userId,
-        title: 'Payment Dispute',
-        message: `A dispute has been created for your payment of ${formatAmount(payment.amount)}. We will review this matter.`,
-        type: 'SYSTEM',
-      },
-    });
+    // Create notification for dispute (only if payment has a booking)
+    if (payment.booking) {
+      await prisma.notification.create({
+        data: {
+          userId: payment.booking.userId,
+          title: 'Payment Dispute',
+          message: `A dispute has been created for your payment of ${formatAmount(payment.amount)}. We will review this matter.`,
+          type: 'SYSTEM',
+        },
+      });
+    }
 
     // You might want to create a separate disputes table to track these
     console.log('Dispute notification created for payment:', payment.id);

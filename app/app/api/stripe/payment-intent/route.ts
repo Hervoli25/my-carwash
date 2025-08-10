@@ -201,6 +201,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (!payment.booking) {
+      return NextResponse.json(
+        { error: 'Booking not found for this payment' },
+        { status: 404 }
+      );
+    }
+
     if (payment.booking.userId !== session.user.id) {
       return NextResponse.json(
         { error: 'Unauthorized to access this payment' },
