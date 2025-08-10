@@ -105,16 +105,68 @@ export async function GET(request: NextRequest) {
       topService = topServiceData?.name || 'Express Wash';
     }
 
-    // Calculate money saved (simplified calculation)
+    // Calculate realistic money saved and carbon footprint
     const totalSpent = bookings.reduce((sum, booking) => sum + booking.totalAmount, 0);
-    const moneySaved = Math.round(totalSpent * 0.15); // Assume 15% savings
+    
+    // Calculate money saved based on membership tier and bulk bookings
+    let moneySaved = 0;
+    const membershipDiscount = user.membership?.plan === 'PREMIUM' ? 0.15 : 
+                              user.membership?.plan === 'ELITE' ? 0.25 : 0.10;
+    const bulkBookingDiscount = totalBookings >= 10 ? 0.05 : totalBookings >= 5 ? 0.03 : 0;
+    moneySaved = Math.round(totalSpent * (membershipDiscount + bulkBookingDiscount));
+    
+    // Calculate carbon footprint saved (based on eco-friendly practices)
+    // Assume each service saves ~2kg CO2 vs traditional methods
+    const carbonFootprintKg = totalBookings * 2.3;
+    const carbonFootprintReduction = Math.min(95, Math.round(carbonFootprintKg / 100 * 75)); // Cap at 95%
+    
+    // Calculate profile completion percentage
+    const profileFields = [
+      user.firstName,
+      user.lastName, 
+      user.phone,
+      user.address,
+      user.city,
+      user.province,
+      user.dateOfBirth,
+      user.gender
+    ];
+    const completedFields = profileFields.filter(field => field && field.trim() !== '').length;
+    const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
+    
+    // Admin override for Herve - give him Elite membership if he doesn't have one
+    const isAdmin = user.email === 'herve@ekhayaintel.co.za';
+    let membershipData = user.membership;
+    
+    if (isAdmin && !membershipData) {
+      // Create Elite membership for admin
+      membershipData = await prisma.membership.create({
+        data: {
+          userId: user.id,
+          plan: 'ELITE',
+          price: 0, // Free for admin
+          startDate: new Date(),
+          isActive: true,
+          autoRenew: false,
+        }
+      });
+      console.log('🔑 Created admin Elite membership for:', user.email);
+    }
 
     const dashboardData = {
       user: {
         name: user.name,
         email: user.email,
         loyaltyPoints: user.loyaltyPoints,
-        membership: user.membership,
+        membership: membershipData ? {
+          plan: membershipData.plan,
+          isActive: membershipData.isActive,
+          startDate: membershipData.startDate,
+          endDate: membershipData.endDate,
+          price: membershipData.price,
+          autoRenew: membershipData.autoRenew
+        } : null,
+        isAdmin,
       },
       bookings: bookings.map(booking => ({
         id: booking.id,
@@ -144,7 +196,13 @@ export async function GET(request: NextRequest) {
         topService,
         totalServices: totalBookings,
         moneySaved: Math.round(moneySaved / 100), // Convert to rand
-        carbonFootprint: 76, // Static value as per wireframe
+        carbonFootprint: carbonFootprintReduction, // Dynamic carbon footprint
+        profileCompletion,
+        profileFields: {
+          total: profileFields.length,
+          completed: completedFields,
+          missing: profileFields.length - completedFields
+        }
       },
     };
 

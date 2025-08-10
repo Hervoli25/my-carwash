@@ -25,7 +25,7 @@ const navigation = [
   { name: 'My Bookings', href: '/bookings', icon: Calendar, key: 'bookings' },
   { name: 'Profile Settings', href: '/profile', icon: Settings, key: 'profile' },
   { name: 'Payment Methods', href: '/payment-methods', icon: CreditCard, key: 'payment' },
-  { name: 'Membership', href: '/membership', icon: Crown, key: 'membership' },
+  { name: 'Membership', href: '/membership/manage', icon: Crown, key: 'membership' },
   { name: 'Notifications', href: '/notifications', icon: Bell, key: 'notifications' },
   { name: 'Support', href: '/support', icon: HelpCircle, key: 'support' },
 ];
