@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useSession } from 'next-auth/react';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,7 +26,10 @@ import {
   Smartphone,
   MapPin,
   User,
-  FileText
+  FileText,
+  Phone,
+  Crown,
+  ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -44,7 +48,7 @@ const bookingSchema = z.object({
   plateNumber: z.string().min(3, 'Plate number is required for tracking').max(10, 'Plate number too long'),
   vehicleMake: z.string().min(2, 'Vehicle make is required'),
   vehicleModel: z.string().min(2, 'Vehicle model is required'),
-  vehicleYear: z.string().min(4, 'Vehicle year is required'),
+  vehicleYear: z.string().optional(),
   vehicleColor: z.string().min(3, 'Vehicle color is required'),
   
   // Service Information
@@ -75,6 +79,17 @@ const services = [
   { id: 'executive', name: 'Executive Detail Package', price: 300, duration: 120 },
 ];
 
+// Business hours configuration
+const businessHours = {
+  Monday: { open: '08:00', close: '18:00' },
+  Tuesday: { open: '08:00', close: '18:00' },
+  Wednesday: { open: '08:00', close: '18:00' },
+  Thursday: { open: '08:00', close: '18:00' },
+  Friday: { open: '08:00', close: '18:00' },
+  Saturday: { open: '08:00', close: '17:00' },
+  Sunday: { open: '09:00', close: '14:00' }
+};
+
 const addOns = [
   { id: 'tire-shine', name: 'Tire Shine', price: 25 },
   { id: 'air-freshener', name: 'Premium Air Freshener', price: 15 },
@@ -90,11 +105,22 @@ const timeSlots = [
 ];
 
 export function BookingWorkflow() {
+  const { data: session, status } = useSession();
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [timeValidation, setTimeValidation] = useState<{
+    isValid: boolean;
+    message: string;
+    suggestions?: any[];
+    canCallDirect?: boolean;
+  }>({ isValid: true, message: '' });
 
   const {
     register,
@@ -113,6 +139,238 @@ export function BookingWorkflow() {
   const selectedService = watch('serviceType');
   const selectedAddOns = watch('addOns') || [];
 
+  // Fetch user profile and recommendations
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (session?.user?.email) {
+        try {
+          // Fetch user profile with booking history
+          const profileResponse = await fetch('/api/profile?include_bookings=true');
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            setUserProfile(profileData);
+
+            // Auto-populate form fields
+            if (profileData.user) {
+              const user = profileData.user;
+              setValue('firstName', user.firstName || '');
+              setValue('lastName', user.lastName || '');
+              setValue('email', user.email || session.user.email);
+              setValue('phone', user.phone || '');
+
+              // Auto-populate with most recent vehicle if available
+              if (profileData.vehicles && profileData.vehicles.length > 0) {
+                const mostRecentVehicle = profileData.vehicles[0];
+                setSelectedVehicle(mostRecentVehicle);
+                setValue('plateNumber', mostRecentVehicle.licensePlate || '');
+                setValue('vehicleMake', mostRecentVehicle.make || '');
+                setValue('vehicleModel', mostRecentVehicle.model || '');
+                setValue('vehicleYear', mostRecentVehicle.year?.toString() || '');
+                setValue('vehicleColor', mostRecentVehicle.color || '');
+              }
+            }
+
+            // Generate smart recommendations
+            if (profileData.bookingHistory) {
+              const smartRecommendations = generateRecommendations(profileData.bookingHistory);
+              setRecommendations(smartRecommendations);
+
+              // Auto-select most preferred service
+              if (smartRecommendations.length > 0) {
+                setValue('serviceType', smartRecommendations[0].serviceId);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+        }
+      }
+      setLoadingProfile(false);
+    };
+
+    if (status !== 'loading') {
+      fetchUserData();
+    }
+  }, [session, status, setValue]);
+
+  // Smart recommendation algorithm
+  const generateRecommendations = (bookingHistory: any[]) => {
+    if (!bookingHistory.length) return [];
+
+    // Analyze user patterns
+    const serviceFrequency: Record<string, number> = {};
+    const timeSlotPreferences: Record<string, number> = {};
+    const addOnPreferences: Record<string, number> = {};
+    const dayOfWeekPreferences: Record<number, number> = {};
+
+    bookingHistory.forEach(booking => {
+      // Service frequency
+      const serviceName = booking.service?.name || '';
+      serviceFrequency[serviceName] = (serviceFrequency[serviceName] || 0) + 1;
+
+      // Time preferences
+      if (booking.timeSlot) {
+        timeSlotPreferences[booking.timeSlot] = (timeSlotPreferences[booking.timeSlot] || 0) + 1;
+      }
+
+      // Day of week preferences
+      const bookingDay = new Date(booking.bookingDate).getDay();
+      dayOfWeekPreferences[bookingDay] = (dayOfWeekPreferences[bookingDay] || 0) + 1;
+
+      // Add-on preferences
+      booking.addOns?.forEach((addOn: any) => {
+        const addOnName = addOn.addOn?.name || '';
+        addOnPreferences[addOnName] = (addOnPreferences[addOnName] || 0) + 1;
+      });
+    });
+
+    // Calculate recency boost (recent bookings get higher weight)
+    const now = new Date().getTime();
+    const recentBookings = bookingHistory.filter(booking => {
+      const bookingTime = new Date(booking.createdAt).getTime();
+      return (now - bookingTime) < (90 * 24 * 60 * 60 * 1000); // Last 90 days
+    });
+
+    // Find most frequent service
+    const topService = Object.entries(serviceFrequency)
+      .sort(([,a], [,b]) => b - a)[0];
+
+    const preferredTimeSlot = Object.entries(timeSlotPreferences)
+      .sort(([,a], [,b]) => b - a)[0]?.[0];
+
+    const preferredDay = Object.entries(dayOfWeekPreferences)
+      .sort(([,a], [,b]) => b - a)[0]?.[0];
+
+    const topAddOns = Object.entries(addOnPreferences)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 2)
+      .map(([name]) => name);
+
+    // Map service names to service IDs
+    const serviceMapping = {
+      'Express Exterior Wash': 'express',
+      'Premium Wash & Wax': 'premium', 
+      'Deluxe Interior & Exterior': 'deluxe',
+      'Executive Detail Package': 'executive'
+    };
+
+    const recommendations = [];
+
+    if (topService && topService[1] > 1) { // At least 2 bookings
+      const serviceId = serviceMapping[topService[0] as keyof typeof serviceMapping] || 'express';
+      
+      recommendations.push({
+        type: 'most_booked',
+        title: 'Your Favorite Service',
+        description: `You've booked this ${topService[1]} times`,
+        serviceId,
+        serviceName: topService[0],
+        confidence: Math.min(95, 60 + (topService[1] * 10)),
+        preferredTimeSlot,
+        suggestedAddOns: topAddOns,
+        preferredDay: parseInt(preferredDay || '0')
+      });
+    }
+
+    // Suggest upgrade based on spending pattern
+    const avgSpending = bookingHistory.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0) / bookingHistory.length;
+    if (avgSpending > 12000) { // R120+ average
+      recommendations.push({
+        type: 'upgrade_suggestion',
+        title: 'Consider Premium Service',
+        description: 'Based on your spending, you might enjoy our premium services',
+        serviceId: 'executive',
+        serviceName: 'Executive Detail Package',
+        confidence: 75
+      });
+    }
+
+    // Seasonal recommendations (enhance later)
+    const currentMonth = new Date().getMonth();
+    if (currentMonth >= 5 && currentMonth <= 7) { // Winter months
+      recommendations.push({
+        type: 'seasonal',
+        title: 'Winter Special',
+        description: 'Interior protection recommended for winter',
+        serviceId: 'deluxe',
+        serviceName: 'Deluxe Interior & Exterior',
+        confidence: 60
+      });
+    }
+
+    return recommendations;
+  };
+
+  // Handle vehicle selection from user's registered vehicles
+  const selectVehicle = (vehicle: any) => {
+    setSelectedVehicle(vehicle);
+    setValue('plateNumber', vehicle.licensePlate || '');
+    setValue('vehicleMake', vehicle.make || '');
+    setValue('vehicleModel', vehicle.model || '');
+    setValue('vehicleYear', vehicle.year?.toString() || '');
+    setValue('vehicleColor', vehicle.color || '');
+  };
+
+  // Time validation logic
+  const validateBookingTime = (date: Date, timeSlot: string, serviceId: string, isPremiumMember: boolean = false) => {
+    const selectedService = services.find(s => s.id === serviceId);
+    if (!selectedService) return { isValid: true, message: '' };
+
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const businessHour = businessHours[dayName as keyof typeof businessHours];
+    
+    if (!businessHour) return { isValid: false, message: 'Business closed on selected day' };
+
+    // Parse times
+    const [startHour, startMinute] = timeSlot.split(':').map(Number);
+    const [closeHour, closeMinute] = businessHour.close.split(':').map(Number);
+    
+    const startTime = startHour * 60 + startMinute; // Convert to minutes
+    const closeTime = closeHour * 60 + closeMinute;
+    const serviceDuration = selectedService.duration;
+    const endTime = startTime + serviceDuration;
+
+    if (endTime > closeTime) {
+      // Service would run past closing time
+      const timeDifference = endTime - closeTime;
+      
+      // Find alternative services that would fit
+      const suggestions = services.filter(s => 
+        s.id !== serviceId && 
+        (startTime + s.duration) <= closeTime
+      ).sort((a, b) => b.duration - a.duration); // Longest first
+
+      const validation: any = {
+        isValid: false,
+        message: `Service would end ${timeDifference} minutes after closing time (${businessHour.close})`,
+        suggestions,
+        canCallDirect: isPremiumMember
+      };
+
+      return validation;
+    }
+
+    return { isValid: true, message: '' };
+  };
+
+  // Check membership status
+  const isPremiumMember = userProfile?.user?.membership?.plan === 'PREMIUM';
+
+  // Watch for changes in date, time, or service selection to validate
+  const watchedDate = watch('preferredDate');
+  const watchedTime = watch('preferredTime');
+  const watchedService = watch('serviceType');
+
+  useEffect(() => {
+    if (watchedDate && watchedTime && watchedService) {
+      const date = new Date(watchedDate);
+      const validation = validateBookingTime(date, watchedTime, watchedService, isPremiumMember);
+      setTimeValidation(validation);
+    } else {
+      setTimeValidation({ isValid: true, message: '' });
+    }
+  }, [watchedDate, watchedTime, watchedService, isPremiumMember]);
+
   // Calculate total price
   useEffect(() => {
     let price = 0;
@@ -130,6 +388,18 @@ export function BookingWorkflow() {
   }, [selectedService, selectedAddOns]);
 
   const onSubmit = async (data: BookingFormData) => {
+    // Prevent submission if time validation fails
+    if (!timeValidation.isValid) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Booking Time Issue',
+        text: 'Please select a valid time or choose an alternative service that fits within business hours.',
+        confirmButtonText: 'Ok',
+        confirmButtonColor: '#F59E0B'
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -275,7 +545,7 @@ export function BookingWorkflow() {
     if (errors.plateNumber) errorMessages.push('License plate number is required for vehicle tracking');
     if (errors.vehicleMake) errorMessages.push('Please enter your vehicle make');
     if (errors.vehicleModel) errorMessages.push('Please enter your vehicle model');
-    if (errors.vehicleYear) errorMessages.push('Please enter your vehicle year');
+    // Vehicle year is now optional
     if (errors.vehicleColor) errorMessages.push('Please enter your vehicle color');
     if (errors.serviceType) errorMessages.push('Please select a service');
     if (errors.preferredDate) errorMessages.push('Please select your preferred date');
@@ -423,6 +693,8 @@ export function BookingWorkflow() {
                         type="email"
                         {...register('email')}
                         placeholder="your.email@example.com"
+                        readOnly={session?.user?.email ? true : false}
+                        className={session?.user?.email ? "bg-gray-50 cursor-not-allowed" : ""}
                       />
                       {errors.email && (
                         <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -467,6 +739,49 @@ export function BookingWorkflow() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Registered Vehicles Selection */}
+                  {userProfile?.vehicles && userProfile.vehicles.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <Car className="w-4 h-4 text-blue-600" />
+                        <Label className="text-blue-700 font-semibold">Your Registered Vehicles</Label>
+                      </div>
+                      <div className="grid gap-2 max-h-48 overflow-y-auto">
+                        {userProfile.vehicles.map((vehicle: any, index: number) => (
+                          <motion.div
+                            key={vehicle.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                              selectedVehicle?.id === vehicle.id
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => selectVehicle(vehicle)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="font-medium text-gray-900">
+                                  {vehicle.licensePlate} - {vehicle.make} {vehicle.model}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                  {vehicle.year && `${vehicle.year} • `}{vehicle.color}
+                                </div>
+                              </div>
+                              {selectedVehicle?.id === vehicle.id && (
+                                <CheckCircle className="w-4 h-4 text-blue-600" />
+                              )}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                      <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                        💡 Click on a vehicle to auto-fill the details below. You can modify any information as needed.
+                      </div>
+                    </div>
+                  )}
+
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <div className="flex items-center space-x-2">
                       <AlertCircle className="w-5 h-5 text-yellow-600" />
@@ -516,11 +831,11 @@ export function BookingWorkflow() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="vehicleYear">Year *</Label>
+                      <Label htmlFor="vehicleYear">Year (Optional)</Label>
                       <Input
                         id="vehicleYear"
                         {...register('vehicleYear')}
-                        placeholder="e.g., 2020"
+                        placeholder="e.g., 2020 (optional)"
                         maxLength={4}
                       />
                       {errors.vehicleYear && (
@@ -565,6 +880,54 @@ export function BookingWorkflow() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Smart Recommendations */}
+                  {recommendations.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                        <Label className="text-blue-700 font-semibold">✨ Smart Recommendations for You</Label>
+                      </div>
+                      <div className="grid gap-3">
+                        {recommendations.slice(0, 2).map((rec, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className={`p-3 border rounded-lg cursor-pointer transition-all bg-gradient-to-r ${
+                              rec.type === 'most_booked' ? 'from-green-50 to-green-100 border-green-200' :
+                              rec.type === 'upgrade_suggestion' ? 'from-purple-50 to-purple-100 border-purple-200' :
+                              'from-blue-50 to-blue-100 border-blue-200'
+                            } hover:shadow-md`}
+                            onClick={() => {
+                              setValue('serviceType', rec.serviceId);
+                              if (rec.preferredTimeSlot) {
+                                setValue('preferredTime', rec.preferredTimeSlot);
+                              }
+                            }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-sm font-semibold text-gray-900">{rec.title}</span>
+                                  <Badge variant="secondary" className="text-xs">
+                                    {rec.confidence}% match
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-gray-600 mt-1">{rec.description}</p>
+                                <p className="text-xs font-medium text-gray-700 mt-1">{rec.serviceName}</p>
+                              </div>
+                              <CheckCircle className="w-4 h-4 text-green-600 opacity-60" />
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                      <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                        💡 Based on your booking history and preferences. Click to auto-select.
+                      </div>
+                    </div>
+                  )}
+
                   {/* Service Selection */}
                   <div className="space-y-4">
                     <Label>Service Package *</Label>
@@ -658,6 +1021,77 @@ export function BookingWorkflow() {
                     </div>
                   </div>
 
+                  {/* Time Validation Alert */}
+                  {!timeValidation.isValid && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-red-50 border border-red-200 rounded-lg p-4"
+                    >
+                      <div className="flex items-center space-x-2 mb-3">
+                        <AlertCircle className="w-5 h-5 text-red-600" />
+                        <span className="font-semibold text-red-800">Booking Time Issue</span>
+                      </div>
+                      <p className="text-red-700 text-sm mb-4">{timeValidation.message}</p>
+                      
+                      {/* Alternative Service Suggestions */}
+                      {timeValidation.suggestions && timeValidation.suggestions.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className="font-medium text-red-800">Alternative Services Available:</h4>
+                          <div className="grid gap-2">
+                            {timeValidation.suggestions.map((suggestion) => (
+                              <button
+                                key={suggestion.id}
+                                type="button"
+                                onClick={() => {
+                                  setValue('serviceType', suggestion.id);
+                                }}
+                                className="flex items-center justify-between p-3 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-all"
+                              >
+                                <div className="text-left">
+                                  <div className="font-medium text-gray-900">{suggestion.name}</div>
+                                  <div className="text-sm text-gray-600">{suggestion.duration} minutes • R{suggestion.price}</div>
+                                </div>
+                                <ArrowRight className="w-4 h-4 text-red-600" />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Premium Member Direct Call Option */}
+                      {timeValidation.canCallDirect && (
+                        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Crown className="w-4 h-4 text-blue-600" />
+                            <span className="font-medium text-blue-800">Premium Member Privilege</span>
+                          </div>
+                          <p className="text-blue-700 text-sm mb-2">
+                            As a Premium member, you can call us directly to arrange special accommodation.
+                          </p>
+                          <a
+                            href="tel:+27786132969"
+                            className="inline-flex items-center space-x-2 bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors"
+                          >
+                            <Phone className="w-4 h-4" />
+                            <span>Call +27 78 613 2969</span>
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Next Business Day Option */}
+                      <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Calendar className="w-4 h-4 text-gray-600" />
+                          <span className="font-medium text-gray-800">Alternative: Next Business Day</span>
+                        </div>
+                        <p className="text-gray-700 text-sm">
+                          You can also book this service for the next available business day when we have more time slots available.
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+
                   {/* Special Instructions */}
                   <div className="space-y-2">
                     <Label htmlFor="specialInstructions">Special Instructions (Optional)</Label>
@@ -711,9 +1145,8 @@ export function BookingWorkflow() {
                         <SelectValue placeholder="Select payment method" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="card">Credit/Debit Card</SelectItem>
-                        <SelectItem value="payfast">PayFast</SelectItem>
-                        <SelectItem value="cash">Pay at Location</SelectItem>
+                        <SelectItem value="cash">Pay at Location (Recommended)</SelectItem>
+                        <SelectItem value="payfast">PayFast - Online Payment</SelectItem>
                         <SelectItem value="eft">Bank Transfer (EFT)</SelectItem>
                       </SelectContent>
                     </Select>

@@ -17,7 +17,8 @@ import {
   Calendar,
   CreditCard,
   Shield,
-  Zap
+  Zap,
+  MapPin
 } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
@@ -51,6 +52,7 @@ export function MembershipClient() {
   const [data, setData] = useState<MembershipData | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState<string | null>(null);
+  const [showPaymentOptions, setShowPaymentOptions] = useState<{show: boolean, planId: string, payFastData: any, amount: number} | null>(null);
 
   useEffect(() => {
     const fetchMembershipData = async () => {
@@ -84,15 +86,24 @@ export function MembershipClient() {
       const result = await response.json();
       
       if (response.ok) {
-        // Refresh data
-        const refreshResponse = await fetch('/api/membership');
-        if (refreshResponse.ok) {
-          const updatedData = await refreshResponse.json();
-          setData(updatedData);
+        if (result.requiresPaymentSelection) {
+          // Show payment method selection modal
+          setShowPaymentOptions({
+            show: true,
+            planId: result.planId,
+            payFastData: result.payFastData,
+            amount: result.amount
+          });
+          return;
+        } else {
+          // Admin gets free membership - refresh data
+          const refreshResponse = await fetch('/api/membership');
+          if (refreshResponse.ok) {
+            const updatedData = await refreshResponse.json();
+            setData(updatedData);
+          }
+          alert(result.message);
         }
-        
-        // Show success message (you could use a toast here)
-        alert(result.message);
       } else {
         alert(result.error || 'Failed to subscribe to membership');
       }
@@ -104,14 +115,73 @@ export function MembershipClient() {
     }
   };
 
+  const handlePayAtLocation = async () => {
+    if (!showPaymentOptions) return;
+
+    setSubscribing(showPaymentOptions.planId);
+    try {
+      const response = await fetch('/api/membership/pay-at-location', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ planId: showPaymentOptions.planId }),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        // Close payment options modal
+        setShowPaymentOptions(null);
+        
+        // Refresh membership data
+        const refreshResponse = await fetch('/api/membership');
+        if (refreshResponse.ok) {
+          const updatedData = await refreshResponse.json();
+          setData(updatedData);
+        }
+        
+        alert(`${result.message}\n\nPayment Instructions:\nAmount: ${result.paymentInstructions.amount}\nMembership ID: ${result.paymentInstructions.membershipId}\n\n${result.paymentInstructions.instructions}`);
+      } else {
+        alert(result.error || 'Failed to create pay-at-location membership');
+      }
+    } catch (error) {
+      console.error('Pay at location error:', error);
+      alert('An error occurred while creating pay-at-location membership');
+    } finally {
+      setSubscribing(null);
+    }
+  };
+
+  const handlePayFastPayment = () => {
+    if (!showPaymentOptions) return;
+
+    // Create and submit PayFast form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://sandbox.payfast.co.za/eng/process'; // Use sandbox for testing, change to 'https://www.payfast.co.za/eng/process' for production
+
+    Object.entries(showPaymentOptions.payFastData).forEach(([key, value]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = value as string;
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    
+    setShowPaymentOptions(null);
+  };
+
   const getPlanIcon = (planId: string) => {
     switch (planId) {
       case 'BASIC':
         return <Shield className="w-6 h-6 text-gray-600" />;
       case 'PREMIUM':
         return <Star className="w-6 h-6 text-blue-600" />;
-      case 'ELITE':
-        return <Crown className="w-6 h-6 text-purple-600" />;
       default:
         return <Shield className="w-6 h-6 text-gray-600" />;
     }
@@ -138,12 +208,6 @@ export function MembershipClient() {
           border: 'border-blue-200',
           header: 'bg-blue-50 text-blue-900',
           button: 'bg-blue-600 hover:bg-blue-700 text-white'
-        };
-      case 'ELITE':
-        return {
-          border: 'border-purple-200',
-          header: 'bg-purple-50 text-purple-900',
-          button: 'bg-purple-600 hover:purple-700 text-white'
         };
       default:
         return {
@@ -192,6 +256,75 @@ export function MembershipClient() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
+      
+      {/* Payment Method Selection Modal */}
+      {showPaymentOptions && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
+              Choose Payment Method
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Select how you'd like to pay for your {showPaymentOptions.planId} membership 
+              (R{(showPaymentOptions.amount / 100).toFixed(2)}/month)
+            </p>
+            
+            <div className="space-y-3">
+              {/* Pay at Location - Default/Recommended */}
+              <button
+                onClick={handlePayAtLocation}
+                disabled={subscribing !== null}
+                className="w-full p-4 border-2 border-blue-500 rounded-lg hover:bg-blue-50 transition-all"
+              >
+                <div className="flex items-center">
+                  <MapPin className="w-6 h-6 text-blue-600 mr-3" />
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-blue-900">Pay at Location</div>
+                    <div className="text-sm text-blue-700">Recommended • No online fees</div>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-700">Default</Badge>
+                </div>
+              </button>
+              
+              {/* PayFast Online Payment */}
+              <button
+                onClick={handlePayFastPayment}
+                disabled={subscribing !== null}
+                className="w-full p-4 border rounded-lg hover:bg-gray-50 transition-all"
+              >
+                <div className="flex items-center">
+                  <CreditCard className="w-6 h-6 text-green-600 mr-3" />
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-gray-900">PayFast Online</div>
+                    <div className="text-sm text-gray-600">Card, EFT, or instant payment</div>
+                  </div>
+                </div>
+              </button>
+            </div>
+            
+            <div className="mt-6 flex space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowPaymentOptions(null)}
+                disabled={subscribing !== null}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+            
+            {subscribing && (
+              <div className="mt-4 text-center">
+                <div className="inline-flex items-center text-blue-600">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                  Processing...
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -266,16 +399,14 @@ export function MembershipClient() {
             )}
 
             {/* Membership Plans */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {data.plans.map((plan) => {
                 const colors = getPlanColors(plan.id, plan.popular);
                 const isCurrentPlan = data.currentMembership?.plan === plan.id;
                 const isUpgrade = data.currentMembership && 
-                  ((data.currentMembership.plan === 'BASIC' && ['PREMIUM', 'ELITE'].includes(plan.id)) ||
-                   (data.currentMembership.plan === 'PREMIUM' && plan.id === 'ELITE'));
+                  (data.currentMembership.plan === 'BASIC' && plan.id === 'PREMIUM');
                 const isDowngrade = data.currentMembership && 
-                  ((data.currentMembership.plan === 'ELITE' && ['PREMIUM', 'BASIC'].includes(plan.id)) ||
-                   (data.currentMembership.plan === 'PREMIUM' && plan.id === 'BASIC'));
+                  (data.currentMembership.plan === 'PREMIUM' && plan.id === 'BASIC');
 
                 return (
                   <Card key={plan.id} className={`relative ${colors.border} ${plan.popular ? 'shadow-lg' : ''}`}>

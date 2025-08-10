@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get membership plans
+    // Get membership plans (simplified to Basic and Premium)
     const membershipPlans = [
       {
         id: 'BASIC',
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
           'Standard booking priority',
           '1x loyalty points',
           'Monthly newsletter',
-          'Basic customer support'
+          'Email customer support'
         ],
         popular: false
       },
@@ -36,30 +36,15 @@ export async function GET(request: NextRequest) {
         description: 'Great value for regular car care',
         price: 9900, // R99 per month in cents
         features: [
-          '15% discount on all services',
-          'Priority booking',
-          '2x loyalty points',
+          '20% discount on all services',
+          'Priority booking slots',
+          '2x loyalty points earned',
           'Free tire shine monthly',
-          'Premium customer support',
-          'Birthday month discount'
+          'WhatsApp customer support',
+          'Birthday month special discount',
+          'Booking reminders via SMS'
         ],
         popular: true
-      },
-      {
-        id: 'ELITE',
-        name: 'Elite Member',
-        description: 'Ultimate car care experience',
-        price: 19900, // R199 per month in cents
-        features: [
-          '25% discount on all services',
-          'VIP priority booking',
-          '3x loyalty points',
-          'Free add-ons (tire shine, air freshener)',
-          'Monthly complimentary detailing',
-          'Concierge customer support',
-          'Exclusive member events'
-        ],
-        popular: false
       }
     ];
 
@@ -105,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     const { planId } = await request.json();
 
-    if (!['BASIC', 'PREMIUM', 'ELITE'].includes(planId)) {
+    if (!['BASIC', 'PREMIUM'].includes(planId)) {
       return NextResponse.json({ error: 'Invalid membership plan' }, { status: 400 });
     }
 
@@ -123,9 +108,40 @@ export async function POST(request: NextRequest) {
     
     const planPrices = {
       BASIC: 4900,
-      PREMIUM: 9900,
-      ELITE: 19900
+      PREMIUM: 9900
     };
+
+    // For non-admin users, provide payment options
+    if (!isAdmin) {
+      // Return payment options instead of immediately requiring online payment
+      const payFastData = {
+        merchant_id: process.env.PAYFAST_MERCHANT_ID,
+        merchant_key: process.env.PAYFAST_MERCHANT_KEY,
+        return_url: `${process.env.NEXTAUTH_URL}/membership/success`,
+        cancel_url: `${process.env.NEXTAUTH_URL}/membership/cancel`,
+        notify_url: `${process.env.NEXTAUTH_URL}/api/membership/payfast-webhook`,
+        name_first: user.firstName || 'Customer',
+        name_last: user.lastName || '',
+        email_address: user.email,
+        amount: (planPrices[planId as keyof typeof planPrices] / 100).toFixed(2), // Convert cents to rands
+        item_name: `${planId} Membership Subscription`,
+        item_description: `Monthly ${planId.toLowerCase()} membership plan`,
+        custom_str1: user.id, // User ID for tracking
+        custom_str2: planId, // Plan ID for activation
+        subscription_type: '1', // Recurring subscription
+        recurring_amount: (planPrices[planId as keyof typeof planPrices] / 100).toFixed(2),
+        frequency: '3', // Monthly
+        cycles: '0' // Indefinite until cancelled
+      };
+
+      return NextResponse.json({
+        requiresPaymentSelection: true,
+        payFastData,
+        planId,
+        amount: planPrices[planId as keyof typeof planPrices],
+        message: 'Choose your payment method for membership activation'
+      });
+    }
 
     // If user already has a membership, update it
     if (user.membership) {

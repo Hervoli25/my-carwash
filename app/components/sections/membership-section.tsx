@@ -17,56 +17,41 @@ import { formatCurrency } from '@/lib/utils';
 const membershipPlans = [
   {
     name: 'Basic',
-    price: 10000, // R100/month
+    price: 4900, // R49/month
     period: 'month',
     icon: Zap,
     color: 'bg-gray-50 border-gray-200',
     iconColor: 'text-gray-600',
     buttonColor: 'bg-gray-600 hover:bg-gray-700',
     features: [
-      '1 wash per month',
-      '10% discount on add-ons',
-      'Mobile app access',
-      'Basic priority booking'
+      '10% discount on all services',
+      'Standard booking priority',
+      '1x loyalty points',
+      'Monthly newsletter',
+      'Email customer support'
     ],
-    description: 'Perfect for occasional car owners'
+    description: 'Perfect for occasional car washes'
   },
   {
     name: 'Premium',
-    price: 30000, // R300/month  
+    price: 9900, // R99/month  
     period: 'month',
     icon: Star,
     color: 'bg-blue-50 border-blue-200',
     iconColor: 'text-blue-600',
     buttonColor: 'bg-blue-600 hover:bg-blue-700',
     features: [
-      '3 washes per month',
       '20% discount on all services',
-      'Priority booking',
-      'Complimentary add-ons',
-      'Lounge access'
+      'Priority booking slots',
+      '2x loyalty points earned',
+      'Free tire shine monthly',
+      'WhatsApp customer support',
+      'Birthday month special discount',
+      'Booking reminders via SMS'
     ],
-    description: 'Most popular for regular drivers',
+    description: 'Great value for regular car care',
     badge: 'Most Popular',
     highlighted: true
-  },
-  {
-    name: 'Elite',
-    price: 30000, // R300/month (same as premium in wireframe)
-    period: 'month',
-    icon: Crown,
-    color: 'bg-amber-50 border-amber-200',
-    iconColor: 'text-amber-600',
-    buttonColor: 'bg-amber-600 hover:bg-amber-700',
-    features: [
-      'Unlimited washes',
-      '30% discount on all services',
-      'VIP priority booking',
-      'Premium lounge access',
-      'Concierge service',
-      'Mobile detailing'
-    ],
-    description: 'Ultimate car care experience'
   }
 ];
 
@@ -90,7 +75,7 @@ export function MembershipSection() {
         </motion.div>
 
         {/* Membership Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {membershipPlans.map((plan, index) => (
             <motion.div
               key={plan.name}

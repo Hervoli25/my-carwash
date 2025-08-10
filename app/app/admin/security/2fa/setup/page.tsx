@@ -148,9 +148,11 @@ export default function TwoFactorSetupPage() {
         toast.success('🔐 2FA successfully enabled!');
         
         // Professional redirect with session update
-        setTimeout(() => {
-          // Force a hard redirect to bypass any session cache issues
-          window.location.replace('/admin/dashboard');
+        setTimeout(async () => {
+          // Force session refresh and then redirect
+          await fetch('/api/auth/session', { method: 'GET' });
+          // Use router.push with force refresh
+          window.location.href = '/admin/dashboard';
         }, 2000);
       } else {
         const error = await response.json();
@@ -234,34 +236,44 @@ export default function TwoFactorSetupPage() {
                   }
                 </p>
                 
-                {downloadAttempts < 3 ? (
-                  <Button
-                    onClick={downloadBackupCodes}
-                    disabled={backupCodesSaved}
-                    variant="outline"
-                    className={`transition-all duration-300 ${
-                      backupCodesSaved 
-                        ? 'bg-green-700 border-green-600 text-white cursor-not-allowed opacity-75'
-                        : 'bg-amber-600 border-amber-500 text-white hover:bg-amber-700'
-                    }`}
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    {backupCodesSaved ? 'Codes Downloaded Securely' : 'Download Backup Codes'}
-                    {backupCodesSaved && <CheckCircle className="w-4 h-4 ml-2 text-green-400" />}
-                  </Button>
-                ) : (
-                  <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-3">
-                    <p className="text-red-400 text-sm">
-                      🚨 Maximum downloads reached. Contact system administrator if codes are needed.
+                <div className="flex flex-col space-y-2">
+                  {downloadAttempts < 3 ? (
+                    <Button
+                      onClick={downloadBackupCodes}
+                      disabled={backupCodesSaved}
+                      variant="outline"
+                      className={`w-full transition-all duration-300 ${
+                        backupCodesSaved 
+                          ? 'bg-green-700 border-green-600 text-white cursor-not-allowed'
+                          : 'bg-amber-600 border-amber-500 text-white hover:bg-amber-700'
+                      }`}
+                    >
+                      {backupCodesSaved ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2 text-green-400" />
+                          Backup Codes Downloaded Securely
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download Backup Codes (Required)
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-3">
+                      <p className="text-red-400 text-sm">
+                        🚨 Maximum downloads reached. Contact system administrator if codes are needed.
+                      </p>
+                    </div>
+                  )}
+                  
+                  {downloadAttempts > 0 && (
+                    <p className="text-xs text-slate-400">
+                      Downloads: {downloadAttempts}/3 • Security Level: Maximum
                     </p>
-                  </div>
-                )}
-                
-                {downloadAttempts > 0 && (
-                  <p className="text-xs text-slate-400 mt-2">
-                    Downloads: {downloadAttempts}/3 • Security Level: Maximum
-                  </p>
-                )}
+                  )}
+                </div>
               </div>
 
               <Button
@@ -333,7 +345,11 @@ export default function TwoFactorSetupPage() {
                   Redirecting to admin dashboard...
                 </p>
                 <Button
-                  onClick={() => window.location.replace('/admin/dashboard')}
+                  onClick={async () => {
+                    // Force session refresh and redirect
+                    await fetch('/api/auth/session', { method: 'GET' });
+                    window.location.href = '/admin/dashboard';
+                  }}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   <Shield className="w-4 h-4 mr-2" />

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { adminAuthOptions } from '@/lib/admin-auth';
 import { prisma } from '@/lib/db';
 import speakeasy from 'speakeasy';
 import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(adminAuthOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -30,9 +30,24 @@ export async function POST(request: NextRequest) {
       return crypto.randomBytes(4).toString('hex').toUpperCase();
     });
 
+    // Find admin user by username since that's what we use for login
+    const adminUser = await prisma.adminUser.findFirst({
+      where: {
+        OR: [
+          { id: session.user.id },
+          { username: session.user.username },
+          { email: session.user.email }
+        ]
+      }
+    });
+
+    if (!adminUser) {
+      return NextResponse.json({ error: 'Admin user not found' }, { status: 404 });
+    }
+
     // Store the secret temporarily (will be enabled after verification)
     await prisma.adminUser.update({
-      where: { id: session.user.id },
+      where: { id: adminUser.id },
       data: {
         twoFactorSecret: secret.base32,
         updatedAt: new Date()

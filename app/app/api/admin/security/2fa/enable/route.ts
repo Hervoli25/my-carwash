@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { adminAuthOptions } from '@/lib/admin-auth';
 import { prisma } from '@/lib/db';
 import speakeasy from 'speakeasy';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(adminAuthOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -26,9 +26,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get admin user with current 2FA secret
-    const adminUser = await prisma.adminUser.findUnique({
-      where: { id: session.user.id }
+    // Get admin user with current 2FA secret - use email or username to find user
+    const adminUser = await prisma.adminUser.findFirst({
+      where: {
+        OR: [
+          { id: session.user.id },
+          { username: session.user.username },
+          { email: session.user.email }
+        ]
+      }
     });
 
     if (!adminUser || !adminUser.twoFactorSecret) {
@@ -55,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Enable 2FA with enterprise security
     await prisma.adminUser.update({
-      where: { id: session.user.id },
+      where: { id: adminUser.id },
       data: {
         twoFactorEnabled: true,
         updatedAt: new Date(),

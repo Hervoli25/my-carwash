@@ -110,8 +110,8 @@ export async function GET(request: NextRequest) {
     
     // Calculate money saved based on membership tier and bulk bookings
     let moneySaved = 0;
-    const membershipDiscount = user.membership?.plan === 'PREMIUM' ? 0.15 : 
-                              user.membership?.plan === 'ELITE' ? 0.25 : 0.10;
+    const membershipDiscount = user.membership?.plan === 'PREMIUM' ? 0.20 : 
+                              user.membership?.plan === 'BASIC' ? 0.10 : 0.05;
     const bulkBookingDiscount = totalBookings >= 10 ? 0.05 : totalBookings >= 5 ? 0.03 : 0;
     moneySaved = Math.round(totalSpent * (membershipDiscount + bulkBookingDiscount));
     
@@ -139,18 +139,18 @@ export async function GET(request: NextRequest) {
     let membershipData = user.membership;
     
     if (isAdmin && !membershipData) {
-      // Create Elite membership for admin
+      // Create Premium membership for admin
       membershipData = await prisma.membership.create({
         data: {
           userId: user.id,
-          plan: 'ELITE',
+          plan: 'PREMIUM',
           price: 0, // Free for admin
           startDate: new Date(),
           isActive: true,
           autoRenew: false,
         }
       });
-      console.log('🔑 Created admin Elite membership for:', user.email);
+      console.log('🔑 Created admin Premium membership for:', user.email);
     }
 
     const dashboardData = {

@@ -78,7 +78,7 @@ export function Footer() {
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="w-4 h-4" />
-                <span>Mon-Sat: 8AM-6PM, Sun: 9AM-4PM</span>
+                <span>Mon-Fri: 8AM-6PM, Sat: 8AM-5PM, Sun: 9AM-2PM</span>
               </div>
             </div>
           </div>
@@ -238,7 +238,7 @@ export function Footer() {
                       ctx.font = '12px Arial';
                       ctx.fillText('30 Lower Piers Road, Wynberg, Cape Town', 200, 475);
                       ctx.fillText('+27 78 613 2969', 200, 495);
-                      ctx.fillText('Mon-Sat: 8AM-6PM, Sun: 9AM-4PM', 200, 510);
+                      ctx.fillText('Mon-Fri: 8AM-6PM, Sat: 8AM-5PM, Sun: 9AM-2PM', 200, 510);
                       
                       // Download the enhanced QR code
                       const link = document.createElement('a');

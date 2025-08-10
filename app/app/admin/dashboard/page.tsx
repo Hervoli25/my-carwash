@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { adminAuthOptions } from '@/lib/admin-auth';
 import { AdminDashboardClient } from './admin-dashboard-client';
 
 export default async function AdminDashboardPage() {

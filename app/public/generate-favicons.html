@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favicon Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        .download-section { margin: 20px 0; }
+        button { padding: 10px 20px; margin: 5px; background: #dc2626; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #b91c1c; }
+    </style>
+</head>
+<body>
+    <h1>Prestige Car Wash Favicon Generator</h1>
+    <p>Click the buttons below to generate and download favicon files:</p>
+    
+    <div class="download-section">
+        <button onclick="generateFavicon(16, 'favicon-16x16.png')">Generate 16x16</button>
+        <button onclick="generateFavicon(32, 'favicon-32x32.png')">Generate 32x32</button>
+        <button onclick="generateFavicon(180, 'apple-touch-icon.png')">Generate Apple Touch Icon</button>
+        <button onclick="generateFavicon(192, 'android-chrome-192x192.png')">Generate Android 192x192</button>
+        <button onclick="generateFavicon(512, 'android-chrome-512x512.png')">Generate Android 512x512</button>
+        <button onclick="generateICO()">Generate favicon.ico</button>
+    </div>
+
+    <script>
+        function generateFavicon(size, filename) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#dc2626'); // Ekhaya red
+            gradient.addColorStop(0.5, '#7c3aed'); // Purple
+            gradient.addColorStop(1, '#2563eb'); // Ekhaya blue
+            
+            // Draw background circle
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw car silhouette
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            const carScale = size / 32;
+            
+            // Car body
+            ctx.fillRect(8*carScale, 16*carScale, 16*carScale, 6*carScale);
+            ctx.fillRect(10*carScale, 14*carScale, 12*carScale, 2*carScale);
+            
+            // Wheels
+            ctx.beginPath();
+            ctx.arc(11*carScale, 21*carScale, 1.5*carScale, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(21*carScale, 21*carScale, 1.5*carScale, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Water bubbles
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.beginPath();
+            ctx.arc(8*carScale, 8*carScale, 1*carScale, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(24*carScale, 10*carScale, 0.8*carScale, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(6*carScale, 12*carScale, 0.6*carScale, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Download the image
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function generateICO() {
+            // For ICO, we'll generate a 32x32 version
+            generateFavicon(32, 'favicon.ico');
+        }
+    </script>
+</body>
+</html>
