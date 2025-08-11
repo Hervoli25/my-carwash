@@ -108,76 +108,34 @@ export async function POST(request: NextRequest) {
       PREMIUM: 9900
     };
 
-    // Provide payment options for all users
-      // Return payment options instead of immediately requiring online payment
-      const payFastData = {
-        merchant_id: process.env.PAYFAST_MERCHANT_ID,
-        merchant_key: process.env.PAYFAST_MERCHANT_KEY,
-        return_url: `${process.env.NEXTAUTH_URL}/membership/success`,
-        cancel_url: `${process.env.NEXTAUTH_URL}/membership/cancel`,
-        notify_url: `${process.env.NEXTAUTH_URL}/api/membership/payfast-webhook`,
-        name_first: user.firstName || 'Customer',
-        name_last: user.lastName || '',
-        email_address: user.email,
-        amount: (planPrices[planId as keyof typeof planPrices] / 100).toFixed(2), // Convert cents to rands
-        item_name: `${planId} Membership Subscription`,
-        item_description: `Monthly ${planId.toLowerCase()} membership plan`,
-        custom_str1: user.id, // User ID for tracking
-        custom_str2: planId, // Plan ID for activation
-        subscription_type: '1', // Recurring subscription
-        recurring_amount: (planPrices[planId as keyof typeof planPrices] / 100).toFixed(2),
-        frequency: '3', // Monthly
-        cycles: '0' // Indefinite until cancelled
-      };
+    // Return payment options for users to choose payment method
+    const payFastData = {
+      merchant_id: process.env.PAYFAST_MERCHANT_ID,
+      merchant_key: process.env.PAYFAST_MERCHANT_KEY,
+      return_url: `${process.env.NEXTAUTH_URL}/membership/success`,
+      cancel_url: `${process.env.NEXTAUTH_URL}/membership/cancel`,
+      notify_url: `${process.env.NEXTAUTH_URL}/api/membership/payfast-webhook`,
+      name_first: user.firstName || 'Customer',
+      name_last: user.lastName || '',
+      email_address: user.email,
+      amount: (planPrices[planId as keyof typeof planPrices] / 100).toFixed(2), // Convert cents to rands
+      item_name: `${planId} Membership Subscription`,
+      item_description: `Monthly ${planId.toLowerCase()} membership plan`,
+      custom_str1: user.id, // User ID for tracking
+      custom_str2: planId, // Plan ID for activation
+      subscription_type: '1', // Recurring subscription
+      recurring_amount: (planPrices[planId as keyof typeof planPrices] / 100).toFixed(2),
+      frequency: '3', // Monthly
+      cycles: '0' // Indefinite until cancelled
+    };
 
-      return NextResponse.json({
-        requiresPaymentSelection: true,
-        payFastData,
-        planId,
-        amount: planPrices[planId as keyof typeof planPrices],
-        message: 'Choose your payment method for membership activation'
-      });
-    }
-
-    // If user already has a membership, update it
-    if (user.membership) {
-      const updatedMembership = await prisma.membership.update({
-        where: { id: user.membership.id },
-        data: {
-          plan: planId,
-          price: planPrices[planId as keyof typeof planPrices],
-          isActive: true,
-          startDate: new Date(),
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-          autoRenew: true
-        }
-      });
-
-      return NextResponse.json({ 
-        success: true, 
-        membership: updatedMembership,
-        message: 'Membership upgraded successfully!'
-      });
-    } else {
-      // Create new membership
-      const newMembership = await prisma.membership.create({
-        data: {
-          userId: user.id,
-          plan: planId,
-          price: planPrices[planId as keyof typeof planPrices],
-          startDate: new Date(),
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-          isActive: true,
-          autoRenew: true
-        }
-      });
-
-      return NextResponse.json({ 
-        success: true, 
-        membership: newMembership,
-        message: 'Welcome to your new membership!'
-      });
-    }
+    return NextResponse.json({
+      requiresPaymentSelection: true,
+      payFastData,
+      planId,
+      amount: planPrices[planId as keyof typeof planPrices],
+      message: 'Choose your payment method for membership activation'
+    });
 
   } catch (error) {
     console.error('💥 Membership subscription error:', error);

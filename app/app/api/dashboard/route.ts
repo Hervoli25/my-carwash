@@ -151,8 +151,7 @@ export async function GET(request: NextRequest) {
           endDate: membershipData.endDate,
           price: membershipData.price,
           autoRenew: membershipData.autoRenew
-        } : null,
-        isAdmin,
+        } : null
       },
       bookings: bookings.map(booking => ({
         id: booking.id,
