@@ -103,16 +103,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Admin gets free membership
-    const isAdmin = user.email === 'hervetshombe@gmail.com';
-    
     const planPrices = {
       BASIC: 4900,
       PREMIUM: 9900
     };
 
-    // For non-admin users, provide payment options
-    if (!isAdmin) {
+    // Provide payment options for all users
       // Return payment options instead of immediately requiring online payment
       const payFastData = {
         merchant_id: process.env.PAYFAST_MERCHANT_ID,
@@ -149,18 +145,18 @@ export async function POST(request: NextRequest) {
         where: { id: user.membership.id },
         data: {
           plan: planId,
-          price: isAdmin ? 0 : planPrices[planId as keyof typeof planPrices],
+          price: planPrices[planId as keyof typeof planPrices],
           isActive: true,
           startDate: new Date(),
-          endDate: isAdmin ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-          autoRenew: !isAdmin
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          autoRenew: true
         }
       });
 
       return NextResponse.json({ 
         success: true, 
         membership: updatedMembership,
-        message: isAdmin ? 'Admin membership updated successfully!' : 'Membership upgraded successfully!'
+        message: 'Membership upgraded successfully!'
       });
     } else {
       // Create new membership
@@ -168,18 +164,18 @@ export async function POST(request: NextRequest) {
         data: {
           userId: user.id,
           plan: planId,
-          price: isAdmin ? 0 : planPrices[planId as keyof typeof planPrices],
+          price: planPrices[planId as keyof typeof planPrices],
           startDate: new Date(),
-          endDate: isAdmin ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
           isActive: true,
-          autoRenew: !isAdmin
+          autoRenew: true
         }
       });
 
       return NextResponse.json({ 
         success: true, 
         membership: newMembership,
-        message: isAdmin ? 'Admin membership activated successfully!' : 'Welcome to your new membership!'
+        message: 'Welcome to your new membership!'
       });
     }
 
@@ -209,13 +205,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'No active membership found' }, { status: 404 });
     }
 
-    // Admin memberships cannot be cancelled this way
-    const isAdmin = user.email === 'hervetshombe@gmail.com';
-    if (isAdmin) {
-      return NextResponse.json({ 
-        error: 'Admin membership cannot be cancelled' 
-      }, { status: 403 });
-    }
 
     await prisma.membership.update({
       where: { id: user.membership.id },

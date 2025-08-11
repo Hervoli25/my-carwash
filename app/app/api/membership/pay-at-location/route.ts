@@ -29,8 +29,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Admin gets free membership
-    const isAdmin = user.email === 'hervetshombe@gmail.com';
     
     const planPrices = {
       BASIC: 4900,
@@ -39,9 +37,9 @@ export async function POST(request: NextRequest) {
 
     const membershipData = {
       plan: planId,
-      price: isAdmin ? 0 : planPrices[planId as keyof typeof planPrices],
+      price: planPrices[planId as keyof typeof planPrices],
       startDate: new Date(),
-      endDate: isAdmin ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
       isActive: false, // Will be activated when payment is received at location
       autoRenew: false, // Manual renewal for pay-at-location
       paymentMethod: 'pay_at_location'

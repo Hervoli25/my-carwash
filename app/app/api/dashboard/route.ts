@@ -137,24 +137,7 @@ export async function GET(request: NextRequest) {
     }).length;
     const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
     
-    // Admin override for Herve - give him Elite membership if he doesn't have one
-    const isAdmin = user.email === 'hervetshombe@gmail.com';
-    let membershipData = user.membership;
-    
-    if (isAdmin && !membershipData) {
-      // Create Premium membership for admin
-      membershipData = await prisma.membership.create({
-        data: {
-          userId: user.id,
-          plan: 'PREMIUM',
-          price: 0, // Free for admin
-          startDate: new Date(),
-          isActive: true,
-          autoRenew: false,
-        }
-      });
-      console.log('🔑 Created admin Premium membership for:', user.email);
-    }
+    const membershipData = user.membership;
 
     const dashboardData = {
       user: {
