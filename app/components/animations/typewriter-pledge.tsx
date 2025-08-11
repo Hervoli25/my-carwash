@@ -2,31 +2,31 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Droplets, Leaf, Heart, Globe } from 'lucide-react';
+import { Droplets, Leaf, Heart, Globe, Sparkles } from 'lucide-react';
 
 const pledgeTexts = [
   {
-    text: "We pledge to protect our planet through innovative water recycling systems...",
+    text: "💧 Every drop counts - We recycle 95% of our water, turning conservation into innovation.",
     icon: Droplets,
     color: "text-blue-400"
   },
   {
-    text: "Every drop matters. We recycle 95% of our water, preserving this precious resource...",
-    icon: Droplets,
-    color: "text-cyan-400"
-  },
-  {
-    text: "Our eco-friendly products are biodegradable, ensuring no harm to the environment...",
+    text: "🌱 Nature-first approach - 100% biodegradable products that love your car and our planet.",
     icon: Leaf,
     color: "text-green-400"
   },
   {
-    text: "We believe in sustainable practices that benefit both your vehicle and Mother Earth...",
+    text: "🌍 Carbon neutral operations - Reducing our footprint while maximizing your vehicle's shine.",
     icon: Globe,
     color: "text-emerald-400"
   },
   {
-    text: "This is our commitment to humanity - a cleaner world, one car at a time...",
+    text: "⚡ Solar-powered facilities - Clean energy powering cleaner cars for a brighter tomorrow.",
+    icon: Sparkles,
+    color: "text-yellow-400"
+  },
+  {
+    text: "💚 Our promise to future generations - Sustainable luxury that doesn't cost the Earth.",
     icon: Heart,
     color: "text-red-400"
   }
@@ -85,104 +85,127 @@ export function TypewriterPledge({ className = "" }: TypewriterPledgeProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="bg-black/20 backdrop-blur-md rounded-2xl p-6 border border-white/10"
+        className="relative group"
       >
-        {/* Header */}
-        <div className="flex items-center justify-center mb-4">
-          <motion.div
-            key={currentTextIndex}
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ duration: 0.5 }}
-            className={`p-2 rounded-full bg-white/10 ${currentPledge.color}`}
-          >
-            <IconComponent className="w-6 h-6" />
-          </motion.div>
-          <h3 className="text-white font-semibold text-lg ml-3">Our Environmental Pledge</h3>
-        </div>
-
-        {/* Typewriter Text */}
-        <div className="min-h-[80px] flex items-center justify-center">
-          <p className="text-white/90 text-center text-lg leading-relaxed font-light">
-            <AnimatePresence mode="wait">
-              <motion.span
+        {/* Compact Glass Card */}
+        <div className="bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-blue-500/10 backdrop-blur-lg rounded-xl p-5 border border-white/20 shadow-lg hover:shadow-emerald-500/10 transition-all duration-500">
+          
+          {/* Header Row */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <motion.div
                 key={currentTextIndex}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className={currentPledge.color}
+                initial={{ scale: 0.8, rotate: -30 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.5 }}
+                className={`p-2 rounded-lg bg-white/10 backdrop-blur-sm ${currentPledge.color}`}
               >
-                {displayedText}
+                <IconComponent className="w-5 h-5" />
+              </motion.div>
+              <h3 className="text-lg font-semibold text-white">Environmental Pledge</h3>
+            </div>
+            
+            {/* Mini Progress Indicators */}
+            <div className="flex space-x-1">
+              {pledgeTexts.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                    index === currentTextIndex 
+                      ? 'bg-emerald-400 scale-125' 
+                      : 'bg-white/30'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Typewriter Text - Compact */}
+          <div className="min-h-[50px] flex items-center">
+            <p className="text-sm leading-relaxed">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={currentTextIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className={`${currentPledge.color} font-medium`}
+                >
+                  {displayedText}
+                </motion.span>
+              </AnimatePresence>
+              <motion.span
+                animate={{ opacity: showCursor ? 1 : 0 }}
+                transition={{ duration: 0.1 }}
+                className="text-emerald-400 ml-0.5"
+              >
+                |
               </motion.span>
-            </AnimatePresence>
-            <motion.span
-              animate={{ opacity: showCursor ? 1 : 0 }}
-              transition={{ duration: 0.1 }}
-              className="text-white ml-1 font-bold"
-            >
-              |
-            </motion.span>
-          </p>
-        </div>
+            </p>
+          </div>
 
-        {/* Progress Indicators */}
-        <div className="flex justify-center space-x-2 mt-4">
-          {pledgeTexts.map((_, index) => (
-            <motion.div
-              key={index}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentTextIndex 
-                  ? 'bg-white scale-125' 
-                  : 'bg-white/30'
-              }`}
-              whileHover={{ scale: 1.2 }}
-            />
-          ))}
-        </div>
+          {/* Compact Stats Row */}
+          <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
+            <div className="text-center">
+              <div className="text-lg font-bold text-emerald-400">95%</div>
+              <div className="text-xs text-white/70">Water Saved</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-teal-400">100%</div>
+              <div className="text-xs text-white/70">Eco Products</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-green-400">0</div>
+              <div className="text-xs text-white/70">Chemicals</div>
+            </div>
+          </div>
 
-        {/* Floating Particles Effect */}
-        <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
-          {[...Array(6)].map((_, i) => (
+          {/* Beautiful Dropping Leaves Animation */}
+          <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute text-emerald-400/30"
+                animate={{
+                  y: [-20, 180],
+                  x: [0, Math.sin(i) * 30, Math.cos(i) * 20],
+                  rotate: [0, 180, 360],
+                  opacity: [0, 0.7, 0],
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 2,
+                  repeat: Infinity,
+                  delay: i * 0.5,
+                  ease: "easeInOut",
+                }}
+                style={{
+                  left: `${10 + i * 15}%`,
+                  top: "-10px",
+                  fontSize: '12px',
+                }}
+              >
+                {i % 4 === 0 ? '🍃' : i % 4 === 1 ? '💧' : i % 4 === 2 ? '🌿' : '✨'}
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Gentle Sparkle Effects */}
+          <div className="absolute top-2 right-2">
             <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-white/20 rounded-full"
               animate={{
-                x: [0, Math.random() * 400],
-                y: [0, Math.random() * 200],
-                opacity: [0, 1, 0],
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.8, 0.3],
               }}
               transition={{
-                duration: 4 + Math.random() * 2,
+                duration: 2,
                 repeat: Infinity,
-                delay: Math.random() * 2,
+                ease: "easeInOut",
               }}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-            />
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Eco Stats */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 1 }}
-        className="grid grid-cols-3 gap-4 mt-6"
-      >
-        <div className="text-center">
-          <div className="text-2xl font-bold text-white">95%</div>
-          <div className="text-sm text-white/70">Water Recycled</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-white">100%</div>
-          <div className="text-sm text-white/70">Eco Products</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-white">0</div>
-          <div className="text-sm text-white/70">Harmful Chemicals</div>
+              className="text-emerald-400/40 text-xs"
+            >
+              ✨
+            </motion.div>
+          </div>
         </div>
       </motion.div>
     </div>
