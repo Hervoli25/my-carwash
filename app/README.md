@@ -160,7 +160,7 @@ app/
 ├── lib/                  # Utilities and configurations
 ├── prisma/               # Database schema and migrations
 └── public/               # Static assets
-    ├── logocarwash.jpg   # Main brand logo
+    ├── Ekhaya_whitelogo.jpg   # Main brand logo
     └── service-images/   # Car wash service images
 ```
 
@@ -185,7 +185,7 @@ All components follow the shadcn/ui design system with custom Ekhaya Intel styli
 ### Updating Branding
 
 1. **Logo Replacement**:
-   - Replace `/public/logocarwash.jpg` with your new logo
+   - Replace `/public/Ekhaya_whitelogo.jpg` with your new logo
    - Update alt texts in components
    - Adjust sizing in CSS classes
 

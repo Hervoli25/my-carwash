@@ -14,15 +14,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { 
-  User, 
-  LogOut, 
-  Settings, 
+import {
+  User,
+  LogOut,
+  Settings,
   Calendar,
   Menu,
   X,
   Shield
 } from 'lucide-react';
+import { AnimatedLogo } from '@/components/animations/animated-logo';
 
 export function Header() {
   const { data: session } = useSession();
@@ -57,32 +58,16 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-44 items-center justify-between">
-          {/* Business Name with Mirror Effects & Animations */}
+          {/* Logo */}
           <Link href="/" className="flex items-center justify-center py-2 group">
-            <div className="text-center business-name relative overflow-hidden px-4 py-2" data-text="PRESTIGE CAR WASH BY EKHAYA">
-              {/* Animated particles background */}
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-red-400/30 rounded-full animate-ping"></div>
-                <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-blue-400/30 rounded-full animate-ping animation-delay-500"></div>
-                <div className="absolute top-1/2 left-3/4 w-0.5 h-0.5 bg-red-300/40 rounded-full animate-pulse animation-delay-1000"></div>
-              </div>
-
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight relative z-10">
-                <span className="ekhaya-red">PRESTIGE</span>{' '}
-                <span className="text-foreground font-extrabold">CAR WASH</span>
-              </h1>
-              <p className="text-sm md:text-base font-semibold ekhaya-blue tracking-wide relative z-10 mt-1">
-                BY EKHAYA
-              </p>
-
-              {/* Glass reflection overlay */}
-              <div className="absolute inset-0 glass-reflection transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none z-20"></div>
-
-              {/* Subtle glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg z-5"></div>
-
-              {/* Mirror reflection */}
-              <div className="absolute top-full left-0 right-0 h-8 bg-gradient-to-b from-white/10 to-transparent transform scale-y-[-1] opacity-30 pointer-events-none"></div>
+            <div className="relative w-48 h-16 md:w-56 md:h-20 transition-all duration-300 hover:scale-105">
+              <Image
+                src="/with_nobg.png"
+                alt="Prestige Car Wash by Ekhaya Intel Trading"
+                fill
+                className="object-contain transition-all duration-300 hover:brightness-110"
+                priority
+              />
             </div>
           </Link>
 

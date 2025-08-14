@@ -68,23 +68,23 @@ export function AnimatedLogo({
     switch (variant) {
       case 'auth':
         return {
-          container: 'rounded-2xl overflow-hidden backdrop-blur-sm bg-white/10 shadow-2xl border border-white/20 p-2',
-          image: 'rounded-xl object-contain mix-blend-multiply filter drop-shadow-lg'
+          container: 'transition-all duration-300 hover:scale-105',
+          image: 'object-contain transition-all duration-300 hover:brightness-110'
         };
       case 'footer':
         return {
-          container: 'rounded-xl overflow-hidden backdrop-blur-sm bg-gradient-to-r from-white/5 to-white/10 border border-white/10 p-2',
-          image: 'rounded-lg object-contain filter brightness-110 contrast-110 drop-shadow-xl'
+          container: 'transition-all duration-300 hover:scale-105',
+          image: 'object-contain transition-all duration-300 hover:brightness-110'
         };
       case 'floating':
         return {
-          container: 'rounded-full overflow-hidden backdrop-blur-md bg-white/20 shadow-xl border-2 border-white/30 p-1',
-          image: 'rounded-full object-cover'
+          container: 'rounded-full overflow-hidden backdrop-blur-2xl bg-gradient-to-br from-white/20 to-transparent shadow-2xl border-2 border-white/30 p-4 relative',
+          image: 'object-contain filter brightness-108 contrast-108'
         };
       default:
         return {
-          container: 'rounded-xl overflow-hidden backdrop-blur-sm bg-gradient-to-br from-white/10 to-white/5 shadow-lg border border-white/20 p-1',
-          image: 'rounded-lg object-contain filter drop-shadow-md'
+          container: 'rounded-2xl overflow-hidden backdrop-blur-lg bg-gradient-to-br from-white/12 to-transparent shadow-xl border border-white/25 p-2 relative',
+          image: 'object-contain filter brightness-108 contrast-105'
         };
     }
   };
@@ -155,7 +155,7 @@ export function AnimatedLogo({
         transition={{ duration: 2, repeat: Infinity }}
       >
         <Image
-          src="/logocarwash.jpg"
+          src={variant === 'footer' ? "/Ek_withnobg_black.png" : "/with_nobg.png"}
           alt="Prestige Car Wash by Ekhaya Intel Trading"
           fill
           className={cn(
@@ -166,14 +166,21 @@ export function AnimatedLogo({
           priority
         />
         
-        {/* Subtle overlay for blending */}
-        <div className={cn(
-          'absolute inset-0 transition-opacity duration-500',
-          variant === 'auth' ? 'bg-gradient-to-br from-blue-50/20 to-white/20' :
-          variant === 'footer' ? 'bg-gradient-to-br from-gray-800/10 to-gray-900/10' :
-          'bg-gradient-to-br from-white/5 to-transparent',
-          isHovered ? 'opacity-50' : 'opacity-20'
-        )} />
+        {/* Professional blending overlay - skip for footer */}
+        {variant !== 'footer' && (
+          <>
+            <div className={cn(
+              'absolute inset-0 transition-all duration-500 pointer-events-none',
+              variant === 'auth' ? 'bg-gradient-to-br from-blue-50/30 via-white/20 to-transparent mix-blend-soft-light' :
+              'bg-gradient-to-br from-white/15 via-white/8 to-transparent mix-blend-soft-light',
+              isHovered ? 'opacity-70' : 'opacity-40'
+            )} />
+
+            {/* Edge softening gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white/5 mix-blend-soft-light opacity-30 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/5 mix-blend-soft-light opacity-30 pointer-events-none" />
+          </>
+        )}
       </motion.div>
 
       {/* Animated border for special effects */}

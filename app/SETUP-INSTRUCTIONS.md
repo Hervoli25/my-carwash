@@ -76,15 +76,20 @@ yarn dev
 ## 🎨 **Customization Guide**
 
 ### **Logo Updates**
-Your new logo is located at: `/public/logocarwash.jpg`
+Your logos are located at:
+- `/public/with_nobg.png` (for header and auth pages - transparent background)
+- `/public/Ek_withnobg_black.png` (for footer - black version with transparent background)
 
-To update it:
-1. Replace the file with your new logo (keep same filename)
-2. Or update the filename in these components:
-   - `components/header.tsx`
-   - `components/footer.tsx`
-   - `app/auth/signin/page.tsx`
-   - `app/auth/signup/page.tsx`
+To update them:
+1. Replace the files with your new logos (keep same filenames)
+2. Or update the filenames in the components:
+   - Header: `components/header.tsx`
+   - Footer/Auth: `components/animations/animated-logo.tsx`
+
+Logo implementation:
+   - **Header**: Clean PNG with transparent background
+   - **Footer**: Black PNG with transparent background
+   - **Authentication pages**: White PNG with professional blending container
 
 ### **Branding Text Updates**
 All references have been updated from "Ekhaya Intel Car Wash" to "PRESTIGE Car Wash BY: EKHAYA INTEL. TRADING"
@@ -171,7 +176,7 @@ prestige_car_wash/app/
 │   └── sections/          # Page sections
 ├── lib/                   # Utilities and database
 ├── public/
-│   └── logocarwash.jpg   # Your new logo
+│   └── Ekhaya_whitelogo.jpg   # Your new logo
 └── prisma/               # Database schema
 ```
 
