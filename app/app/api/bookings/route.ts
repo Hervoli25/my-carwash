@@ -166,7 +166,13 @@ export async function POST(request: NextRequest) {
       status: booking.status,
       totalAmount: booking.totalAmount,
       date: booking.bookingDate,
-      timeSlot: booking.timeSlot
+      timeSlot: booking.timeSlot,
+      userId: booking.userId,
+      serviceId: booking.serviceId,
+      serviceName: booking.service.name,
+      createdAt: booking.createdAt || new Date(),
+      timestamp: new Date().toISOString(),
+      bookingDateFormatted: booking.bookingDate.toISOString()
     });
 
     // Create payment record with selected payment method

@@ -98,11 +98,92 @@ const addOns = [
   { id: 'engine-bay', name: 'Engine Bay Cleaning', price: 75 },
 ];
 
-const timeSlots = [
-  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-  '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-];
+// Holiday and special dates configuration for South Africa
+const holidayDates = {
+  // 2024 South African Public Holidays
+  '2024-01-01': { closed: true, name: 'New Year\'s Day' },
+  '2024-03-21': { closed: true, name: 'Human Rights Day' },
+  '2024-03-29': { closed: true, name: 'Good Friday' },
+  '2024-04-01': { closed: true, name: 'Family Day' },
+  '2024-04-27': { closed: true, name: 'Freedom Day' },
+  '2024-05-01': { closed: true, name: 'Workers\' Day' },
+  '2024-06-16': { closed: true, name: 'Youth Day' },
+  '2024-08-09': { closed: true, name: 'National Women\'s Day' },
+  '2024-09-24': { closed: true, name: 'Heritage Day' },
+  '2024-12-16': { closed: true, name: 'Day of Reconciliation' },
+  '2024-12-25': { closed: true, name: 'Christmas Day' },
+  '2024-12-26': { closed: true, name: 'Day of Goodwill' },
+  
+  // 2025 South African Public Holidays
+  '2025-01-01': { closed: true, name: 'New Year\'s Day' },
+  '2025-03-21': { closed: true, name: 'Human Rights Day' },
+  '2025-04-18': { closed: true, name: 'Good Friday' },
+  '2025-04-21': { closed: true, name: 'Family Day' },
+  '2025-04-27': { closed: true, name: 'Freedom Day' },
+  '2025-05-01': { closed: true, name: 'Workers\' Day' },
+  '2025-06-16': { closed: true, name: 'Youth Day' },
+  '2025-08-09': { closed: true, name: 'National Women\'s Day' },
+  '2025-09-24': { closed: true, name: 'Heritage Day' },
+  '2025-12-16': { closed: true, name: 'Day of Reconciliation' },
+  '2025-12-25': { closed: true, name: 'Christmas Day' },
+  '2025-12-26': { closed: true, name: 'Day of Goodwill' },
+  
+  // Special business dates (early closing, etc.)
+  '2024-12-24': { 
+    open: '08:00', 
+    close: '14:00', 
+    name: 'Christmas Eve (Early Close)',
+    specialMessage: 'Early closing for Christmas preparations'
+  },
+  '2024-12-31': { 
+    open: '08:00', 
+    close: '14:00', 
+    name: 'New Year\'s Eve (Early Close)',
+    specialMessage: 'Early closing for New Year preparations'
+  },
+  '2025-12-24': { 
+    open: '08:00', 
+    close: '14:00', 
+    name: 'Christmas Eve (Early Close)',
+    specialMessage: 'Early closing for Christmas preparations'
+  },
+  '2025-12-31': { 
+    open: '08:00', 
+    close: '14:00', 
+    name: 'New Year\'s Eve (Early Close)',
+    specialMessage: 'Early closing for New Year preparations'
+  }
+};
+
+// Realistic capacity configuration - 3-5 cars per slot based on service complexity
+const capacityConfig = {
+  // Base capacity per time slot
+  normalCapacity: 5,    // Normal hours: 5 cars max
+  peakCapacity: 3,      // Peak hours: 3 cars max (more complex coordination needed)
+  
+  // Service-based capacity adjustments
+  serviceCapacityLimits: {
+    express: 5,     // Quick service - can handle more
+    premium: 4,     // Medium complexity
+    deluxe: 3,      // Complex service - needs more attention
+    executive: 2    // Premium service - maximum care and attention
+  },
+  
+  // Time slot interval (30 minutes)
+  slotIntervalMinutes: 30,
+  
+  // Buffer time between services (staggered start times)
+  bufferMinutes: 5,
+  
+  // Peak hours when operations are more complex
+  peakHours: ['12:00', '12:30', '13:00', '13:30'],
+  
+  // Mixed service penalty (when slot has different service types)
+  mixedServicePenalty: 1, // Reduce capacity by 1 when mixing service types
+  
+  // Same service bonus (when all bookings are same service type)  
+  sameServiceBonus: 1     // Add 1 to capacity when all same service
+};
 
 export function BookingWorkflow() {
   const { data: session, status } = useSession();
@@ -120,7 +201,38 @@ export function BookingWorkflow() {
     message: string;
     suggestions?: any[];
     canCallDirect?: boolean;
+    nextAvailableDay?: Date;
+    strictPolicy?: boolean;
+    alternativeMessage?: string;
   }>({ isValid: true, message: '' });
+  const [slotAvailability, setSlotAvailability] = useState<{[key: string]: {
+    available: boolean;
+    remainingCapacity: number;
+    totalCapacity: number;
+    bookingCount: number;
+    nextAvailableSlot?: string;
+  }}>({});
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [showWaitlist, setShowWaitlist] = useState(false);
+  const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
+
+  // Color coding function for capacity indicators
+  const getCapacityColorClass = (remainingCapacity: number): string => {
+    if (remainingCapacity === 5) {
+      return 'bg-green-100 border-green-300 text-green-800'; // Full capacity - bright green
+    } else if (remainingCapacity === 4) {
+      return 'bg-green-50 border-green-200 text-green-700'; // Good capacity - light green  
+    } else if (remainingCapacity === 3) {
+      return 'bg-orange-50 border-orange-200 text-orange-700'; // Medium capacity - orange
+    } else if (remainingCapacity === 2) {
+      return 'bg-red-50 border-red-200 text-red-700'; // Low capacity - light red
+    } else if (remainingCapacity === 1) {
+      return 'bg-red-100 border-red-300 text-red-800'; // Very low - red
+    } else {
+      return 'bg-gray-100 border-gray-300 text-gray-500'; // Full/disabled - gray
+    }
+  };
 
   const {
     register,
@@ -311,15 +423,19 @@ export function BookingWorkflow() {
     setValue('vehicleColor', vehicle.color || '');
   };
 
-  // Time validation logic
-  const validateBookingTime = (date: Date, timeSlot: string, serviceId: string, isPremiumMember: boolean = false) => {
+  // Enhanced time validation logic - STRICT business hours enforcement
+  const validateBookingTime = (date: Date, timeSlot: string, serviceId: string) => {
     const selectedService = services.find(s => s.id === serviceId);
     if (!selectedService) return { isValid: true, message: '' };
 
     const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
     const businessHour = businessHours[dayName as keyof typeof businessHours];
     
-    if (!businessHour) return { isValid: false, message: 'Business closed on selected day' };
+    if (!businessHour) return { 
+      isValid: false, 
+      message: 'Business closed on selected day',
+      nextAvailableDay: getNextBusinessDay(date)
+    };
 
     // Parse times
     const [startHour, startMinute] = timeSlot.split(':').map(Number);
@@ -330,27 +446,325 @@ export function BookingWorkflow() {
     const serviceDuration = selectedService.duration;
     const endTime = startTime + serviceDuration;
 
+    // STRICT ENFORCEMENT: No exceptions for premium members or weekends
     if (endTime > closeTime) {
       // Service would run past closing time
       const timeDifference = endTime - closeTime;
       
-      // Find alternative services that would fit
+      // Find alternative services that would fit TODAY
       const suggestions = services.filter(s => 
         s.id !== serviceId && 
         (startTime + s.duration) <= closeTime
       ).sort((a, b) => b.duration - a.duration); // Longest first
 
+      // Special message for Sunday (staff rest priority)
+      let staffRestMessage = '';
+      if (dayName === 'Sunday') {
+        staffRestMessage = ' Our staff need proper rest time to provide excellent service tomorrow.';
+      }
+
       const validation: any = {
         isValid: false,
-        message: `Service would end ${timeDifference} minutes after closing time (${businessHour.close})`,
+        message: `Service would end ${timeDifference} minutes after closing time (${businessHour.close}).${staffRestMessage}`,
         suggestions,
-        canCallDirect: isPremiumMember
+        nextAvailableDay: getNextBusinessDay(date),
+        // Removed: canCallDirect - NO EXCEPTIONS
+        strictPolicy: true,
+        alternativeMessage: suggestions.length === 0 
+          ? 'No alternative services available today. Please book for the next business day.'
+          : 'Alternative services available today, or book for the next business day.'
       };
 
       return validation;
     }
 
     return { isValid: true, message: '' };
+  };
+
+  // Helper function to get next business day
+  const getNextBusinessDay = (currentDate: Date): Date => {
+    const nextDay = new Date(currentDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    
+    // Skip weekends if needed and find next open day
+    while (nextDay.getDay() === 0 && nextDay.getHours() >= 14) { // Skip late Sunday
+      nextDay.setDate(nextDay.getDate() + 1);
+    }
+    
+    return nextDay;
+  };
+
+  // DYNAMIC CAPACITY MANAGEMENT SYSTEM
+  
+  // Check if a date is a holiday or special date
+  const checkHolidayStatus = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    const holiday = holidayDates[dateStr as keyof typeof holidayDates];
+    
+    if (!holiday) return { isHoliday: false };
+    
+    if (holiday.closed) {
+      return {
+        isHoliday: true,
+        isClosed: true,
+        name: holiday.name,
+        message: `We are closed on ${holiday.name}`
+      };
+    }
+    
+    // Special hours (like early closing)
+    return {
+      isHoliday: true,
+      isClosed: false,
+      name: holiday.name,
+      specialHours: { open: holiday.open, close: holiday.close },
+      message: holiday.specialMessage || `Special hours: ${holiday.open} - ${holiday.close}`
+    };
+  };
+
+  // Generate available time slots for a specific date and service (with holiday support)
+  const generateTimeSlots = (date: Date, serviceId: string) => {
+    const selectedService = services.find(s => s.id === serviceId);
+    if (!selectedService) return [];
+
+    // Check for holidays first
+    const holidayStatus = checkHolidayStatus(date);
+    if (holidayStatus.isClosed) {
+      return []; // No slots available on closed holidays
+    }
+
+    // Get business hours (either normal or special holiday hours)
+    let businessHour;
+    if (holidayStatus.isHoliday && holidayStatus.specialHours) {
+      // Use special holiday hours
+      businessHour = {
+        open: holidayStatus.specialHours.open,
+        close: holidayStatus.specialHours.close
+      };
+    } else {
+      // Use normal business hours
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+      businessHour = businessHours[dayName as keyof typeof businessHours];
+    }
+    
+    if (!businessHour) return [];
+
+    const slots = [];
+    const [openHour, openMinute] = businessHour.open.split(':').map(Number);
+    const [closeHour, closeMinute] = businessHour.close.split(':').map(Number);
+    
+    const openTime = openHour * 60 + openMinute;
+    const closeTime = closeHour * 60 + closeMinute;
+    const serviceDuration = selectedService.duration;
+    
+    // Generate 30-minute intervals that allow service to complete before closing
+    for (let time = openTime; time + serviceDuration <= closeTime; time += 30) {
+      const hours = Math.floor(time / 60);
+      const minutes = time % 60;
+      const timeSlot = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      slots.push(timeSlot);
+    }
+    
+    return slots;
+  };
+
+  // Smart capacity checking based on service complexity and operational reality
+  const checkSlotCapacity = async (date: Date, timeSlot: string, requestedServiceId?: string) => {
+    try {
+      // Get existing bookings for this date and time slot (excluding cancelled bookings)
+      const dateStr = date.toISOString().split('T')[0];
+      const cacheBuster = Date.now(); // Prevent caching issues
+      const response = await fetch(`/api/bookings/availability?date=${dateStr}&timeSlot=${timeSlot}&includeServices=true&_t=${cacheBuster}`);
+      
+      if (!response.ok) {
+        console.error('Failed to fetch availability data');
+        return { 
+          available: true, 
+          remainingCapacity: capacityConfig.normalCapacity, 
+          totalCapacity: capacityConfig.normalCapacity, 
+          bookingCount: 0 
+        };
+      }
+      
+      const availabilityData = await response.json();
+      const activeBookings = availabilityData.bookingCount || 0;
+      const existingServices = availabilityData.services || [];
+
+      // Debug logging for capacity issues
+      console.log('🔍 CAPACITY CHECK:', {
+        timeSlot,
+        activeBookings,
+        existingServices,
+        requestedServiceId,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Calculate smart capacity based on multiple factors
+      let totalCapacity = capacityConfig.normalCapacity; // Start with base capacity
+      
+      // 1. Peak hour adjustment
+      const isPeakHour = capacityConfig.peakHours.includes(timeSlot);
+      if (isPeakHour) {
+        totalCapacity = capacityConfig.peakCapacity;
+      }
+      
+      // 2. Service complexity adjustment
+      if (requestedServiceId) {
+        const serviceLimit = capacityConfig.serviceCapacityLimits[requestedServiceId as keyof typeof capacityConfig.serviceCapacityLimits];
+        if (serviceLimit && serviceLimit < totalCapacity) {
+          totalCapacity = serviceLimit;
+        }
+      }
+      
+      // 3. Mixed service penalty/bonus
+      if (existingServices.length > 0) {
+        const uniqueServices = new Set(existingServices);
+        
+        if (requestedServiceId && !uniqueServices.has(requestedServiceId)) {
+          // Adding a different service type - apply penalty
+          totalCapacity = Math.max(2, totalCapacity - capacityConfig.mixedServicePenalty);
+        } else if (uniqueServices.size === 1 && requestedServiceId === Array.from(uniqueServices)[0]) {
+          // All same service type - apply bonus
+          totalCapacity = Math.min(6, totalCapacity + capacityConfig.sameServiceBonus);
+        }
+      }
+      
+      const remainingCapacity = Math.max(0, totalCapacity - activeBookings);
+      const available = remainingCapacity > 0;
+      
+      // Calculate operational complexity score
+      const complexityScore = calculateComplexityScore(existingServices, requestedServiceId);
+      
+      return {
+        available,
+        remainingCapacity,
+        totalCapacity,
+        bookingCount: activeBookings,
+        isPeakHour,
+        complexityScore,
+        existingServices,
+        capacityReason: getCapacityReason(isPeakHour, existingServices, requestedServiceId),
+        capacityRange: `${capacityConfig.peakCapacity}-${capacityConfig.normalCapacity} cars per slot`
+      };
+      
+    } catch (error) {
+      console.error('Error checking slot capacity:', error);
+      // Fallback to conservative capacity
+      return { 
+        available: true, 
+        remainingCapacity: 3, 
+        totalCapacity: 3, 
+        bookingCount: 0 
+      };
+    }
+  };
+
+  // Calculate operational complexity score
+  const calculateComplexityScore = (existingServices: string[], newService?: string): number => {
+    const allServices = newService ? [...existingServices, newService] : existingServices;
+    const serviceComplexity = {
+      express: 1,
+      premium: 2, 
+      deluxe: 3,
+      executive: 4
+    };
+    
+    const totalComplexity = allServices.reduce((sum, service) => {
+      return sum + (serviceComplexity[service as keyof typeof serviceComplexity] || 2);
+    }, 0);
+    
+    return Math.round(totalComplexity / Math.max(1, allServices.length));
+  };
+
+  // Get capacity reasoning for user feedback
+  const getCapacityReason = (isPeakHour: boolean, existingServices: string[], newService?: string): string => {
+    if (isPeakHour) return "Peak hour - reduced capacity for better service";
+    if (existingServices.length === 0) return "Full capacity available";
+    
+    const uniqueServices = new Set(existingServices);
+    if (newService && !uniqueServices.has(newService)) {
+      return "Mixed services - capacity reduced for coordination";
+    }
+    if (uniqueServices.size === 1) {
+      return "Same service batch - optimized capacity";
+    }
+    
+    return "Standard capacity based on current bookings";
+  };
+
+  // Get all available time slots with capacity information
+  const getAvailableTimeSlotsWithCapacity = async (date: Date, serviceId: string) => {
+    if (!date || !serviceId) return;
+    
+    setLoadingSlots(true);
+    const allSlots = generateTimeSlots(date, serviceId);
+    const capacityPromises = allSlots.map(slot => checkSlotCapacity(date, slot, serviceId));
+    
+    try {
+      const capacityResults = await Promise.all(capacityPromises);
+      const slotCapacityMap: {[key: string]: any} = {};
+      const availableSlots: string[] = [];
+      
+      allSlots.forEach((slot, index) => {
+        const capacity = capacityResults[index];
+        slotCapacityMap[slot] = capacity;
+        
+        if (capacity.available) {
+          availableSlots.push(slot);
+        }
+      });
+      
+      setSlotAvailability(slotCapacityMap);
+      setAvailableTimeSlots(availableSlots);
+      
+      // Find next available slot if current selection is full
+      if (availableSlots.length === 0) {
+        const nextDay = getNextBusinessDay(date);
+        const nextDaySlots = generateTimeSlots(nextDay, serviceId);
+        if (nextDaySlots.length > 0) {
+          slotCapacityMap['nextDay'] = {
+            available: true,
+            nextAvailableDay: nextDay,
+            nextAvailableSlot: nextDaySlots[0],
+            message: `All slots full for ${date.toDateString()}. Next available: ${nextDay.toDateString()} at ${nextDaySlots[0]}`
+          };
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error fetching slot availability:', error);
+      // Fallback to showing all generated slots
+      setAvailableTimeSlots(allSlots);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
+  // Find next available slot across multiple days
+  const findNextAvailableSlot = async (startDate: Date, serviceId: string, maxDaysToCheck: number = 7) => {
+    for (let i = 0; i < maxDaysToCheck; i++) {
+      const checkDate = new Date(startDate);
+      checkDate.setDate(startDate.getDate() + i);
+      
+      // Skip if it's not a business day
+      const dayName = checkDate.toLocaleDateString('en-US', { weekday: 'long' });
+      if (!businessHours[dayName as keyof typeof businessHours]) continue;
+      
+      const slots = generateTimeSlots(checkDate, serviceId);
+      
+      for (const slot of slots) {
+        const capacity = await checkSlotCapacity(checkDate, slot, serviceId);
+        if (capacity.available) {
+          return {
+            date: checkDate,
+            timeSlot: slot,
+            capacity: capacity
+          };
+        }
+      }
+    }
+    
+    return null; // No availability found in the checked period
   };
 
   // Check membership status
@@ -361,15 +775,29 @@ export function BookingWorkflow() {
   const watchedTime = watch('preferredTime');
   const watchedService = watch('serviceType');
 
+  // Update available slots when date or service changes
+  useEffect(() => {
+    if (selectedDate && watchedService) {
+      getAvailableTimeSlotsWithCapacity(selectedDate, watchedService);
+    }
+  }, [selectedDate, watchedService]);
+
+  // Add a manual refresh function for real-time updates
+  const refreshSlotCapacity = async () => {
+    if (selectedDate && watchedService) {
+      await getAvailableTimeSlotsWithCapacity(selectedDate, watchedService);
+    }
+  };
+
   useEffect(() => {
     if (watchedDate && watchedTime && watchedService) {
       const date = new Date(watchedDate);
-      const validation = validateBookingTime(date, watchedTime, watchedService, isPremiumMember);
+      const validation = validateBookingTime(date, watchedTime, watchedService);
       setTimeValidation(validation);
     } else {
       setTimeValidation({ isValid: true, message: '' });
     }
-  }, [watchedDate, watchedTime, watchedService, isPremiumMember]);
+  }, [watchedDate, watchedTime, watchedService]);
 
   // Calculate total price
   useEffect(() => {
@@ -513,6 +941,27 @@ export function BookingWorkflow() {
 
       setBookingConfirmed(true);
 
+      // Immediately refresh capacity to show updated availability
+      if (selectedDate && selectedService) {
+        // Force refresh with cache-busting parameter
+        console.log('🔄 FORCE REFRESH: Updating capacity after booking creation');
+        
+        // Multiple refresh attempts with increasing delays to handle database lag
+        const refreshAttempts = [500, 1000, 2000, 3000]; // Start with 500ms to ensure DB commit
+        
+        refreshAttempts.forEach((delay, index) => {
+          setTimeout(async () => {
+            console.log(`🔄 Refresh attempt ${index + 1} after ${delay}ms`);
+            try {
+              await getAvailableTimeSlotsWithCapacity(selectedDate, selectedService);
+              console.log(`✅ Refresh attempt ${index + 1} completed`);
+            } catch (error) {
+              console.error(`❌ Refresh attempt ${index + 1} failed:`, error);
+            }
+          }, delay);
+        });
+      }
+
       // Reset form for next booking
       setTimeout(() => {
         setStep(1);
@@ -578,6 +1027,70 @@ export function BookingWorkflow() {
   const prevStep = () => {
     if (step > 1) setStep(step - 1);
   };
+
+  // Authentication requirement check - MUST be logged in to book
+  if (status !== 'loading' && !session) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-2xl mx-auto p-6"
+      >
+        <Card className="text-center bg-blue-50 border-blue-200">
+          <CardHeader>
+            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <User className="w-8 h-8 text-blue-600" />
+            </div>
+            <CardTitle className="text-2xl text-blue-800">Account Required</CardTitle>
+            <CardDescription className="text-blue-700">
+              Please sign in or create an account to make a booking
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-white p-4 rounded-lg border border-blue-200">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">Save your vehicle information</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">View booking history and recommendations</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">Manage and modify bookings</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">Earn loyalty points and rewards</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button 
+                onClick={() => window.location.href = '/auth/signin'} 
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <User className="w-4 h-4 mr-2" />
+                Sign In
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/auth/register'}
+                className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                Create Account
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500">
+              Already have an account? <a href="/auth/signin" className="text-blue-600 hover:underline">Sign in here</a>
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
 
   if (bookingConfirmed) {
     return (
@@ -993,28 +1506,181 @@ export function BookingWorkflow() {
                           setSelectedDate(date);
                           setValue('preferredDate', date?.toISOString() || '');
                         }}
-                        disabled={(date) => date < new Date() || date.getDay() === 0} // Disable past dates and Sundays
+                        disabled={(date) => {
+                          // Disable past dates
+                          if (date < new Date()) return true;
+                          
+                          // Check for holidays
+                          const holidayStatus = checkHolidayStatus(date);
+                          if (holidayStatus.isClosed) return true;
+                          
+                          return false;
+                        }}
                         className="rounded-md border"
                       />
                       {errors.preferredDate && (
                         <p className="text-red-500 text-sm">{errors.preferredDate.message}</p>
                       )}
+                      
+                      {/* Holiday/Special Date Notification */}
+                      {selectedDate && (() => {
+                        const holidayStatus = checkHolidayStatus(selectedDate);
+                        if (holidayStatus.isHoliday && !holidayStatus.isClosed) {
+                          return (
+                            <div className="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <AlertCircle className="w-4 h-4 text-orange-600" />
+                                <span className="font-medium text-orange-800 text-sm">{holidayStatus.name}</span>
+                              </div>
+                              <p className="text-orange-700 text-sm mt-1">
+                                {holidayStatus.message}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                     
                     <div className="space-y-2">
                       <Label htmlFor="preferredTime">Preferred Time *</Label>
-                      <Select onValueChange={(value) => setValue('preferredTime', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select time" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {timeSlots.map((time) => (
-                            <SelectItem key={time} value={time}>
-                              {time}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      {loadingSlots ? (
+                        <div className="flex items-center justify-center p-4 border rounded-md">
+                          <motion.div
+                            className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full mr-2"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          />
+                          <span className="text-sm text-gray-600">Loading available slots...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <Select onValueChange={(value) => setValue('preferredTime', value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select available time" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableTimeSlots.length > 0 ? (
+                                availableTimeSlots.map((time) => {
+                                  const slotInfo = slotAvailability[time];
+                                  return (
+                                    <SelectItem key={time} value={time}>
+                                      <div className="flex items-center justify-between w-full">
+                                        <span>{time}</span>
+                                        <div className="flex items-center space-x-2 ml-4">
+                                          {slotInfo?.isPeakHour && (
+                                            <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700">
+                                              Peak
+                                            </Badge>
+                                          )}
+                                          <Badge 
+                                            variant="outline" 
+                                            className={`text-xs font-medium ${getCapacityColorClass(slotInfo?.remainingCapacity || 0)}`}
+                                          >
+                                            {slotInfo?.remainingCapacity || 0} left
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                    </SelectItem>
+                                  );
+                                })
+                              ) : (
+                                <div className="px-3 py-2 text-sm text-gray-500">
+                                  No available slots for this date and service
+                                </div>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          
+                          {availableTimeSlots.length === 0 && slotAvailability['nextDay'] && (
+                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <CalendarIcon className="w-4 h-4 text-blue-600" />
+                                <span className="font-medium text-blue-800 text-sm">All Slots Full</span>
+                              </div>
+                              <p className="text-blue-700 text-sm mb-3">
+                                {slotAvailability['nextDay'].message}
+                              </p>
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <Button
+                                  type="button"
+                                  onClick={() => {
+                                    const nextDay = slotAvailability['nextDay'].nextAvailableDay;
+                                    const nextSlot = slotAvailability['nextDay'].nextAvailableSlot;
+                                    if (nextDay && nextSlot) {
+                                      setSelectedDate(nextDay);
+                                      setValue('preferredDate', nextDay.toISOString());
+                                      setValue('preferredTime', nextSlot);
+                                    }
+                                  }}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                                  size="sm"
+                                >
+                                  <CalendarIcon className="w-4 h-4 mr-2" />
+                                  Book Next Available
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => setShowWaitlist(true)}
+                                  className="border-blue-200 text-blue-700 hover:bg-blue-50 text-sm"
+                                  size="sm"
+                                >
+                                  <AlertCircle className="w-4 h-4 mr-2" />
+                                  Join Waitlist
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Enhanced Capacity Information Display */}
+                          {availableTimeSlots.length > 0 && (
+                            <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center space-x-2">
+                                  <Badge className="bg-green-100 text-green-800 text-xs">
+                                    {availableTimeSlots.length} slots available
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs">
+                                    3-5 cars per slot
+                                  </Badge>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={refreshSlotCapacity}
+                                  className="h-6 px-2 text-xs"
+                                  disabled={loadingSlots}
+                                >
+                                  {loadingSlots ? (
+                                    <motion.div
+                                      className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full"
+                                      animate={{ rotate: 360 }}
+                                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                    />
+                                  ) : (
+                                    '🔄 Refresh'
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Service Complexity Notice */}
+                          {selectedService && (
+                            <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                              <div className="text-blue-700 text-xs">
+                                <strong>{services.find(s => s.id === selectedService)?.name}:</strong>
+                                {selectedService === 'express' && ' Quick service - higher slot capacity available'}
+                                {selectedService === 'premium' && ' Standard service - good availability'}
+                                {selectedService === 'deluxe' && ' Detailed service - limited slots for quality focus'}
+                                {selectedService === 'executive' && ' Premium service - exclusive attention, very limited slots'}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
                       {errors.preferredTime && (
                         <p className="text-red-500 text-sm">{errors.preferredTime.message}</p>
                       )}
@@ -1059,35 +1725,63 @@ export function BookingWorkflow() {
                         </div>
                       )}
 
-                      {/* Premium Member Direct Call Option */}
-                      {timeValidation.canCallDirect && (
-                        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      {/* Next Business Day Recommendation (Enhanced) */}
+                      <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-2 mb-3">
+                          <CalendarIcon className="w-5 h-5 text-green-600" />
+                          <span className="font-medium text-green-800">Recommended: Next Business Day</span>
+                        </div>
+                        <p className="text-green-700 text-sm mb-3">
+                          {timeValidation.nextAvailableDay && (
+                            <>Book your service on {timeValidation.nextAvailableDay.toDateString()} when we have full availability for all services.</>
+                          )}
+                        </p>
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            if (timeValidation.nextAvailableDay) {
+                              setSelectedDate(timeValidation.nextAvailableDay);
+                              setValue('preferredDate', timeValidation.nextAvailableDay.toISOString());
+                            }
+                          }}
+                          className="bg-green-600 hover:bg-green-700 text-white text-sm"
+                          size="sm"
+                        >
+                          <CalendarIcon className="w-4 h-4 mr-2" />
+                          Book for Next Business Day
+                        </Button>
+                      </div>
+
+                      {/* Staff Rest Policy Notice (for Sunday bookings) */}
+                      {new Date(watchedDate || '').getDay() === 0 && (
+                        <div className="mt-4 bg-orange-50 border border-orange-200 rounded-lg p-4">
                           <div className="flex items-center space-x-2 mb-2">
-                            <Crown className="w-4 h-4 text-blue-600" />
-                            <span className="font-medium text-blue-800">Premium Member Privilege</span>
+                            <AlertCircle className="w-5 h-5 text-orange-600" />
+                            <span className="font-medium text-orange-800">Sunday Service Hours</span>
                           </div>
-                          <p className="text-blue-700 text-sm mb-2">
-                            As a Premium member, you can call us directly to arrange special accommodation.
+                          <p className="text-orange-700 text-sm">
+                            We close early on Sundays (2:00 PM) to ensure our staff get proper rest for excellent service throughout the week. 
+                            Consider booking for Monday when we're refreshed and ready to provide the best care for your vehicle!
                           </p>
-                          <a
-                            href="tel:+27786132969"
-                            className="inline-flex items-center space-x-2 bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors"
-                          >
-                            <Phone className="w-4 h-4" />
-                            <span>Call +27 78 613 2969</span>
-                          </a>
                         </div>
                       )}
 
-                      {/* Next Business Day Option */}
+                      {/* Emergency Contact (Only for same-day urgent needs) */}
                       <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
                         <div className="flex items-center space-x-2 mb-2">
-                          <Calendar className="w-4 h-4 text-gray-600" />
-                          <span className="font-medium text-gray-800">Alternative: Next Business Day</span>
+                          <Phone className="w-4 h-4 text-gray-600" />
+                          <span className="font-medium text-gray-800">For Urgent Same-Day Needs</span>
                         </div>
-                        <p className="text-gray-700 text-sm">
-                          You can also book this service for the next available business day when we have more time slots available.
+                        <p className="text-gray-700 text-sm mb-2">
+                          If you have an emergency or urgent same-day requirement, you may call us. Please note: services outside business hours are subject to availability and additional charges.
                         </p>
+                        <a
+                          href="tel:+27786132969"
+                          className="inline-flex items-center space-x-2 bg-gray-600 text-white px-3 py-2 rounded-md text-sm hover:bg-gray-700 transition-colors"
+                        >
+                          <Phone className="w-4 h-4" />
+                          <span>Call +27 78 613 2969</span>
+                        </a>
                       </div>
                     </motion.div>
                   )}
@@ -1177,6 +1871,21 @@ export function BookingWorkflow() {
                         <span>SMS notifications (appointment reminders)</span>
                       </label>
                     </div>
+                    
+                    {/* Reminder Schedule Information */}
+                    {(watch('emailNotifications') || watch('smsNotifications')) && (
+                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Clock className="w-4 h-4 text-blue-600" />
+                          <span className="font-medium text-blue-800 text-sm">Automated Reminder Schedule</span>
+                        </div>
+                        <div className="text-blue-700 text-sm space-y-1">
+                          <p>• <strong>24 hours before:</strong> Appointment confirmation reminder</p>
+                          <p>• <strong>2 hours before:</strong> "Get ready" reminder with location details</p>
+                          <p>• <strong>30 minutes before:</strong> "Time to head out" final reminder</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Data Processing Notice */}
@@ -1298,6 +2007,147 @@ export function BookingWorkflow() {
           )}
         </div>
       </form>
+
+      {/* Waitlist Modal */}
+      {showWaitlist && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowWaitlist(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="bg-white rounded-lg p-6 w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Join Waitlist</h3>
+              <button
+                onClick={() => setShowWaitlist(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center space-x-2 mb-2">
+                  <AlertCircle className="w-4 h-4 text-yellow-600" />
+                  <span className="font-medium text-yellow-800 text-sm">Waitlist Benefits</span>
+                </div>
+                <ul className="text-yellow-700 text-sm space-y-1">
+                  <li>• Get notified if someone cancels their booking</li>
+                  <li>• Priority booking for similar time slots</li>
+                  <li>• Automatic notification via email and SMS</li>
+                  <li>• No charge until you get a confirmed slot</li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Date & Time
+                  </label>
+                  <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                    {selectedDate?.toDateString()} at {watch('preferredTime') || 'any available time'}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Service
+                  </label>
+                  <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                    {services.find(s => s.id === selectedService)?.name || 'Selected service'}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Alternative Times (Optional)
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Morning (8AM-12PM)', 'Afternoon (12PM-4PM)', 'Evening (4PM-6PM)'].map((period) => (
+                      <label key={period} className="flex items-center space-x-2">
+                        <input type="checkbox" className="rounded border-gray-300" />
+                        <span className="text-xs text-gray-600">{period}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowWaitlist(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={async () => {
+                    setWaitlistSubmitting(true);
+                    try {
+                      // Submit waitlist request
+                      const waitlistData = {
+                        customerName: `${watch('firstName')} ${watch('lastName')}`,
+                        email: watch('email'),
+                        phone: watch('phone'),
+                        preferredDate: selectedDate?.toISOString(),
+                        preferredTime: watch('preferredTime'),
+                        serviceId: selectedService,
+                        vehicleInfo: `${watch('vehicleMake')} ${watch('vehicleModel')} (${watch('plateNumber')})`
+                      };
+
+                      const response = await fetch('/api/waitlist', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(waitlistData),
+                      });
+
+                      if (response.ok) {
+                        toast.success('You\'ve been added to the waitlist! We\'ll notify you if a slot becomes available.');
+                        setShowWaitlist(false);
+                      } else {
+                        throw new Error('Failed to join waitlist');
+                      }
+                    } catch (error) {
+                      toast.error('Failed to join waitlist. Please try again.');
+                    } finally {
+                      setWaitlistSubmitting(false);
+                    }
+                  }}
+                  disabled={waitlistSubmitting}
+                  className="flex-1 bg-yellow-600 hover:bg-yellow-700"
+                >
+                  {waitlistSubmitting ? (
+                    <>
+                      <motion.div
+                        className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      />
+                      Joining...
+                    </>
+                  ) : (
+                    'Join Waitlist'
+                  )}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }
