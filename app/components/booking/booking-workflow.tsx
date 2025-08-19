@@ -210,7 +210,10 @@ export function BookingWorkflow() {
     remainingCapacity: number;
     totalCapacity: number;
     bookingCount: number;
+    isPeakHour?: boolean;
+    message?: string;
     nextAvailableSlot?: string;
+    nextAvailableDay?: Date;
   }}>({});
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -503,7 +506,7 @@ export function BookingWorkflow() {
     
     if (!holiday) return { isHoliday: false };
     
-    if (holiday.closed) {
+    if ('closed' in holiday && holiday.closed) {
       return {
         isHoliday: true,
         isClosed: true,
@@ -517,8 +520,8 @@ export function BookingWorkflow() {
       isHoliday: true,
       isClosed: false,
       name: holiday.name,
-      specialHours: { open: holiday.open, close: holiday.close },
-      message: holiday.specialMessage || `Special hours: ${holiday.open} - ${holiday.close}`
+      specialHours: 'open' in holiday ? { open: holiday.open, close: holiday.close } : undefined,
+      message: 'specialMessage' in holiday ? holiday.specialMessage : `Special holiday: ${holiday.name}`
     };
   };
 

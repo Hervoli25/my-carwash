@@ -34,8 +34,8 @@ export function authenticateApiKey(request: NextRequest): boolean {
 }
 
 // Wrapper function for API routes that require authentication
-export function withApiAuth(handler: (request: NextRequest) => Promise<NextResponse>) {
-  return async (request: NextRequest) => {
+export function withApiAuth(handler: (request: NextRequest, context?: any) => Promise<NextResponse>) {
+  return async (request: NextRequest, context?: any) => {
     if (!authenticateApiKey(request)) {
       return NextResponse.json(
         { 
@@ -46,7 +46,7 @@ export function withApiAuth(handler: (request: NextRequest) => Promise<NextRespo
       );
     }
     
-    return handler(request);
+    return handler(request, context);
   };
 }
 

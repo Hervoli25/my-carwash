@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         },
         timeSlot: timeSlot,
         status: {
-          in: ['CONFIRMED', 'PENDING', 'IN_PROGRESS'] // Only count active bookings
+          in: ['CONFIRMED', 'IN_PROGRESS'] // Only count active bookings
         }
       }
     });
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
         },
         timeSlot: timeSlot,
         status: {
-          in: ['CONFIRMED', 'PENDING', 'IN_PROGRESS']
+          in: ['CONFIRMED', 'IN_PROGRESS']
         }
       },
       select: {
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
           },
           timeSlot: timeSlot,
           status: {
-            in: ['CONFIRMED', 'PENDING', 'IN_PROGRESS'] // Match the main query
+            in: ['CONFIRMED', 'IN_PROGRESS'] // Match the main query
           }
         },
         select: {
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
             }
           },
           status: {
-            in: ['CONFIRMED', 'PENDING', 'IN_PROGRESS'] // Consistent with main query
+            in: ['CONFIRMED', 'IN_PROGRESS'] // Consistent with main query
           }
         }
       });
@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
           lte: endOfDay,
         },
         status: {
-          in: ['CONFIRMED', 'PENDING', 'IN_PROGRESS'] // Consistent with main query
+          in: ['CONFIRMED', 'IN_PROGRESS'] // Consistent with main query
         }
       }
     });
@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
             },
             timeSlot: timeSlot,
             status: {
-              in: ['CONFIRMED', 'PENDING', 'IN_PROGRESS'] // Consistent with main query
+              in: ['CONFIRMED', 'IN_PROGRESS'] // Consistent with main query
             }
           }
         });

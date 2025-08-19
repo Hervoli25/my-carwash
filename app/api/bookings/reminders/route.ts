@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       appointmentTime: booking.timeSlot,
       totalPrice: booking.totalAmount,
       bookingId: booking.id.slice(-8).toUpperCase(),
-      specialInstructions: booking.specialInstructions
+      specialInstructions: booking.notes || ''
     };
 
     // Send appropriate reminder based on type
@@ -117,22 +117,18 @@ export async function POST(request: NextRequest) {
       console.error('Email reminder failed:', error);
     }
 
-    // Send SMS reminder if user opted in
-    if (booking.smsNotifications && notificationData.phoneNumber) {
-      try {
-        await SMSNotificationService.sendBookingReminder(
-          notificationData.phoneNumber,
-          {
-            ...notificationData,
-            reminderType: type,
-            reminderMessage
-          }
-        );
-        smsSent = true;
-      } catch (error) {
-        console.error('SMS reminder failed:', error);
-      }
-    }
+    // SMS reminders temporarily disabled (requires SMS service setup)
+    // if (notificationData.phoneNumber) {
+    //   try {
+    //     await SMSNotificationService.sendBookingReminder(
+    //       notificationData.phoneNumber, { ...notificationData, reminderType: type, reminderMessage }
+    //     );
+    //     smsSent = true;
+    //   } catch (error) {
+    //     console.error('SMS reminder failed:', error);
+    //   }
+    // }
+    console.log(`📱 SMS reminder would be sent to ${notificationData.phoneNumber} (SMS service not configured)`);
 
     // Record reminder in database
     const reminder = await prisma.bookingReminder.create({
@@ -180,7 +176,7 @@ export async function GET(request: NextRequest) {
     // Get all confirmed bookings that haven't been cancelled
     const upcomingBookings = await prisma.booking.findMany({
       where: {
-        status: { in: ['CONFIRMED', 'PENDING'] },
+        status: { in: ['CONFIRMED', 'IN_PROGRESS'] },
         bookingDate: {
           gte: new Date(now.getTime() - 24 * 60 * 60 * 1000), // From 24 hours ago
           lte: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) // Up to 7 days ahead

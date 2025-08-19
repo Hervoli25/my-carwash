@@ -186,6 +186,7 @@ model User {
   reviews          Review[]
   notifications    Notification[]
   stripeCustomer   StripeCustomer?
+  waitlists        Waitlist[]
 
   // Indexes for performance
   @@index([email])
@@ -305,11 +306,12 @@ model Booking {
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
-  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  service Service        @relation(fields: [serviceId], references: [id])
-  vehicle Vehicle        @relation(fields: [vehicleId], references: [id])
-  addOns  BookingAddOn[]
-  payment Payment?
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service   Service           @relation(fields: [serviceId], references: [id])
+  vehicle   Vehicle           @relation(fields: [vehicleId], references: [id])
+  addOns    BookingAddOn[]
+  payment   Payment?
+  reminders BookingReminder[]
 
   // Indexes for performance
   @@index([userId])
@@ -466,5 +468,55 @@ model Notification {
   @@index([userId])
   @@index([type])
   @@index([isRead])
+  @@index([createdAt])
+}
+
+model BookingReminder {
+  id           String    @id @default(cuid())
+  bookingId    String
+  reminderType String    // "24_hour", "2_hour", "30_minute"
+  emailSent    Boolean   @default(false)
+  smsSent      Boolean   @default(false)
+  sentAt       DateTime?
+  message      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([bookingId])
+  @@index([reminderType])
+  @@index([sentAt])
+  @@unique([bookingId, reminderType]) // One reminder per type per booking
+}
+
+model Waitlist {
+  id               String    @id @default(cuid())
+  userId           String
+  customerName     String
+  email            String
+  phone            String
+  preferredDate    DateTime
+  preferredTime    String?
+  serviceId        String
+  vehicleInfo      String?
+  alternativeTimes String[]  // JSON array of alternative time preferences
+  status           String    @default("ACTIVE") // ACTIVE, NOTIFIED, CONVERTED, CANCELLED
+  priority         Int       @default(1) // Higher number = higher priority
+  notificationsSent Int      @default(0)
+  cancelledAt      DateTime?
+  convertedAt      DateTime? // When waitlist converted to booking
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([userId])
+  @@index([preferredDate])
+  @@index([serviceId])
+  @@index([status])
+  @@index([priority])
   @@index([createdAt])
 }
