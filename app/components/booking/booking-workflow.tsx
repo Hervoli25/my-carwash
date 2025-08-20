@@ -72,7 +72,7 @@ const createBookingSchema = (t: (key: string) => string) => z.object({
   marketingConsent: z.boolean().optional(),
 });
 
-type BookingFormData = z.infer<typeof bookingSchema>;
+type BookingFormData = z.infer<ReturnType<typeof createBookingSchema>>;
 
 const services = [
   { id: 'express', name: 'Express Exterior Wash', price: 80, duration: 15 },

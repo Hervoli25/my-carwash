@@ -55,11 +55,11 @@ export function RealTimeTracking({ bookingId, isDemo = false }: RealTimeTracking
       if (isDemo || bookingId === 'DEMO-BOOKING') {
         // Set demo data instead
         setStages([
-          { id: 1, name: 'Booking Confirmed', completed: true, current: false, estimatedTime: '10:00' },
-          { id: 2, name: 'Vehicle Check-in', completed: true, current: false, estimatedTime: '10:05' },
-          { id: 3, name: 'Washing in Progress', completed: false, current: true, estimatedTime: '10:15' },
-          { id: 4, name: 'Quality Check', completed: false, current: false, estimatedTime: '10:25' },
-          { id: 5, name: 'Ready for Pickup', completed: false, current: false, estimatedTime: '10:30' },
+          { id: '1', name: 'Booking Confirmed', completed: true, current: false, estimatedTime: 600 },
+          { id: '2', name: 'Vehicle Check-in', completed: true, current: false, estimatedTime: 605 },
+          { id: '3', name: 'Washing in Progress', completed: false, current: true, estimatedTime: 615 },
+          { id: '4', name: 'Quality Check', completed: false, current: false, estimatedTime: 625 },
+          { id: '5', name: 'Ready for Pickup', completed: false, current: false, estimatedTime: 630 },
         ]);
         setTotalProgress(45);
         setEstimatedCompletion('10:30');
