@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { ServiceCategory } from '@prisma/client';
+import { generateAndStoreReceipt } from '@/lib/receipt-generator';
 
 export async function POST(request: NextRequest) {
   try {
@@ -229,6 +230,40 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Generate and store receipt
+    let receiptNumber = null;
+    try {
+      receiptNumber = await generateAndStoreReceipt({
+        bookingId: booking.id,
+        userId: user.id,
+        customerName: `${data.firstName} ${data.lastName}`,
+        customerEmail: user.email,
+        customerPhone: user.phone || undefined,
+        serviceName: service.name,
+        serviceCategory: service.category,
+        vehiclePlate: vehicle.licensePlate,
+        vehicleDetails: {
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year,
+          color: vehicle.color
+        },
+        baseAmount: booking.baseAmount,
+        addOnAmount: booking.addOnAmount,
+        totalAmount: booking.totalAmount,
+        paymentMethod: data.paymentMethod,
+        paymentStatus: paymentRecord?.status || 'PENDING',
+        bookingDate: booking.bookingDate,
+        timeSlot: booking.timeSlot,
+        notes: booking.notes || undefined
+      });
+      
+      console.log('📄 Receipt generated:', { receiptNumber, bookingId: booking.id });
+    } catch (receiptError) {
+      console.error('⚠️ Receipt generation failed:', receiptError);
+      // Don't fail the booking if receipt generation fails
+    }
+
     return NextResponse.json({ 
       success: true, 
       booking: {
@@ -238,7 +273,8 @@ export async function POST(request: NextRequest) {
         status: booking.status,
         totalAmount: booking.totalAmount / 100, // Convert back to Rand
         service: booking.service.name,
-        vehicle: `${booking.vehicle.make} ${booking.vehicle.model} (${booking.vehicle.licensePlate})`
+        vehicle: `${booking.vehicle.make} ${booking.vehicle.model} (${booking.vehicle.licensePlate})`,
+        receiptNumber: receiptNumber
       }
     });
 

@@ -47,6 +47,7 @@ export default async function ReceiptPage({ params }: ReceiptPageProps) {
       service: true,
       vehicle: true,
       payment: true,
+      receipt: true,
       addOns: {
         include: {
           addOn: true,
@@ -59,7 +60,12 @@ export default async function ReceiptPage({ params }: ReceiptPageProps) {
     redirect('/bookings');
   }
 
-  const receiptNumber = `RCT-${booking.id.slice(-8).toUpperCase()}`;
+  // Try to get receipt from database first, fallback to generated receipt number
+  let receiptNumber = `RCT-${booking.id.slice(-8).toUpperCase()}`;
+  if (booking.receipt) {
+    receiptNumber = booking.receipt.receiptNumber;
+  }
+  
   const bookingNumber = `BKG-${booking.id.slice(-8).toUpperCase()}`;
 
   return <ReceiptClient booking={booking} user={user} receiptNumber={receiptNumber} bookingNumber={bookingNumber} />;
