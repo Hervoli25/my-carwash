@@ -133,11 +133,16 @@ npm run db:deploy      # Deploy migrations to production
 
 ## 🧪 **Testing Credentials**
 
-### Dummy Login Account
+### Test Login Account
 For testing user authentication and dashboard features:
 
 - **Email**: `john@doe.com`
-- **Password**: `johndoe123`
+- **Password**: Set via `TEST_USER_PASSWORD` environment variable (defaults to secure password)
+
+**Security Note**: This test account is created during database seeding. In production:
+1. Remove or disable test accounts
+2. Use secure passwords via environment variables
+3. Never commit test credentials to version control
 
 This account has been pre-configured with sample bookings and profile data.
 

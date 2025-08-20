@@ -8,8 +8,9 @@ async function main() {
   console.log('🌱 Starting to seed database...');
 
   try {
-    // Create admin/test user
-    const hashedPassword = await bcryptjs.hash('johndoe123', 10);
+    // Create test user - use environment variable for password
+    const testPassword = process.env.TEST_USER_PASSWORD || 'TestUser123!';
+    const hashedPassword = await bcryptjs.hash(testPassword, 12);
     
     const testUser = await prisma.user.upsert({
       where: { email: 'john@doe.com' },
