@@ -1,0 +1,192 @@
+{
+  "common": {
+    "loading": "Iyalayisha...",
+    "error": "Impazamo",
+    "success": "Impumelelo",
+    "cancel": "Rhoxisa",
+    "confirm": "Qinisekisa",
+    "save": "Gcina",
+    "edit": "Hlela",
+    "delete": "Cima",
+    "back": "Buyela",
+    "next": "Okulandelayo",
+    "previous": "Okwangaphambili",
+    "close": "Vala",
+    "yes": "Ewe",
+    "no": "Hayi"
+  },
+  "navigation": {
+    "home": "Ikhaya",
+    "services": "Iinkonzo",
+    "book": "Bhuka Ngoku",
+    "bookings": "Iibhukhingi Zam",
+    "profile": "Iprofayile",
+    "contact": "Qhagamshelana",
+    "about": "Malunga",
+    "signin": "Ngena",
+    "signup": "Bhalisa",
+    "signout": "Phuma"
+  },
+  "home": {
+    "title": "PRESTIGE Ukuhlamba Imoto",
+    "subtitle": "Iinkonzo Zokukhathalela Imoto Eziphezulu",
+    "badge": "Ukukhathalela Imoto Okuphezulu",
+    "hero": {
+      "title": "Iinkonzo Zokuhlamaba Imoto Zobuchwephesha",
+      "subtitle": "Fumana eyona nto iphezulu ekukhathaleleneni imoto ngeenkonzo zethu zokuhlamba nokucoca",
+      "cta": "Bhuka Inkonzo Yakho"
+    },
+    "features": {
+      "quality": {
+        "title": "Umgangatho Ophezulu",
+        "description": "Izixhobo zobuchwephesha neemveliso ezinobuhlobo bendalo"
+      },
+      "convenience": {
+        "title": "Ukubhuka Okulula",
+        "description": "Ukubhuka kwe-intanethi okulula ngamaxesha aguquguqukayo"
+      },
+      "tracking": {
+        "title": "Ukulandelela Ngexesha Lokwenyani",
+        "description": "Landelela inkqubela yenkonzo yakho ngexesha lokwenyani"
+      }
+    },
+    "carousel": {
+      "luxury": {
+        "title": "Iinkonzo Zokuhlamba Imoto Ezintle",
+        "description": "Ukuhlamba obuchwephesha kunye neziphumo ezikhanyayo"
+      },
+      "interior": {
+        "title": "Ukucoca Ngaphakathi Okuphezulu",
+        "description": "Ukhathalelo olukhethekileyo lwezinto zangaphakathi ezintle"
+      },
+      "facilities": {
+        "title": "Amaziko Obuchwephesha Obuphezulu",
+        "description": "Izixhobo kunye nobuchwephesha besimanje"
+      },
+      "lounge": {
+        "title": "Indawo Yabathengi Ekhiqizayo",
+        "description": "Sebenza ngelixa sikhathalela imoto yakho"
+      },
+      "transformation": {
+        "title": "Utshintsho Olumangalisayo",
+        "description": "Iziphumo zangaphambili nangemva ezithetha ngokwazo"
+      }
+    }
+  },
+  "services": {
+    "title": "Iinkonzo Zethu",
+    "express": {
+      "name": "Thunder Wash & Vacuum",
+      "description": "Ukucoca okukhawulezayo kweendlela zokuphila ezixakekileyo! Iqela lethu elichwephesha libonelela ngokhathalelo oluqhelekileyo kwimoto yakho.",
+      "features": ["Ukuhlamba kwangaphandle", "Ukusetyenziswa kwesepha", "Ukuhlamba ngamandla aphezulu", "Ukuhlamba okungenabala", "Ukoma emoyeni", "I-vacuum yangaphakathi"]
+    },
+    "premium": {
+      "name": "Classic Wash & Wax Express",
+      "description": "Ukhathalelo lwemoto oluphezulu kunye nokhuseleko lwe-wax express. Kulungele kakhulu abaqhubi abaqhelekileyo abafuna ukukhanya okuhlala ixesha elide.",
+      "features": ["Ukuhlamba kwangaphambili", "Ukusetyenziswa kwesepha", "Ukhuseleko lwe-wax express", "Ukoma obuchwephesha", "Ukukhanya kwamatayara", "I-vacuum yangaphakathi", "Ukhuseleko lweengxenye", "Ukucoca amavili"]
+    },
+    "deluxe": {
+      "name": "Supreme Wash & Polish",
+      "description": "Ukuhlamba okupheleleyo kunye nenkonzo ye-wax polish ephezulu yokhuseleko oluphezulu nokukhanya.",
+      "features": ["Ukuhlamba kwangaphandle okupheleleyo", "I-wax polish ekhanyayo ephezulu", "I-vacuum yangaphakathi", "Unyango lwe-dashboard", "Ukucoca iifestile ngaphakathi nangaphandle", "Unyango lokukhanya kwamatayara", "Isiphunga esimnandi"]
+    },
+    "executive": {
+      "name": "Ultimate Detail Experience",
+      "description": "Amava okugqibela okucoca imoto nge-clay bar treatment kunye ne-machine buffing ephezulu.",
+      "features": ["Ukuhlamba kwangaphandle okupheleleyo", "Unyango lwe-clay bar", "I-machine buffing", "Ukugqitywa kwe-wax HD ephezulu", "Ukucoca kwangaphakathi okunzulu", "Unyango lwesikhumba", "Ukucoca indawo yenjini", "Ukuhlolwa komgangatho"]
+    }
+  },
+  "booking": {
+    "title": "Bhuka Inkonzo Yakho",
+    "steps": {
+      "service": "Khetha Inkonzo",
+      "datetime": "Khetha Umhla Nexesha",
+      "details": "Iinkcukacha Zakho",
+      "payment": "Intlawulo",
+      "confirmation": "Ukuqinisekisa"
+    },
+    "form": {
+      "firstName": "Igama Lokuqala",
+      "lastName": "Ifani",
+      "email": "Idilesi Ye-imeyile",
+      "phone": "Inombolo Yomnxeba",
+      "plateNumber": "Ipleyiti Yenombolo",
+      "vehicleMake": "Uhlobo Lwemoto",
+      "vehicleModel": "Imodeli Yemoto",
+      "vehicleYear": "Unyaka Wemoto",
+      "vehicleColor": "Umbala Wemoto",
+      "specialInstructions": "Imiyalelo Ekhethekileyo"
+    },
+    "validation": {
+      "required": "Eli candelo liyafuneka",
+      "email": "Nceda ufake idilesi ye-imeyile esebenzayo",
+      "phone": "Nceda ufake inombolo yomnxeba esebenzayo",
+      "plateRequired": "Ipleyiti yenombolo iyafuneka ukulandelela"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Wamkelekile Kwakhona",
+      "subtitle": "Ngena kwi-akhawunti yakho",
+      "email": "I-imeyile",
+      "password": "Iphaswedi",
+      "rememberMe": "Ndikhumbule",
+      "forgotPassword": "Ulibale iphaswedi?",
+      "button": "Ngena",
+      "noAccount": "Awunayo i-akhawunti?",
+      "signupLink": "Bhalisa"
+    },
+    "signup": {
+      "title": "Yenza I-akhawunti",
+      "subtitle": "Joyina PRESTIGE Car Wash",
+      "button": "Yenza I-akhawunti",
+      "hasAccount": "Usele unayo i-akhawunti?",
+      "signinLink": "Ngena"
+    },
+    "forgotPassword": {
+      "title": "Iphaswedi Elibaliweyo",
+      "subtitle": "Faka i-imeyile yakho ukufumana ikhongolose yokubuyisela",
+      "button": "Thumela ikhongolose yokubuyisela",
+      "backToSignin": "Buyela ekungeneni"
+    }
+  },
+  "footer": {
+    "company": "Inkampani",
+    "services": "Iinkonzo",
+    "support": "Inkxaso",
+    "legal": "Ezomthetho",
+    "followUs": "Silandele",
+    "newsletter": "I-newsletter",
+    "newsletterSubtitle": "Hlala usazi ngezona zibonelelo zethu zintsha",
+    "emailPlaceholder": "Faka i-imeyile yakho",
+    "subscribe": "Bhalisa",
+    "copyright": "© 2024 PRESTIGE Car Wash. Onke amalungelo agciniwe.",
+    "location": {
+      "title": "Sifumane",
+      "address": "30 Lower Piers Road, Wynberg, eKapa",
+      "phone": "+27 78 613 2969",
+      "email": "info@prestigecarwash.co.za",
+      "hours": "NgoMvulo-NgoLwesihlanu: 8AM-6PM, NgoMgqibelo: 8AM-5PM, NgeCawe: 9AM-2PM",
+      "getDirections": "Fumana Izikhombisi",
+      "viewOnMap": "Jonga Kwimephu",
+      "showMap": "Bonisa Imephu",
+      "hideMap": "Fihla Imephu",
+      "mapLoading": "Ilayisha imephu...",
+      "mapError": "Ayikwazi ukulayisha imephu"
+    },
+    "links": {
+      "about": "Ngathi",
+      "careers": "Amathuba Omsebenzi",
+      "contact": "Qhagamshelana",
+      "expressWash": "Ukuhlamba Ngokukhawuleza",
+      "premiumWash": "Ukuhlamba Okukumgangatho",
+      "detailing": "Iinkcukacha",
+      "helpCenter": "Iziko Loncedo",
+      "faq": "Imibuzo Eqhelekileyo",
+      "booking": "Inkxaso Yokubhukisha",
+      "privacy": "Umgaqo-nkqubo Wabucala",
+      "terms": "Imiqathango Yenkonzo",
+      "cookies": "Umgaqo-nkqubo Wamakhukhi"
+    }
+  }
+}

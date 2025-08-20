@@ -1,0 +1,192 @@
+{
+  "common": {
+    "loading": "E ntse e jara...",
+    "error": "Phoso",
+    "success": "Katleho",
+    "cancel": "Hlakola",
+    "confirm": "Netefatsa",
+    "save": "Boloka",
+    "edit": "Fetola",
+    "delete": "Hlakola",
+    "back": "Kgutlela",
+    "next": "Tse latelang",
+    "previous": "Tse fetileng",
+    "close": "Koala",
+    "yes": "E",
+    "no": "Tjhe"
+  },
+  "navigation": {
+    "home": "Hae",
+    "services": "Ditshebeletso",
+    "book": "Buuka Hona Jwale",
+    "bookings": "Dibukeng tsa Ka",
+    "profile": "Profaele",
+    "contact": "Ikopanye",
+    "about": "Ka",
+    "signin": "Kena",
+    "signup": "Ngodisa",
+    "signout": "Tswa"
+  },
+  "home": {
+    "title": "PRESTIGE Hlatswa Koloi",
+    "subtitle": "Ditshebeletso tsa Tlhokomelo ya Koloi tse Phahameng",
+    "badge": "Tlhokomelo ya Koloi e Phahameng",
+    "hero": {
+      "title": "Ditshebeletso tsa Boitsebiso tsa ho Hlatswa Koloi",
+      "subtitle": "Fumana se seholo ka ho fetisisa tlhokomellong ya koloi ka ditshebeletso tsa rona tse phahameng tsa ho hlatswa le ho hloekisa",
+      "cta": "Buuka Tshebeletso ya Hao"
+    },
+    "features": {
+      "quality": {
+        "title": "Boleng bo Phahameng",
+        "description": "Thepa ya boitsebiso le dihlahiswa tse nang le botsoalle ba tikoloho"
+      },
+      "convenience": {
+        "title": "Ho Buuka ho Bonolo",
+        "description": "Ho buuka ha inthanete ho bonolo ka dinako tse feto-fetohang"
+      },
+      "tracking": {
+        "title": "Ho Latela ka Nako ya Nnete",
+        "description": "Latela tsoelo-pele ya tshebeletso ya hao ka nako ya nnete"
+      }
+    },
+    "carousel": {
+      "luxury": {
+        "title": "Ditshebeletso tsa ho Hlatswa Koloi tse Botle",
+        "description": "Ho hlatswa ha boitsebiso le diphetho tse kganyang"
+      },
+      "interior": {
+        "title": "Ho Hloekisa ka Hare ho Phahameng",
+        "description": "Tlhokomelo e khethehileng ya dintho tsa ka hare tse botle"
+      },
+      "facilities": {
+        "title": "Mafapha a Theknoloji e Phahameng",
+        "description": "Thepa le theknoloji ya sejoale-joale"
+      },
+      "lounge": {
+        "title": "Sebaka sa Bareki se Hlahisang",
+        "description": "Sebetsa ha re ntse re hlokomela koloi ya hao"
+      },
+      "transformation": {
+        "title": "Phetoho e Makatsang",
+        "description": "Diphetho tsa pele le ka mora tse buang ka tsona"
+      }
+    }
+  },
+  "services": {
+    "title": "Ditshebeletso tsa Rona",
+    "express": {
+      "name": "Thunder Wash & Vacuum",
+      "description": "Ho hloekisa ho potlakang bakeng sa maphelo a maphuthing! Sehlopha sa rona sa boitsebiso se fana ka tlhokomelo e tloaelehileng ya koloi ya hao.",
+      "features": ["Ho hlatswa kantle", "Tshebediso ya sesepa", "Ho hlatswa ka matla a phahameng", "Ho hlatswa ho se nang matheba", "Ho omisa moeeng", "Vacuum ya ka hare"]
+    },
+    "premium": {
+      "name": "Classic Wash & Wax Express",
+      "description": "Tlhokomelo ya koloi e phahameng le tshireletso ya wax express. E loketse haholo bakuli ba tloaelehileng ba batlang khanya e tswellang nako e telele.",
+      "features": ["Ho hlatswa pele", "Tshebediso ya sesepa", "Tshireletso ya wax express", "Ho omisa ha boitsebiso", "Khanya ya ditayara", "Vacuum ya ka hare", "Tshireletso ya dikarolo", "Ho hloekisa dimela"]
+    },
+    "deluxe": {
+      "name": "Supreme Wash & Polish",
+      "description": "Ho hlatswa ho felletseng le tshebeletso ya wax polish e phahameng bakeng sa tshireletso e phahameng le khanya.",
+      "features": ["Ho hlatswa kantle ho felletseng", "Wax polish e kganyang e phahameng", "Vacuum ya ka hare", "Kalafo ya dashboard", "Ho hloekisa mafensetere ka hare le kantle", "Kalafo ya khanya ya ditayara", "Monko o monate"]
+    },
+    "executive": {
+      "name": "Ultimate Detail Experience",
+      "description": "Boiphihlelo bo felletseng ba ho hloekisa koloi ka clay bar treatment le machine buffing e phahameng.",
+      "features": ["Ho hlatswa kantle ho felletseng", "Kalafo ya clay bar", "Machine buffing", "Ho qeta wax HD e phahameng", "Ho hloekisa ka hare ho tebileng", "Kalafo ya letlalo", "Ho hloekisa sebaka sa enjine", "Tlhahlobo ya boleng"]
+    }
+  },
+  "booking": {
+    "title": "Buuka Tshebeletso ya Hao",
+    "steps": {
+      "service": "Kgetha Tshebeletso",
+      "datetime": "Kgetha Letsatsi le Nako",
+      "details": "Lintlha tsa Hao",
+      "payment": "Tefo",
+      "confirmation": "Netefatso"
+    },
+    "form": {
+      "firstName": "Lebitso la Pele",
+      "lastName": "Lebitso la Lelapa",
+      "email": "Aterese ya Imeile",
+      "phone": "Nomoro ya Mohala",
+      "plateNumber": "Poleiti ya Nomoro",
+      "vehicleMake": "Mofuta wa Koloi",
+      "vehicleModel": "Mohlala wa Koloi",
+      "vehicleYear": "Selemo sa Koloi",
+      "vehicleColor": "Mmala wa Koloi",
+      "specialInstructions": "Ditaelo tse Khethehileng"
+    },
+    "validation": {
+      "required": "Karolo ena e a hlokahala",
+      "email": "Ka kopo kenya aterese ya imeile e sebetsang",
+      "phone": "Ka kopo kenya nomoro ya mohala e sebetsang",
+      "plateRequired": "Poleiti ya nomoro e hlokahala bakeng sa ho latela"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Rea u Amohela Hape",
+      "subtitle": "Kena akhaonteng ya hao",
+      "email": "Imeile",
+      "password": "Phaswete",
+      "rememberMe": "Nkopole",
+      "forgotPassword": "U lebetse phaswete?",
+      "button": "Kena",
+      "noAccount": "Ha u na akhaonte?",
+      "signupLink": "Ngodisa"
+    },
+    "signup": {
+      "title": "Etsa Akhaonte",
+      "subtitle": "Kena PRESTIGE Car Wash",
+      "button": "Etsa Akhaonte",
+      "hasAccount": "U se u na le akhaonte?",
+      "signinLink": "Kena"
+    },
+    "forgotPassword": {
+      "title": "Phaswete e Lebaletsweng",
+      "subtitle": "Kenya imeile ya hao ho fumana sehokelo sa ho tsosolosa",
+      "button": "Romela sehokelo sa ho tsosolosa",
+      "backToSignin": "Kgutlela ho kena"
+    }
+  },
+  "footer": {
+    "company": "Khamphani",
+    "services": "Ditshebeletso",
+    "support": "Tshehetsо",
+    "legal": "Molao",
+    "followUs": "Re Latele",
+    "newsletter": "Koranta ya Ditaba",
+    "newsletterSubtitle": "Dula u tseba ka ditlhahiso tsa rona tse ncha",
+    "emailPlaceholder": "Kenya imeile ya hao",
+    "subscribe": "Ngodisa",
+    "copyright": "© 2024 PRESTIGE Car Wash. Ditokelo tsohle di bolokilwe.",
+    "location": {
+      "title": "Re Fumane",
+      "address": "30 Lower Piers Road, Wynberg, Cape Town",
+      "phone": "+27 78 613 2969",
+      "email": "info@prestigecarwash.co.za",
+      "hours": "Mantaha-Labohlano: 8AM-6PM, Moqebelo: 8AM-5PM, Sontaha: 9AM-2PM",
+      "getDirections": "Fumana Ditataiso",
+      "viewOnMap": "Sheba Mmapeng",
+      "showMap": "Bontsha Mmapa",
+      "hideMap": "Pata Mmapa",
+      "mapLoading": "E ntse e jara mmapa...",
+      "mapError": "Ha e kgone ho jara mmapa"
+    },
+    "links": {
+      "about": "Ka Rona",
+      "careers": "Mesebetsi",
+      "contact": "Ikopanye",
+      "expressWash": "Ho Hlapa ka Potlako",
+      "premiumWash": "Ho Hlapa ha Boleng",
+      "detailing": "Lintlha",
+      "helpCenter": "Setsi sa Thuso",
+      "faq": "Dipotso tse Tloaelehileng",
+      "booking": "Tshehetsо ya ho Buuka",
+      "privacy": "Leano la Lekunutu",
+      "terms": "Melawana ya Tshebeletso",
+      "cookies": "Leano la Dikuki"
+    }
+  }
+}

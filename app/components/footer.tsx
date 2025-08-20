@@ -14,15 +14,23 @@ import {
   QrCode,
   Gift,
   Download,
-  Share2
+  Share2,
+  Map,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { WorkingQR } from '@/components/qr-code/working-qr';
 import { AnimatedLogo } from '@/components/animations/animated-logo';
+import { useLanguage } from '@/lib/i18n/use-language';
+import { DynamicMap } from '@/components/ui/dynamic-map';
+import { useState } from 'react';
 
 export function Footer() {
+  const { t } = useLanguage();
+  const [showMap, setShowMap] = useState(false);
   const currentYear = new Date().getFullYear();
   const baseOrigin = (process.env.NEXT_PUBLIC_SITE_URL as string) || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
   const registrationUrl = `${baseOrigin}/auth/signup?ref=qr`;
@@ -43,9 +51,8 @@ export function Footer() {
               />
             </Link>
             <p className="text-gray-300 mb-6 max-w-md">
-              Premium car wash services in Cape Town with productive customer lounge experience.
-              Where waiting becomes productive.
-            </p>
+             
+              </p>
 
             {/* Social Media Icons */}
             <div className="flex space-x-4 mb-6">
@@ -63,48 +70,84 @@ export function Footer() {
               </Link>
             </div>
 
-            <div className="space-y-2 text-sm text-gray-300">
-              <div className="flex items-center space-x-2">
-                <MapPin className="w-4 h-4" />
-                <span>30 Lower Piers Road, Wynberg, Cape Town</span>
+            {/* Location Information */}
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold text-white">{t('footer.location.title')}</h4>
+
+              <div className="space-y-2 text-sm text-gray-300">
+                <div className="flex items-center space-x-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>{t('footer.location.address')}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Phone className="w-4 h-4" />
+                  <span>{t('footer.location.phone')}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Mail className="w-4 h-4" />
+                  <span>{t('footer.location.email')}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-4 h-4" />
+                  <span>{t('footer.location.hours')}</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4" />
-                <span>+27 78 613 2969</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="w-4 h-4" />
-                <span>info@prestigecarwash.co.za</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4" />
-                <span>Mon-Fri: 8AM-6PM, Sat: 8AM-5PM, Sun: 9AM-2PM</span>
-              </div>
+
+              {/* Map Toggle Button */}
+              <Button
+                onClick={() => setShowMap(!showMap)}
+                variant="outline"
+                size="sm"
+                className="w-full bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+              >
+                {showMap ? (
+                  <>
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    {t('footer.location.hideMap')}
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4 mr-2" />
+                    {t('footer.location.showMap')}
+                  </>
+                )}
+              </Button>
+
+              {/* Interactive Map */}
+              {showMap && (
+                <div className="mt-4">
+                  <DynamicMap
+                    height="300px"
+                    className="rounded-lg overflow-hidden"
+                    showControls={true}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('navigation.home') === 'Home' ? 'Quick Links' : t('footer.company')}</h3>
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
                 <Link href="/services" className="hover:text-white transition-colors">
-                  Our Services
+                  {t('navigation.services')}
                 </Link>
               </li>
               <li>
                 <Link href="/book" className="hover:text-white transition-colors">
-                  Book Online
+                  {t('navigation.book')}
                 </Link>
               </li>
               <li>
                 <Link href="/membership" className="hover:text-white transition-colors">
-                  Membership Plans
+                  {t('navigation.membership')}
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="hover:text-white transition-colors">
-                  Contact Us
+                  {t('navigation.contact')}
                 </Link>
               </li>
             </ul>
@@ -112,26 +155,26 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Services</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer.services')}</h3>
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
                 <Link href="/services/express" className="hover:text-white transition-colors">
-                  Express Wash
+                  {t('footer.links.expressWash')}
                 </Link>
               </li>
               <li>
                 <Link href="/services/premium" className="hover:text-white transition-colors">
-                  Premium Wash & Wax
+                  {t('footer.links.premiumWash')}
                 </Link>
               </li>
               <li>
                 <Link href="/services/deluxe" className="hover:text-white transition-colors">
-                  Deluxe Detail
+                  {t('footer.links.detailing')}
                 </Link>
               </li>
               <li>
                 <Link href="/services/executive" className="hover:text-white transition-colors">
-                  Executive Package
+                  {t('services.executive.name')}
                 </Link>
               </li>
             </ul>
@@ -342,7 +385,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 pt-6 text-center">
           <p className="text-gray-400 text-sm">
-            © {currentYear} PRESTIGE Car Wash BY: EKHAYA INTEL. TRADING. All rights reserved. | GDPR & POPIA Compliant
+            {t('footer.copyright').replace('2024', currentYear.toString())} | GDPR & POPIA Compliant
           </p>
         </div>
       </div>

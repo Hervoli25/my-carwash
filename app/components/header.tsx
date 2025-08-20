@@ -23,16 +23,19 @@ import {
   X
 } from 'lucide-react';
 import { AnimatedLogo } from '@/components/animations/animated-logo';
+import { LanguageSelector } from '@/components/ui/language-selector';
+import { useLanguage } from '@/lib/i18n/use-language';
 
 export function Header() {
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigationItems = [
-    { name: 'Home', href: '#home', scrollTo: 'home' },
-    { name: 'Services', href: '#services', scrollTo: 'services' },
+    { name: t('navigation.home'), href: '#home', scrollTo: 'home' },
+    { name: t('navigation.services'), href: '#services', scrollTo: 'services' },
     { name: 'Features', href: '/features' },
-    { name: 'Book Online', href: '/book' },
+    { name: t('navigation.book'), href: '/book' },
   ];
 
   const scrollToSection = (sectionId: string) => {
@@ -86,6 +89,8 @@ export function Header() {
 
           {/* Auth Section */}
           <div className="flex items-center space-x-4">
+            {/* Language Selector */}
+            <LanguageSelector variant="compact" />
             {session ? (
               <div className="flex items-center space-x-4">
                 {/* Dashboard link for logged-in users */}
@@ -115,13 +120,13 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link href="/bookings" className="flex items-center">
                         <Calendar className="mr-2 h-4 w-4" />
-                        My Bookings
+                        {t('navigation.bookings')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/profile" className="flex items-center">
                         <Settings className="mr-2 h-4 w-4" />
-                        Profile Settings
+                        {t('navigation.profile')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -129,7 +134,7 @@ export function Header() {
                       onClick={() => signOut()}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
-                      Log Out
+                      {t('navigation.signout')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -138,12 +143,12 @@ export function Header() {
               <div className="flex items-center space-x-2">
                 <Link href="/auth/signin">
                   <Button variant="ghost" size="sm">
-                    Log In
+                    {t('navigation.signin')}
                   </Button>
                 </Link>
                 <Link href="/auth/signup">
                   <Button size="sm" className="btn-ekhaya-red">
-                    Register
+                    {t('navigation.signup')}
                   </Button>
                 </Link>
               </div>
@@ -179,6 +184,11 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
+
+              {/* Mobile Language Selector */}
+              <div className="border-t border-gray-100 mt-4 pt-4">
+                <LanguageSelector variant="mobile" />
+              </div>
             </div>
           </div>
         )}

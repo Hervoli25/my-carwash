@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatCurrency } from '@/lib/utils';
+import { useLanguage } from '@/lib/i18n/use-language';
 
 const membershipPlans = [
   {
@@ -56,6 +57,7 @@ const membershipPlans = [
 ];
 
 export function MembershipSection() {
+  const { t } = useLanguage();
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

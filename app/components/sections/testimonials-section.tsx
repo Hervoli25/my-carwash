@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Quote } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/lib/i18n/use-language';
 
 const testimonials = [
   {
@@ -31,6 +32,7 @@ const testimonials = [
 ];
 
 export function TestimonialsSection() {
+  const { t } = useLanguage();
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

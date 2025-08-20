@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatCurrency } from '@/lib/utils';
+import { useLanguage } from '@/lib/i18n/use-language';
 
 const services = [
   {
@@ -105,6 +106,7 @@ const services = [
 ];
 
 export function ServicesSection() {
+  const { t } = useLanguage();
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -116,7 +118,7 @@ export function ServicesSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            <span className="ekhaya-red">Our Premium</span> <span className="ekhaya-blue">Services</span>
+            {t('services.title')}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Choose from our range of professional car care services designed to keep your vehicle looking its best
@@ -202,7 +204,7 @@ export function ServicesSection() {
                     </Link>
                     <Link href={`/book?service=${service.id}`} className="block">
                       <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-white">
-                        Book Now
+                        {t('navigation.book')}
                       </Button>
                     </Link>
                   </div>

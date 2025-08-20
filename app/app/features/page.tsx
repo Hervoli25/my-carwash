@@ -271,8 +271,8 @@ export default function FeaturesPage() {
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className="bg-white rounded-2xl shadow-xl p-6"
                 >
-                  {/* Production-ready tracking expects a bookingId; demo disabled in production */}
-                  <feature.component bookingId={"DEMO-BOOKING"} />
+                  {/* Demo mode - no API calls made */}
+                  <feature.component bookingId={"DEMO-BOOKING"} isDemo={true} />
                 </motion.div>
               </div>
             </TabsContent>

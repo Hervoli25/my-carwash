@@ -10,38 +10,41 @@ import { Badge } from '@/components/ui/badge';
 import { Car, Shield, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypewriterPledge } from '@/components/animations/typewriter-pledge';
+import { useLanguage } from '@/lib/i18n/use-language';
 
-const carouselImages = [
+const getCarouselImages = (t: (key: string) => string) => [
   {
     src: 'https://cdn.abacus.ai/images/d1943ab6-29a7-4819-b1f6-730cb6f6caff.png',
-    title: 'Luxury Car Wash Services',
-    description: 'Professional washing with gleaming results'
+    title: t('home.carousel.luxury.title'),
+    description: t('home.carousel.luxury.description')
   },
   {
     src: 'https://cdn.abacus.ai/images/3c3cda0f-858c-43c4-b1ba-aa5c10b42eb0.png',
-    title: 'Premium Interior Detailing',
-    description: 'Specialized care for luxury interiors'
+    title: t('home.carousel.interior.title'),
+    description: t('home.carousel.interior.description')
   },
   {
     src: 'https://cdn.abacus.ai/images/a59ba4e9-590a-4447-a168-d726a4bbd0ad.png',
-    title: 'High-Tech Facilities',
-    description: 'State-of-the-art equipment and technology'
+    title: t('home.carousel.facilities.title'),
+    description: t('home.carousel.facilities.description')
   },
   {
     src: 'https://cdn.abacus.ai/images/3ec67c54-bda0-4615-b08f-2d638e2da39c.png',
-    title: 'Productive Customer Lounge',
-    description: 'Work while we care for your vehicle'
+    title: t('home.carousel.lounge.title'),
+    description: t('home.carousel.lounge.description')
   },
   {
     src: 'https://cdn.abacus.ai/images/39b4a2ed-852f-4851-a414-95670ed76eb3.png',
-    title: 'Remarkable Transformation',
-    description: 'Before and after results that speak for themselves'
+    title: t('home.carousel.transformation.title'),
+    description: t('home.carousel.transformation.description')
   }
 ];
 
 export function HeroSection() {
+  const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const carouselImages = getCarouselImages(t);
 
   // Auto-slide functionality
   useEffect(() => {
@@ -113,14 +116,14 @@ export function HeroSection() {
 
             {/* Main Heading */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              PRESTIGE Car Wash –<br />
+              {t('home.title')} –<br />
               <span className="text-yellow-300">Where Waiting Becomes Productive</span><br />
               <span className="text-blue-100 text-2xl md:text-3xl lg:text-4xl">in Cape Town</span>
             </h1>
 
             {/* Subtitle */}
             <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-2xl mx-auto lg:mx-0">
-              Premium car care with productive customer lounge experience
+              {t('home.subtitle')}
             </p>
 
             {/* CTA Buttons */}
@@ -128,7 +131,7 @@ export function HeroSection() {
               <Link href="/book">
                 <Button size="lg" className="bg-white text-red-600 hover:bg-red-50 px-8 py-3 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
                   <Car className="w-5 h-5 mr-2" />
-                  Book Your Service Now
+                  {t('home.hero.cta')}
                 </Button>
               </Link>
               <Link href="/features">

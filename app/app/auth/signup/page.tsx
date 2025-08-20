@@ -12,8 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Lock, User, Phone, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { AnimatedLogo } from '@/components/animations/animated-logo';
+import { useLanguage } from '@/lib/i18n/use-language';
 
 export default function SignUpPage() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',

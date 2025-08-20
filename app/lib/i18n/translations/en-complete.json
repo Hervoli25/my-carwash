@@ -1,0 +1,409 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back to Home",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "submit": "Submit",
+    "continue": "Continue",
+    "finish": "Finish",
+    "reset": "Reset",
+    "select": "Select",
+    "none": "None",
+    "all": "All",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "print": "Print",
+    "share": "Share",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "refresh": "Refresh",
+    "expand": "Expand",
+    "collapse": "Collapse"
+  },
+  "navigation": {
+    "home": "Home",
+    "services": "Services",
+    "book": "Book Now",
+    "bookings": "My Bookings",
+    "profile": "Profile",
+    "contact": "Contact",
+    "about": "About",
+    "signin": "Sign In",
+    "signup": "Sign Up",
+    "signout": "Sign Out",
+    "dashboard": "Dashboard",
+    "features": "Features",
+    "membership": "Membership",
+    "support": "Support",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "legal": "Legal",
+    "notifications": "Notifications"
+  },
+  "home": {
+    "title": "PRESTIGE Car Wash",
+    "subtitle": "Premium Car Care Services",
+    "badge": "Premium Car Care",
+    "hero": {
+      "title": "Professional Car Wash Services",
+      "subtitle": "Experience the ultimate in car care with our premium washing and detailing services",
+      "cta": "Book Your Service",
+      "subtitle2": "Premium car care with productive customer lounge experience"
+    },
+    "features": {
+      "quality": {
+        "title": "Premium Quality",
+        "description": "Professional-grade equipment and eco-friendly products"
+      },
+      "convenience": {
+        "title": "Convenient Booking",
+        "description": "Easy online booking with flexible time slots"
+      },
+      "tracking": {
+        "title": "Real-time Tracking",
+        "description": "Track your service progress in real-time"
+      }
+    },
+    "carousel": {
+      "luxury": {
+        "title": "Luxury Car Wash Services",
+        "description": "Professional washing with gleaming results"
+      },
+      "interior": {
+        "title": "Premium Interior Detailing",
+        "description": "Specialized care for luxury interiors"
+      },
+      "facilities": {
+        "title": "High-Tech Facilities",
+        "description": "State-of-the-art equipment and technology"
+      },
+      "lounge": {
+        "title": "Productive Customer Lounge",
+        "description": "Work while we care for your vehicle"
+      },
+      "transformation": {
+        "title": "Remarkable Transformation",
+        "description": "Before and after results that speak for themselves"
+      }
+    }
+  },
+  "services": {
+    "title": "Our Premium Services",
+    "subtitle": "Choose from our range of professional car care services designed to keep your vehicle looking its best",
+    "viewDetails": "View Details",
+    "bookNow": "Book Now",
+    "duration": "Duration",
+    "price": "Price",
+    "rating": "Rating",
+    "reviews": "reviews",
+    "moreFeatures": "more features",
+    "express": {
+      "name": "Thunder Wash & Vacuum",
+      "description": "Quick clean for busy lifestyles! Our professional team provides regular maintenance for your vehicle.",
+      "features": ["Exterior rinse", "Soap application", "High-pressure wash", "Spot-free rinse", "Air dry", "Interior vacuum"]
+    },
+    "premium": {
+      "name": "Classic Wash & Wax Express",
+      "description": "Premium car care with express wax protection. Perfect for frequent drivers who want lasting shine.",
+      "features": ["Pre-rinse", "Soap application", "Express wax protection", "Professional drying", "Tire shine", "Interior vacuum", "Trim protection", "Wheels cleaning"]
+    },
+    "deluxe": {
+      "name": "Supreme Wash & Polish",
+      "description": "Comprehensive wash and premium wax polish service for superior protection and shine.",
+      "features": ["Complete exterior wash", "Premium radiant wax polish", "Interior vacuum", "Dashboard treatment", "Window cleaning inside & out", "Tire shine treatment", "Air freshener"]
+    },
+    "executive": {
+      "name": "Ultimate Detail Experience",
+      "description": "The ultimate car detailing experience with clay bar treatment and premium machine buffing.",
+      "features": ["Complete exterior wash", "Clay bar treatment", "Machine buffing", "Premium HD wax finish", "Interior deep clean", "Leather conditioning", "Engine bay cleaning", "Quality inspection"]
+    }
+  },
+  "features": {
+    "title": "Cutting-Edge Features",
+    "subtitle": "Experience the future of car care with our AI-powered technology",
+    "realTimeTracking": {
+      "title": "Real-Time Tracking",
+      "description": "Live service updates with photos",
+      "badge": "LIVE",
+      "features": ["6 tracking stages", "Photo updates", "Live notifications"]
+    },
+    "aiDamageDetection": {
+      "title": "AI Damage Detection",
+      "description": "Automated quality assurance",
+      "badge": "AI POWERED",
+      "features": ["Pre-wash inspection", "Damage documentation", "Quality reports"]
+    },
+    "weatherScheduling": {
+      "title": "Weather-Smart Scheduling",
+      "description": "AI-optimized booking times",
+      "badge": "SMART",
+      "features": ["Weather integration", "Auto-rescheduling", "Best time suggestions"]
+    },
+    "gamification": {
+      "title": "Loyalty Rewards",
+      "description": "Earn points with every wash",
+      "badge": "REWARDS",
+      "features": ["Points system", "Level progression", "Exclusive rewards"]
+    },
+    "voiceAssistant": {
+      "title": "Voice Assistant",
+      "description": "Hands-free booking & updates",
+      "badge": "VOICE",
+      "features": ["Voice booking", "Status updates", "Smart reminders"]
+    },
+    "ecoImpact": {
+      "title": "Eco Impact Tracking",
+      "description": "Environmental footprint monitoring",
+      "badge": "ECO",
+      "features": ["Water usage tracking", "Carbon footprint", "Eco achievements"]
+    }
+  },
+  "booking": {
+    "title": "Book Your Service",
+    "subtitle": "Schedule your premium car wash service",
+    "steps": {
+      "service": "Select Service",
+      "datetime": "Choose Date & Time",
+      "details": "Your Details",
+      "payment": "Payment",
+      "confirmation": "Confirmation"
+    },
+    "form": {
+      "firstName": "First Name",
+      "lastName": "Last Name", 
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "plateNumber": "License Plate",
+      "vehicleMake": "Vehicle Make",
+      "vehicleModel": "Vehicle Model",
+      "vehicleYear": "Vehicle Year",
+      "vehicleColor": "Vehicle Color",
+      "specialInstructions": "Special Instructions",
+      "serviceType": "Service Type",
+      "preferredDate": "Preferred Date",
+      "preferredTime": "Preferred Time",
+      "addOns": "Add-ons",
+      "notifications": "Notifications",
+      "emailNotifications": "Email Notifications",
+      "smsNotifications": "SMS Notifications"
+    },
+    "validation": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "phone": "Please enter a valid phone number",
+      "plateRequired": "License plate is required for tracking"
+    },
+    "payment": {
+      "title": "Payment Details",
+      "cardNumber": "Card Number",
+      "expiryDate": "Expiry Date",
+      "cvv": "CVV",
+      "billingAddress": "Billing Address",
+      "payNow": "Pay Now",
+      "payOnArrival": "Pay on Arrival"
+    },
+    "confirmation": {
+      "title": "Booking Confirmed!",
+      "thankYou": "Thank you for choosing PRESTIGE Car Wash",
+      "bookingNumber": "Booking Number",
+      "serviceDetails": "Service Details",
+      "dateTime": "Date & Time",
+      "vehicleInfo": "Vehicle Information",
+      "totalAmount": "Total Amount",
+      "whatNext": "What's Next?",
+      "arrival": "Arrive 10 minutes before your appointment",
+      "tracking": "Track your service progress in real-time",
+      "completion": "Receive notification when your car is ready"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "button": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up",
+      "signingIn": "Signing in..."
+    },
+    "signup": {
+      "title": "Create Account",
+      "subtitle": "Join PRESTIGE Car Wash",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "phone": "Phone Number",
+      "button": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signinLink": "Sign in",
+      "terms": "I agree to the Terms of Service and Privacy Policy",
+      "creating": "Creating account..."
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email to receive a reset link",
+      "email": "Email Address",
+      "button": "Send Reset Link",
+      "backToSignin": "Back to sign in",
+      "sending": "Sending..."
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your new password",
+      "password": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "button": "Reset Password",
+      "resetting": "Resetting..."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "quickActions": "Quick Actions",
+    "recentBookings": "Recent Bookings",
+    "membership": "Membership",
+    "notifications": "Notifications",
+    "stats": {
+      "totalBookings": "Total Bookings",
+      "completedServices": "Completed Services",
+      "loyaltyPoints": "Loyalty Points",
+      "nextBooking": "Next Booking"
+    },
+    "actions": {
+      "bookService": "Book Service",
+      "viewBookings": "View Bookings",
+      "manageMembership": "Manage Membership",
+      "contactSupport": "Contact Support"
+    }
+  },
+  "membership": {
+    "title": "Membership Plans",
+    "subtitle": "Choose the perfect plan for your car care needs",
+    "benefits": "Benefits",
+    "choosePlan": "Choose Plan",
+    "currentPlan": "Current Plan",
+    "upgrade": "Upgrade",
+    "manage": "Manage",
+    "basic": {
+      "name": "Basic",
+      "description": "Perfect for occasional users",
+      "benefits": ["10% discount on services", "Priority booking", "Email notifications"]
+    },
+    "premium": {
+      "name": "Premium",
+      "description": "Great for regular customers",
+      "benefits": ["20% discount on services", "Free add-ons", "SMS notifications", "Loyalty rewards"]
+    },
+    "platinum": {
+      "name": "Platinum",
+      "description": "Ultimate car care experience",
+      "benefits": ["30% discount on services", "Unlimited add-ons", "Priority support", "Exclusive events"]
+    }
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "personalInfo": "Personal Information",
+    "vehicles": "My Vehicles",
+    "paymentMethods": "Payment Methods",
+    "preferences": "Preferences",
+    "security": "Security",
+    "edit": "Edit Profile",
+    "save": "Save Changes",
+    "changePassword": "Change Password",
+    "addVehicle": "Add Vehicle",
+    "addPaymentMethod": "Add Payment Method",
+    "language": "Language",
+    "timezone": "Timezone",
+    "notifications": "Notification Preferences"
+  },
+  "footer": {
+    "company": "Company",
+    "services": "Services",
+    "support": "Support",
+    "legal": "Legal",
+    "followUs": "Follow Us",
+    "newsletter": "Newsletter",
+    "newsletterSubtitle": "Stay updated with our latest offers",
+    "emailPlaceholder": "Enter your email",
+    "subscribe": "Subscribe",
+    "copyright": "© 2024 PRESTIGE Car Wash. All rights reserved.",
+    "links": {
+      "about": "About Us",
+      "careers": "Careers",
+      "contact": "Contact",
+      "expressWash": "Express Wash",
+      "premiumWash": "Premium Wash",
+      "detailing": "Detailing",
+      "helpCenter": "Help Center",
+      "faq": "FAQ",
+      "booking": "Booking Support",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    }
+  },
+  "errors": {
+    "404": {
+      "title": "Page Not Found",
+      "subtitle": "The page you're looking for doesn't exist.",
+      "button": "Go Home"
+    },
+    "500": {
+      "title": "Server Error",
+      "subtitle": "Something went wrong on our end.",
+      "button": "Try Again"
+    },
+    "network": "Network error. Please check your connection.",
+    "validation": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "phone": "Please enter a valid phone number",
+      "minLength": "Must be at least {min} characters",
+      "maxLength": "Must be no more than {max} characters",
+      "match": "Passwords must match"
+    }
+  },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed", 
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "rescheduled": "Rescheduled"
+  },
+  "time": {
+    "minutes": "minutes",
+    "hours": "hours",
+    "days": "days",
+    "weeks": "weeks",
+    "months": "months",
+    "years": "years",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "nextWeek": "Next Week",
+    "thisMonth": "This Month",
+    "nextMonth": "Next Month"
+  }
+}

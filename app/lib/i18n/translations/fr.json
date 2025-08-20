@@ -1,0 +1,422 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "back": "Retour à l'accueil",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "submit": "Soumettre",
+    "continue": "Continuer",
+    "finish": "Terminer",
+    "reset": "Réinitialiser",
+    "select": "Sélectionner",
+    "none": "Aucun",
+    "all": "Tout",
+    "view": "Voir",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "print": "Imprimer",
+    "share": "Partager",
+    "copy": "Copier",
+    "copied": "Copié!",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "refresh": "Actualiser",
+    "expand": "Développer",
+    "collapse": "Réduire"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "services": "Services",
+    "book": "Réserver",
+    "bookings": "Mes Réservations",
+    "profile": "Profil",
+    "contact": "Contact",
+    "about": "À propos",
+    "signin": "Se connecter",
+    "signup": "S'inscrire",
+    "signout": "Se déconnecter",
+    "dashboard": "Tableau de bord",
+    "features": "Fonctionnalités",
+    "membership": "Abonnement",
+    "support": "Support",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "legal": "Mentions légales",
+    "notifications": "Notifications"
+  },
+  "home": {
+    "title": "PRESTIGE Lavage Auto",
+    "subtitle": "Services de Soin Automobile Premium",
+    "badge": "Soin Automobile Premium",
+    "hero": {
+      "title": "Services Professionnels de Lavage Auto",
+      "subtitle": "Découvrez le summum du soin automobile avec nos services premium de lavage et détaillage",
+      "cta": "Réservez Votre Service",
+      "subtitle2": "Soin automobile premium avec expérience de salon client productif"
+    },
+    "features": {
+      "quality": {
+        "title": "Qualité Premium",
+        "description": "Équipement professionnel et produits écologiques"
+      },
+      "convenience": {
+        "title": "Réservation Pratique",
+        "description": "Réservation en ligne facile avec créneaux flexibles"
+      },
+      "tracking": {
+        "title": "Suivi en Temps Réel",
+        "description": "Suivez l'avancement de votre service en temps réel"
+      }
+    },
+    "carousel": {
+      "luxury": {
+        "title": "Services de Lavage Auto de Luxe",
+        "description": "Lavage professionnel avec résultats éclatants"
+      },
+      "interior": {
+        "title": "Détaillage Intérieur Premium",
+        "description": "Soins spécialisés pour intérieurs de luxe"
+      },
+      "facilities": {
+        "title": "Installations Haute Technologie",
+        "description": "Équipement et technologie de pointe"
+      },
+      "lounge": {
+        "title": "Salon Client Productif",
+        "description": "Travaillez pendant que nous nous occupons de votre véhicule"
+      },
+      "transformation": {
+        "title": "Transformation Remarquable",
+        "description": "Résultats avant/après qui parlent d'eux-mêmes"
+      }
+    }
+  },
+  "services": {
+    "title": "Nos Services Premium",
+    "subtitle": "Choisissez parmi notre gamme de services professionnels de soin automobile conçus pour maintenir votre véhicule à son meilleur",
+    "viewDetails": "Voir les détails",
+    "bookNow": "Réserver maintenant",
+    "duration": "Durée",
+    "price": "Prix",
+    "rating": "Note",
+    "reviews": "avis",
+    "moreFeatures": "fonctionnalités supplémentaires",
+    "express": {
+      "name": "Lavage Thunder & Aspirateur",
+      "description": "Nettoyage rapide pour les modes de vie occupés ! Notre équipe professionnelle assure l'entretien régulier de votre véhicule.",
+      "features": ["Rinçage extérieur", "Application de savon", "Lavage haute pression", "Rinçage sans traces", "Séchage à l'air", "Aspirateur intérieur"]
+    },
+    "premium": {
+      "name": "Lavage Classique & Cire Express",
+      "description": "Soin automobile premium avec protection cire express. Parfait pour les conducteurs fréquents qui veulent un éclat durable.",
+      "features": ["Pré-rinçage", "Application de savon", "Protection cire express", "Séchage professionnel", "Brillant pneus", "Aspirateur intérieur", "Protection garnitures", "Nettoyage jantes"]
+    },
+    "deluxe": {
+      "name": "Lavage Suprême & Polish",
+      "description": "Lavage complet et service de polish cire premium pour une protection et un éclat supérieurs.",
+      "features": ["Lavage extérieur complet", "Polish cire premium radiant", "Aspirateur intérieur", "Traitement tableau de bord", "Nettoyage vitres intérieur & extérieur", "Traitement brillant pneus", "Parfum d'ambiance"]
+    },
+    "executive": {
+      "name": "Expérience Détaillage Ultime",
+      "description": "L'expérience ultime de détaillage automobile avec traitement clay bar et polissage machine premium.",
+      "features": ["Lavage extérieur complet", "Traitement clay bar", "Polissage machine", "Finition cire HD premium", "Nettoyage intérieur profond", "Conditionnement cuir", "Nettoyage compartiment moteur", "Inspection qualité"]
+    }
+  },
+  "features": {
+    "title": "Fonctionnalités de Pointe",
+    "subtitle": "Découvrez l'avenir du soin automobile avec notre technologie alimentée par IA",
+    "realTimeTracking": {
+      "title": "Suivi en Temps Réel",
+      "description": "Mises à jour de service en direct avec photos",
+      "badge": "EN DIRECT",
+      "features": ["6 étapes de suivi", "Mises à jour photo", "Notifications en direct"]
+    },
+    "aiDamageDetection": {
+      "title": "Détection de Dommages par IA",
+      "description": "Assurance qualité automatisée",
+      "badge": "ALIMENTÉ PAR IA",
+      "features": ["Inspection pré-lavage", "Documentation des dommages", "Rapports de qualité"]
+    },
+    "weatherScheduling": {
+      "title": "Planification Météo Intelligente",
+      "description": "Horaires de réservation optimisés par IA",
+      "badge": "INTELLIGENT",
+      "features": ["Intégration météo", "Reprogrammation automatique", "Suggestions de meilleurs créneaux"]
+    },
+    "gamification": {
+      "title": "Récompenses de Fidélité",
+      "description": "Gagnez des points à chaque lavage",
+      "badge": "RÉCOMPENSES",
+      "features": ["Système de points", "Progression de niveau", "Récompenses exclusives"]
+    },
+    "voiceAssistant": {
+      "title": "Assistant Vocal",
+      "description": "Réservation et mises à jour mains libres",
+      "badge": "VOIX",
+      "features": ["Réservation vocale", "Mises à jour de statut", "Rappels intelligents"]
+    },
+    "ecoImpact": {
+      "title": "Suivi d'Impact Écologique",
+      "description": "Surveillance de l'empreinte environnementale",
+      "badge": "ÉCO",
+      "features": ["Suivi de consommation d'eau", "Empreinte carbone", "Achievements écologiques"]
+    }
+  },
+  "booking": {
+    "title": "Réservez Votre Service",
+    "subtitle": "Planifiez votre service de lavage automobile premium",
+    "steps": {
+      "service": "Sélectionner le Service",
+      "datetime": "Choisir Date & Heure",
+      "details": "Vos Détails",
+      "payment": "Paiement",
+      "confirmation": "Confirmation"
+    },
+    "form": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Adresse Email",
+      "phone": "Numéro de Téléphone",
+      "plateNumber": "Plaque d'Immatriculation",
+      "vehicleMake": "Marque du Véhicule",
+      "vehicleModel": "Modèle du Véhicule",
+      "vehicleYear": "Année du Véhicule",
+      "vehicleColor": "Couleur du Véhicule",
+      "specialInstructions": "Instructions Spéciales",
+      "serviceType": "Type de Service",
+      "preferredDate": "Date Préférée",
+      "preferredTime": "Heure Préférée",
+      "addOns": "Options supplémentaires",
+      "notifications": "Notifications",
+      "emailNotifications": "Notifications Email",
+      "smsNotifications": "Notifications SMS"
+    },
+    "validation": {
+      "required": "Ce champ est requis",
+      "email": "Veuillez entrer une adresse email valide",
+      "phone": "Veuillez entrer un numéro de téléphone valide",
+      "plateRequired": "La plaque d'immatriculation est requise pour le suivi"
+    },
+    "payment": {
+      "title": "Détails de Paiement",
+      "cardNumber": "Numéro de Carte",
+      "expiryDate": "Date d'Expiration",
+      "cvv": "CVV",
+      "billingAddress": "Adresse de Facturation",
+      "payNow": "Payer Maintenant",
+      "payOnArrival": "Payer à l'Arrivée"
+    },
+    "confirmation": {
+      "title": "Réservation Confirmée !",
+      "thankYou": "Merci d'avoir choisi PRESTIGE Lavage Auto",
+      "bookingNumber": "Numéro de Réservation",
+      "serviceDetails": "Détails du Service",
+      "dateTime": "Date & Heure",
+      "vehicleInfo": "Informations du Véhicule",
+      "totalAmount": "Montant Total",
+      "whatNext": "Et Maintenant ?",
+      "arrival": "Arrivez 10 minutes avant votre rendez-vous",
+      "tracking": "Suivez l'avancement de votre service en temps réel",
+      "completion": "Recevez une notification quand votre voiture est prête"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Bon Retour",
+      "subtitle": "Connectez-vous à votre compte",
+      "email": "Email",
+      "password": "Mot de passe",
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "button": "Se Connecter",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signupLink": "S'inscrire",
+      "signingIn": "Connexion en cours..."
+    },
+    "signup": {
+      "title": "Créer un Compte",
+      "subtitle": "Rejoignez PRESTIGE Lavage Auto",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le Mot de passe",
+      "phone": "Numéro de Téléphone",
+      "button": "Créer un Compte",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "signinLink": "Se connecter",
+      "terms": "J'accepte les Conditions d'Utilisation et la Politique de Confidentialité",
+      "creating": "Création du compte..."
+    },
+    "forgotPassword": {
+      "title": "Mot de Passe Oublié",
+      "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
+      "email": "Adresse Email",
+      "button": "Envoyer le Lien de Réinitialisation",
+      "backToSignin": "Retour à la connexion",
+      "sending": "Envoi en cours..."
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le Mot de Passe",
+      "subtitle": "Entrez votre nouveau mot de passe",
+      "password": "Nouveau Mot de Passe",
+      "confirmPassword": "Confirmer le Nouveau Mot de Passe",
+      "button": "Réinitialiser le Mot de Passe",
+      "resetting": "Réinitialisation en cours..."
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de Bord",
+    "welcome": "Bon retour",
+    "quickActions": "Actions Rapides",
+    "recentBookings": "Réservations Récentes",
+    "membership": "Abonnement",
+    "notifications": "Notifications",
+    "stats": {
+      "totalBookings": "Total des Réservations",
+      "completedServices": "Services Terminés",
+      "loyaltyPoints": "Points de Fidélité",
+      "nextBooking": "Prochaine Réservation"
+    },
+    "actions": {
+      "bookService": "Réserver un Service",
+      "viewBookings": "Voir les Réservations",
+      "manageMembership": "Gérer l'Abonnement",
+      "contactSupport": "Contacter le Support"
+    }
+  },
+  "membership": {
+    "title": "Plans d'Abonnement",
+    "subtitle": "Choisissez le plan parfait pour vos besoins de soin automobile",
+    "benefits": "Avantages",
+    "choosePlan": "Choisir le Plan",
+    "currentPlan": "Plan Actuel",
+    "upgrade": "Mettre à Niveau",
+    "manage": "Gérer",
+    "basic": {
+      "name": "Basique",
+      "description": "Parfait pour les utilisateurs occasionnels",
+      "benefits": ["10% de réduction sur les services", "Réservation prioritaire", "Notifications email"]
+    },
+    "premium": {
+      "name": "Premium",
+      "description": "Idéal pour les clients réguliers",
+      "benefits": ["20% de réduction sur les services", "Options gratuites", "Notifications SMS", "Récompenses de fidélité"]
+    },
+    "platinum": {
+      "name": "Platinum",
+      "description": "Expérience ultime de soin automobile",
+      "benefits": ["30% de réduction sur les services", "Options illimitées", "Support prioritaire", "Événements exclusifs"]
+    }
+  },
+  "profile": {
+    "title": "Paramètres du Profil",
+    "personalInfo": "Informations Personnelles",
+    "vehicles": "Mes Véhicules",
+    "paymentMethods": "Méthodes de Paiement",
+    "preferences": "Préférences",
+    "security": "Sécurité",
+    "edit": "Modifier le Profil",
+    "save": "Enregistrer les Modifications",
+    "changePassword": "Changer le Mot de Passe",
+    "addVehicle": "Ajouter un Véhicule",
+    "addPaymentMethod": "Ajouter une Méthode de Paiement",
+    "language": "Langue",
+    "timezone": "Fuseau Horaire",
+    "notifications": "Préférences de Notification"
+  },
+  "footer": {
+    "company": "Entreprise",
+    "services": "Services",
+    "support": "Support",
+    "legal": "Juridique",
+    "followUs": "Suivez-nous",
+    "newsletter": "Newsletter",
+    "newsletterSubtitle": "Restez informé de nos dernières offres",
+    "emailPlaceholder": "Entrez votre email",
+    "subscribe": "S'abonner",
+    "copyright": "© 2024 PRESTIGE Lavage Auto. Tous droits réservés.",
+    "location": {
+      "title": "Nous Trouver",
+      "address": "30 Lower Piers Road, Wynberg, Le Cap",
+      "phone": "+27 78 613 2969",
+      "email": "info@prestigecarwash.co.za",
+      "hours": "Lun-Ven: 8h-18h, Sam: 8h-17h, Dim: 9h-14h",
+      "getDirections": "Obtenir l'Itinéraire",
+      "viewOnMap": "Voir sur la Carte",
+      "showMap": "Afficher la Carte",
+      "hideMap": "Masquer la Carte",
+      "mapLoading": "Chargement de la carte...",
+      "mapError": "Impossible de charger la carte"
+    },
+    "links": {
+      "about": "À Propos",
+      "careers": "Carrières",
+      "contact": "Contact",
+      "expressWash": "Lavage Express",
+      "premiumWash": "Lavage Premium",
+      "detailing": "Détaillage",
+      "helpCenter": "Centre d'Aide",
+      "faq": "FAQ",
+      "booking": "Support Réservation",
+      "privacy": "Politique de Confidentialité",
+      "terms": "Conditions d'Utilisation",
+      "cookies": "Politique des Cookies"
+    }
+  },
+  "errors": {
+    "404": {
+      "title": "Page Introuvable",
+      "subtitle": "La page que vous cherchez n'existe pas.",
+      "button": "Aller à l'Accueil"
+    },
+    "500": {
+      "title": "Erreur Serveur",
+      "subtitle": "Une erreur s'est produite de notre côté.",
+      "button": "Réessayer"
+    },
+    "network": "Erreur réseau. Veuillez vérifier votre connexion.",
+    "validation": {
+      "required": "Ce champ est requis",
+      "email": "Veuillez entrer une adresse email valide",
+      "phone": "Veuillez entrer un numéro de téléphone valide",
+      "minLength": "Doit contenir au moins {min} caractères",
+      "maxLength": "Ne doit pas dépasser {max} caractères",
+      "match": "Les mots de passe doivent correspondre"
+    }
+  },
+  "status": {
+    "pending": "En Attente",
+    "confirmed": "Confirmé",
+    "inProgress": "En Cours",
+    "completed": "Terminé",
+    "cancelled": "Annulé",
+    "rescheduled": "Reprogrammé"
+  },
+  "time": {
+    "minutes": "minutes",
+    "hours": "heures",
+    "days": "jours",
+    "weeks": "semaines",
+    "months": "mois",
+    "years": "années",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "yesterday": "Hier",
+    "thisWeek": "Cette Semaine",
+    "nextWeek": "Semaine Prochaine",
+    "thisMonth": "Ce Mois",
+    "nextMonth": "Mois Prochain"
+  }
+}

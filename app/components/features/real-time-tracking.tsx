@@ -51,6 +51,22 @@ export function RealTimeTracking({ bookingId, isDemo = false }: RealTimeTracking
     let timer: any;
 
     async function load() {
+      // Skip API call for demo bookings
+      if (isDemo || bookingId === 'DEMO-BOOKING') {
+        // Set demo data instead
+        setStages([
+          { id: 1, name: 'Booking Confirmed', completed: true, current: false, estimatedTime: '10:00' },
+          { id: 2, name: 'Vehicle Check-in', completed: true, current: false, estimatedTime: '10:05' },
+          { id: 3, name: 'Washing in Progress', completed: false, current: true, estimatedTime: '10:15' },
+          { id: 4, name: 'Quality Check', completed: false, current: false, estimatedTime: '10:25' },
+          { id: 5, name: 'Ready for Pickup', completed: false, current: false, estimatedTime: '10:30' },
+        ]);
+        setTotalProgress(45);
+        setEstimatedCompletion('10:30');
+        setActualCompletion('');
+        return;
+      }
+
       try {
         const res = await fetch(`/api/bookings/${bookingId}/tracking`, { cache: 'no-store' });
         if (!res.ok) return;
@@ -81,7 +97,10 @@ export function RealTimeTracking({ bookingId, isDemo = false }: RealTimeTracking
     }
 
     load();
-    timer = setInterval(load, 10000); // poll every 10s
+    // Only set up polling for real bookings, not demos
+    if (!isDemo && bookingId !== 'DEMO-BOOKING') {
+      timer = setInterval(load, 10000); // poll every 10s
+    }
 
     return () => clearInterval(timer);
   }, [bookingId]);

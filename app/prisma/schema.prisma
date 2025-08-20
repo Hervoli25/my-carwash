@@ -169,7 +169,7 @@ model User {
   address       String?
   city          String?
   province      String?
-  language      String?   @default("English")
+  language      String?   @default("en")
   profileImage  String?
   isAdmin       Boolean   @default(false)
   loyaltyPoints Int       @default(0)

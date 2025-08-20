@@ -1,0 +1,169 @@
+{
+  "common": {
+    "loading": "Laai...",
+    "error": "Fout",
+    "success": "Sukses",
+    "cancel": "Kanselleer",
+    "confirm": "Bevestig",
+    "save": "Stoor",
+    "edit": "Wysig",
+    "delete": "Skrap",
+    "back": "Terug",
+    "next": "Volgende",
+    "previous": "Vorige",
+    "close": "Sluit",
+    "yes": "Ja",
+    "no": "Nee"
+  },
+  "navigation": {
+    "home": "Tuis",
+    "services": "Dienste",
+    "book": "Bespreek Nou",
+    "bookings": "My Besprekings",
+    "profile": "Profiel",
+    "contact": "Kontak",
+    "about": "Oor Ons",
+    "signin": "Teken In",
+    "signup": "Registreer",
+    "signout": "Teken Uit"
+  },
+  "home": {
+    "title": "PRESTIGE Motorwas",
+    "subtitle": "Premium Motorsorg Dienste",
+    "hero": {
+      "title": "Professionele Motorwas Dienste",
+      "subtitle": "Ervaar die beste in motorsorg met ons premium was- en detailhandelingsdienste",
+      "cta": "Bespreek Jou Diens"
+    },
+    "features": {
+      "quality": {
+        "title": "Premium Kwaliteit",
+        "description": "Professionele toerusting en omgewingsvriendelike produkte"
+      },
+      "convenience": {
+        "title": "Gerieflike Bespreking",
+        "description": "Maklike aanlyn bespreking met buigsame tydgleuwe"
+      },
+      "tracking": {
+        "title": "Intydse Opsporing",
+        "description": "Volg jou diens se vordering in reële tyd"
+      }
+    }
+  },
+  "services": {
+    "title": "Ons Dienste",
+    "express": {
+      "name": "Thunder Was & Suig",
+      "description": "Vinnige skoonmaak vir besige lewenstyle! Ons professionele span verskaf gereelde onderhoud vir jou voertuig.",
+      "features": ["Buitenste spoel", "Seep toepassing", "Hoë-druk was", "Vlek-vrye spoel", "Lug droog", "Binneste suig"]
+    },
+    "premium": {
+      "name": "Klassieke Was & Was Ekspres",
+      "description": "Premium motorsorg met ekspres was beskerming. Perfek vir gereelde bestuurders wat langdurige glans wil hê.",
+      "features": ["Voor-spoel", "Seep toepassing", "Ekspres was beskerming", "Professionele droog", "Band glans", "Binneste suig", "Versiering beskerming", "Wiele skoonmaak"]
+    },
+    "deluxe": {
+      "name": "Opperste Was & Poleer",
+      "description": "Omvattende was en premium was poleer diens vir superieure beskerming en glans.",
+      "features": ["Volledige buitenste was", "Premium stralende was poleer", "Binneste suig", "Dashboard behandeling", "Venster skoonmaak binne & buite", "Band glans behandeling", "Lug verfrisser"]
+    },
+    "executive": {
+      "name": "Uiterste Detail Ervaring",
+      "description": "Die uiterste motor detailhandeling ervaring met klei staaf behandeling en premium masjien buffer.",
+      "features": ["Volledige buitenste was", "Klei staaf behandeling", "Masjien buffer", "Premium HD was afwerking", "Binneste diep skoon", "Leer kondisionering", "Enjin ruimte skoonmaak", "Kwaliteit inspeksie"]
+    }
+  },
+  "booking": {
+    "title": "Bespreek Jou Diens",
+    "steps": {
+      "service": "Kies Diens",
+      "datetime": "Kies Datum & Tyd",
+      "details": "Jou Besonderhede",
+      "payment": "Betaling",
+      "confirmation": "Bevestiging"
+    },
+    "form": {
+      "firstName": "Voornaam",
+      "lastName": "Van",
+      "email": "E-pos Adres",
+      "phone": "Telefoonnommer",
+      "plateNumber": "Nommerbord",
+      "vehicleMake": "Voertuig Merk",
+      "vehicleModel": "Voertuig Model",
+      "vehicleYear": "Voertuig Jaar",
+      "vehicleColor": "Voertuig Kleur",
+      "specialInstructions": "Spesiale Instruksies"
+    },
+    "validation": {
+      "required": "Hierdie veld is vereis",
+      "email": "Voer asseblief 'n geldige e-pos adres in",
+      "phone": "Voer asseblief 'n geldige telefoonnommer in",
+      "plateRequired": "Nommerbord is vereis vir opsporing"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Welkom Terug",
+      "subtitle": "Teken in by jou rekening",
+      "email": "E-pos",
+      "password": "Wagwoord",
+      "rememberMe": "Onthou my",
+      "forgotPassword": "Wagwoord vergeet?",
+      "button": "Teken In",
+      "noAccount": "Het jy nie 'n rekening nie?",
+      "signupLink": "Registreer"
+    },
+    "signup": {
+      "title": "Skep Rekening",
+      "subtitle": "Sluit aan by PRESTIGE Motorwas",
+      "button": "Skep Rekening",
+      "hasAccount": "Het jy reeds 'n rekening?",
+      "signinLink": "Teken in"
+    },
+    "forgotPassword": {
+      "title": "Wagwoord Vergeet",
+      "subtitle": "Voer jou e-pos in om 'n herstel skakel te ontvang",
+      "button": "Stuur herstel skakel",
+      "backToSignin": "Terug na teken in"
+    }
+  },
+  "footer": {
+    "company": "Maatskappy",
+    "services": "Dienste",
+    "support": "Ondersteuning",
+    "legal": "Wetlik",
+    "followUs": "Volg Ons",
+    "newsletter": "Nuusbrief",
+    "newsletterSubtitle": "Bly op hoogte met ons nuutste aanbiedinge",
+    "emailPlaceholder": "Voer jou e-pos in",
+    "subscribe": "Teken In",
+    "copyright": "© 2024 PRESTIGE Motorwas. Alle regte voorbehou.",
+    "location": {
+      "title": "Vind Ons",
+      "address": "30 Lower Piers Road, Wynberg, Kaapstad",
+      "phone": "+27 78 613 2969",
+      "email": "info@prestigecarwash.co.za",
+      "hours": "Ma-Vr: 8VM-6NM, Sa: 8VM-5NM, So: 9VM-2NM",
+      "getDirections": "Kry Rigtings",
+      "viewOnMap": "Bekyk op Kaart",
+      "showMap": "Wys Kaart",
+      "hideMap": "Versteek Kaart",
+      "mapLoading": "Laai kaart...",
+      "mapError": "Kan nie kaart laai nie"
+    },
+    "links": {
+      "about": "Oor Ons",
+      "careers": "Loopbane",
+      "contact": "Kontak",
+      "expressWash": "Vinnige Was",
+      "premiumWash": "Premium Was",
+      "detailing": "Detailhandeling",
+      "helpCenter": "Hulpsentrum",
+      "faq": "Gereelde Vrae",
+      "booking": "Besprekingsondersteuning",
+      "privacy": "Privaatheidsbeleid",
+      "terms": "Diensbepalings",
+      "cookies": "Koekiebeleid"
+    }
+  }
+}

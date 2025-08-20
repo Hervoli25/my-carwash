@@ -36,18 +36,20 @@ import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { SMSNotificationService } from '@/components/email/notification-system';
 import { DataProcessingNotice } from '@/components/legal/data-processing-notice';
+import { useLanguage } from '@/lib/i18n/use-language';
 
-const bookingSchema = z.object({
+// Move bookingSchema creation inside component to access translations
+const createBookingSchema = (t: (key: string) => string) => z.object({
   // Customer Information
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
-  phone: z.string().min(10, 'Please enter a valid phone number'),
+  firstName: z.string().min(2, t('booking.validation.required')),
+  lastName: z.string().min(2, t('booking.validation.required')),
+  email: z.string().email(t('booking.validation.email')),
+  phone: z.string().min(10, t('booking.validation.phone')),
   
   // Vehicle Information
-  plateNumber: z.string().min(3, 'Plate number is required for tracking').max(10, 'Plate number too long'),
-  vehicleMake: z.string().min(2, 'Vehicle make is required'),
-  vehicleModel: z.string().min(2, 'Vehicle model is required'),
+  plateNumber: z.string().min(3, t('booking.validation.plateRequired')).max(10, 'Plate number too long'),
+  vehicleMake: z.string().min(2, t('booking.validation.required')),
+  vehicleModel: z.string().min(2, t('booking.validation.required')),
   vehicleYear: z.string().optional(),
   vehicleColor: z.string().min(3, 'Vehicle color is required'),
   
@@ -186,6 +188,7 @@ const capacityConfig = {
 };
 
 export function BookingWorkflow() {
+  const { t } = useLanguage();
   const { data: session, status } = useSession();
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -244,7 +247,7 @@ export function BookingWorkflow() {
     setValue,
     formState: { errors },
   } = useForm<BookingFormData>({
-    resolver: zodResolver(bookingSchema),
+    resolver: zodResolver(createBookingSchema(t)),
     defaultValues: {
       emailNotifications: true,
       smsNotifications: true,
