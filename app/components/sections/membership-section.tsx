@@ -18,7 +18,7 @@ import { useLanguage } from '@/lib/i18n/use-language';
 const membershipPlans = [
   {
     name: 'Basic',
-    price: 4900, // R49/month
+    price: 0, // FREE
     period: 'month',
     icon: Zap,
     color: 'bg-gray-50 border-gray-200',
@@ -109,9 +109,9 @@ export function MembershipSection() {
                   
                   <div className="mb-4">
                     <span className="text-4xl font-bold text-gray-900">
-                      {formatCurrency(plan.price)}
+                      {plan.price === 0 ? 'FREE' : formatCurrency(plan.price)}
                     </span>
-                    <span className="text-gray-600">/{plan.period}</span>
+                    {plan.price !== 0 && <span className="text-gray-600">/{plan.period}</span>}
                   </div>
                   
                   <p className="text-gray-600 text-sm">

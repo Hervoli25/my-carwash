@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatCurrency(amount: number): string {
   // Always assume the amount is in cents and convert to rands
-  // For membership prices: 4900 cents = R49, 9900 cents = R99, 19900 cents = R199
+  // For membership prices: 0 cents = FREE, 9900 cents = R99, 19900 cents = R199
   const rands = Math.round(amount / 100);
   return `R${rands}`;
 }

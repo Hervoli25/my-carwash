@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     const planPrices = {
-      BASIC: 4900,
+      BASIC: 0,
       PREMIUM: 9900,
       ELITE: 19900
     };

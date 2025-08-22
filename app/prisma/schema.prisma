@@ -306,22 +306,25 @@ model Payment {
 }
 
 model Membership {
-  id        String         @id @default(cuid())
-  userId    String         @unique
-  plan      MembershipPlan
-  price     Int
-  startDate DateTime
-  endDate   DateTime?
-  isActive  Boolean        @default(true)
-  autoRenew Boolean        @default(true)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String         @id @default(cuid())
+  userId           String         @unique
+  membershipPlanId String
+  qrCode           String         @unique // Unique QR code for digital membership card
+  startDate        DateTime
+  endDate          DateTime?
+  isActive         Boolean        @default(true)
+  autoRenew        Boolean        @default(true)
+  paymentMethod    String?        // free_tier, stripe_card, etc.
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  membershipPlan   MembershipPlanConfig @relation(fields: [membershipPlanId], references: [id])
 
-  @@index([plan])
+  @@index([membershipPlanId])
   @@index([isActive])
   @@index([startDate])
   @@index([endDate])
+  @@index([qrCode])
 }
 
 model Review {
@@ -414,6 +417,28 @@ model Waitlist {
   @@index([preferredDate])
   @@index([priority])
   @@index([createdAt])
+}
+
+model MembershipPlanConfig {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  displayName   String
+  description   String
+  price         Int           // Price in cents
+  duration      Int           // Duration in days
+  features      String[]      // Array of features
+  discountRate  Float         @default(0.1) // Discount percentage (0.1 = 10%)
+  loyaltyMultiplier Float     @default(1.0) // Points multiplier
+  isActive      Boolean       @default(true)
+  isDefault     Boolean       @default(false) // For auto-assignment
+  sortOrder     Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  memberships   Membership[]
+
+  @@index([isActive])
+  @@index([isDefault])
+  @@index([sortOrder])
 }
 
 enum VehicleType {

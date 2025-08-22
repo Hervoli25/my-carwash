@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
         id: 'BASIC',
         name: 'Basic Member',
         description: 'Perfect for occasional car washes',
-        price: 4900, // R49 per month in cents
+        price: 0, // FREE membership
         features: [
           '10% discount on all services',
           'Standard booking priority',
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     const planPrices = {
-      BASIC: 4900,
+      BASIC: 0,
       PREMIUM: 9900
     };
 
