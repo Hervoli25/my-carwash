@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { randomBytes } from 'crypto';
 
 export const dynamic = "force-dynamic";
 
@@ -54,19 +55,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Payment verification failed' }, { status: 403 });
     }
 
-    const planPrices = {
-      BASIC: 0,
-      PREMIUM: 9900,
-      ELITE: 19900
-    };
+    // Get plan details from database
+    const selectedPlan = await prisma.membershipPlanConfig.findUnique({
+      where: { name: planId }
+    });
+
+    if (!selectedPlan) {
+      return NextResponse.json({ error: 'Invalid membership plan' }, { status: 400 });
+    }
+
+    // Generate unique QR code
+    const qrCode = `EKHAYA-${user.id}-${randomBytes(8).toString('hex').toUpperCase()}`;
 
     const membershipData = {
-      plan: planId,
-      price: planPrices[planId as keyof typeof planPrices],
+      membershipPlanId: selectedPlan.id,
+      qrCode: qrCode,
       startDate: new Date(),
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      endDate: new Date(Date.now() + selectedPlan.duration * 24 * 60 * 60 * 1000),
       isActive: true,
-      autoRenew: true
+      autoRenew: true,
+      paymentMethod: 'stripe_card'
     };
 
     let membership;
@@ -96,7 +104,7 @@ export async function POST(request: NextRequest) {
         stripePaymentIntentId: paymentIntent.id,
         stripeCustomerId: paymentIntent.customer as string,
         currency: 'ZAR',
-        description: `${planId} Membership Subscription`,
+        description: `${selectedPlan.displayName} Subscription`,
         paymentDate: new Date()
       }
     });

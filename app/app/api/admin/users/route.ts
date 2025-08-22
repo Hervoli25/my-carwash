@@ -59,13 +59,22 @@ export async function GET(request: NextRequest) {
           membership: {
             select: {
               id: true,
-              plan: true,
-              price: true,
+              qrCode: true,
               isActive: true,
               autoRenew: true,
               startDate: true,
               endDate: true,
-              createdAt: true
+              paymentMethod: true,
+              createdAt: true,
+              membershipPlan: {
+                select: {
+                  name: true,
+                  displayName: true,
+                  price: true,
+                  features: true,
+                  discountRate: true
+                }
+              }
             }
           }
         }

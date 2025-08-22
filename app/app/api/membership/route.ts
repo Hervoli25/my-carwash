@@ -14,44 +14,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get membership plans (simplified to Basic and Premium)
-    const membershipPlans = [
-      {
-        id: 'BASIC',
-        name: 'Basic Member',
-        description: 'Perfect for occasional car washes',
-        price: 0, // FREE membership
-        features: [
-          '10% discount on all services',
-          'Standard booking priority',
-          '1x loyalty points',
-          'Monthly newsletter',
-          'Email customer support'
-        ],
-        popular: false
-      },
-      {
-        id: 'PREMIUM',
-        name: 'Premium Member',
-        description: 'Great value for regular car care',
-        price: 9900, // R99 per month in cents
-        features: [
-          '20% discount on all services',
-          'Priority booking slots',
-          '2x loyalty points earned',
-          'Free tire shine monthly',
-          'WhatsApp customer support',
-          'Birthday month special discount',
-          'Booking reminders via SMS'
-        ],
-        popular: true
-      }
-    ];
+    // Get membership plans from database
+    const membershipPlans = await prisma.membershipPlanConfig.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: 'asc' }
+    });
 
     // Get user's current membership
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: { membership: true }
+      include: { 
+        membership: {
+          include: {
+            membershipPlan: true
+          }
+        }
+      }
     });
 
     if (!user) {
@@ -59,14 +37,26 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      plans: membershipPlans,
+      plans: membershipPlans.map(plan => ({
+        id: plan.name,
+        name: plan.displayName,
+        description: plan.description,
+        price: plan.price,
+        features: plan.features,
+        popular: plan.name === 'PREMIUM' // Mark Premium as popular
+      })),
       currentMembership: user.membership ? {
-        plan: user.membership.plan,
+        plan: user.membership.membershipPlan.name,
+        planDisplayName: user.membership.membershipPlan.displayName,
+        qrCode: user.membership.qrCode,
         isActive: user.membership.isActive,
         startDate: user.membership.startDate,
         endDate: user.membership.endDate,
         autoRenew: user.membership.autoRenew,
-        price: user.membership.price
+        price: user.membership.membershipPlan.price,
+        features: user.membership.membershipPlan.features,
+        discountRate: user.membership.membershipPlan.discountRate,
+        paymentMethod: user.membership.paymentMethod
       } : null,
       isAdmin: user.email === 'hervetshombe@gmail.com'
     });
@@ -103,10 +93,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const planPrices = {
-      BASIC: 0,
-      PREMIUM: 9900
-    };
+    // Get plan details from database
+    const selectedPlan = await prisma.membershipPlanConfig.findUnique({
+      where: { name: planId }
+    });
+
+    if (!selectedPlan || !selectedPlan.isActive) {
+      return NextResponse.json({ error: 'Invalid or inactive membership plan' }, { status: 400 });
+    }
+
+    // For free plans, directly create the membership
+    if (selectedPlan.price === 0) {
+      return NextResponse.json({
+        requiresPayment: false,
+        message: 'Basic membership is free! Your membership is already active.',
+        plan: selectedPlan
+      });
+    }
 
     // Return payment options for users to choose payment method
     const payFastData = {
@@ -118,13 +121,13 @@ export async function POST(request: NextRequest) {
       name_first: user.firstName || 'Customer',
       name_last: user.lastName || '',
       email_address: user.email,
-      amount: (planPrices[planId as keyof typeof planPrices] / 100).toFixed(2), // Convert cents to rands
-      item_name: `${planId} Membership Subscription`,
-      item_description: `Monthly ${planId.toLowerCase()} membership plan`,
+      amount: (selectedPlan.price / 100).toFixed(2), // Convert cents to rands
+      item_name: `${selectedPlan.displayName} Subscription`,
+      item_description: `${selectedPlan.description}`,
       custom_str1: user.id, // User ID for tracking
       custom_str2: planId, // Plan ID for activation
       subscription_type: '1', // Recurring subscription
-      recurring_amount: (planPrices[planId as keyof typeof planPrices] / 100).toFixed(2),
+      recurring_amount: (selectedPlan.price / 100).toFixed(2),
       frequency: '3', // Monthly
       cycles: '0' // Indefinite until cancelled
     };
@@ -133,7 +136,8 @@ export async function POST(request: NextRequest) {
       requiresPaymentSelection: true,
       payFastData,
       planId,
-      amount: planPrices[planId as keyof typeof planPrices],
+      amount: selectedPlan.price,
+      plan: selectedPlan,
       message: 'Choose your payment method for membership activation'
     });
 
