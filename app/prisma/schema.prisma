@@ -111,6 +111,7 @@ model User {
   stripeCustomer StripeCustomer?
   vehicles       Vehicle[]
   receipts       Receipt[]
+  waitlists      Waitlist[]
 
   @@index([email])
   @@index([isAdmin])
@@ -175,6 +176,7 @@ model Service {
   bookings         Booking[]
   reviews          Review[]
   addOns           ServiceAddOn[]
+  waitlists        Waitlist[]
 
   @@index([category])
   @@index([isActive])
@@ -382,6 +384,35 @@ model Promotion {
   updatedAt          DateTime? @default(now()) @db.Timestamp(6)
 }
 
+model Waitlist {
+  id                String        @id @default(cuid())
+  userId            String
+  customerName      String
+  email             String
+  phone             String
+  serviceId         String
+  preferredDate     DateTime
+  preferredTime     String?
+  vehicleInfo       String?
+  alternativeTimes  String[]      @default([])
+  status            WaitlistStatus @default(ACTIVE)
+  priority          Int           @default(1)
+  notificationsSent Int           @default(0)
+  notifiedAt        DateTime?
+  bookedAt          DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service           Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([serviceId])
+  @@index([status])
+  @@index([preferredDate])
+  @@index([priority])
+  @@index([createdAt])
+}
+
 enum VehicleType {
   SEDAN
   SUV
@@ -425,6 +456,14 @@ enum PaymentMethodType {
   EFT
   STRIPE_CARD
   STRIPE_WALLET
+}
+
+enum WaitlistStatus {
+  ACTIVE
+  CONTACTED
+  BOOKED
+  CANCELLED
+  EXPIRED
 }
 
 enum MembershipPlan {
