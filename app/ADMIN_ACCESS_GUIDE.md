@@ -133,9 +133,9 @@ INSERT INTO "AdminUser" (
 ) VALUES (
   gen_random_uuid(),
   'admin',
-  'admin@ekhayaintel.co.za', 
+  'admin@your-domain.com', 
   'System Administrator',
-  '$2b$12$LQv3c1yqBwEHxE2fsuEH0uOE6UdmOhHhWqBv.r7vEhE6mNh.K',
+  'REPLACE_WITH_BCRYPT_HASHED_PASSWORD',
   'SUPER_ADMIN',
   true,
   NOW(),
@@ -149,9 +149,9 @@ INSERT INTO "AdminUser" (
 ) VALUES (
   gen_random_uuid(),
   'staff1',
-  'staff@ekhayaintel.co.za',
+  'staff@your-domain.com',
   'Car Wash Staff',
-  '$2b$12$LQv3c1yqBwEHxE2fsuEH0uOE6UdmOhHhWqBv.r7vEhE6mNh.K',
+  'REPLACE_WITH_BCRYPT_HASHED_PASSWORD',
   'STAFF', 
   true,
   NOW(),
@@ -159,11 +159,24 @@ INSERT INTO "AdminUser" (
 );
 ```
 
-**Default Credentials:**
-- **Username**: `admin` / Password: `carwash2024`
-- **Username**: `staff1` / Password: `carwash2024`
+**⚠️ SECURITY WARNING**: The SQL commands above contain placeholder hashed passwords that must be replaced with secure passwords before use.
 
-⚠️ **IMPORTANT**: Change these passwords immediately after first login!
+**Secure Setup Process:**
+1. Generate secure passwords for admin and staff accounts
+2. Hash them using bcryptjs (12 rounds minimum)
+3. Replace the placeholder password hashes in the SQL commands
+4. Execute the SQL commands in your database
+5. Test login with the new secure credentials
+
+**Password Generation Example:**
+```bash
+# Generate secure passwords
+openssl rand -base64 32
+# Hash password with bcryptjs (use in Node.js)
+bcryptjs.hash('your-secure-password', 12)
+```
+
+**NEVER use default or weak passwords in production!**
 
 ---
 

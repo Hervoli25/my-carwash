@@ -86,11 +86,18 @@ npm run db:migrate-custom
 
 ## 👤 Test Login Credentials
 
-**Admin User:**
+**⚠️ SECURITY NOTE**: Test credentials should only be used in development!
+
+**Test User:**
 - **Email**: `john@doe.com`
-- **Password**: `johndoe123`
+- **Password**: Set via `TEST_USER_PASSWORD` environment variable
 - **Role**: Administrator
 - **Features**: Full access to all features
+
+**For Production**: 
+- Remove test accounts or set secure passwords
+- Never use default credentials in production
+- Create proper admin accounts with strong passwords
 
 ## 📊 Sample Data Included
 

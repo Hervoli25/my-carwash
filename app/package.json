@@ -15,7 +15,9 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:migrate-custom": "tsx --require dotenv/config scripts/migrate.ts",
-    "db:validate": "tsx --require dotenv/config scripts/validate.ts"
+    "db:validate": "tsx --require dotenv/config scripts/validate.ts",
+    "security:check": "node scripts/security-check.js",
+    "create-admin": "tsx --require dotenv/config scripts/create-admin.js"
   },
   "prisma": {
     "seed": "tsx --require dotenv/config scripts/seed.ts"

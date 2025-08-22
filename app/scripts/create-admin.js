@@ -7,8 +7,14 @@ async function createAdmin() {
   try {
     console.log('🔧 Creating admin user...');
     
+    // Get admin password from environment variable
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+      throw new Error('ADMIN_PASSWORD environment variable is required');
+    }
+    
     // Hash the admin password
-    const hashedPassword = await bcryptjs.hash('EkhayaAdmin2024!#$', 12);
+    const hashedPassword = await bcryptjs.hash(adminPassword, 12);
     
     // Create or update admin user
     const adminUser = await prisma.adminUser.upsert({
@@ -22,7 +28,7 @@ async function createAdmin() {
       },
       create: {
         username: 'admin',
-        email: 'hervetshombe@gmail.com',
+        email: process.env.ADMIN_EMAIL || 'admin@example.com',
         name: 'System Administrator',
         password: hashedPassword,
         role: 'SUPER_ADMIN',
