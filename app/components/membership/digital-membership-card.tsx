@@ -66,11 +66,22 @@ export function DigitalMembershipCard({ className = '' }: DigitalMembershipCardP
 
   const generateQRCode = async (qrData: string) => {
     try {
-      // Using QR Server API for demo - in production, use a proper QR library
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
-      setQrDataUrl(qrUrl);
+      // Use our own QR code API endpoint
+      const response = await fetch('/api/membership/qr-image');
+      const data = await response.json();
+      
+      if (data.success) {
+        setQrDataUrl(data.qrCodeDataURL);
+      } else {
+        // Fallback to external API if our endpoint fails
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+        setQrDataUrl(qrUrl);
+      }
     } catch (err) {
       console.error('Failed to generate QR code:', err);
+      // Fallback to external API
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+      setQrDataUrl(qrUrl);
     }
   };
 
@@ -99,26 +110,44 @@ export function DigitalMembershipCard({ className = '' }: DigitalMembershipCardP
   const handleAddToWallet = async () => {
     if (!membershipData) return;
 
-    // For demonstration - implement actual wallet integration
-    const walletData = {
-      name: 'Ekhaya Car Wash Membership',
-      member: membershipData.memberName,
-      plan: membershipData.membershipPlan,
-      qrCode: membershipData.qrCode
-    };
+    try {
+      // Get wallet integration data
+      const response = await fetch('/api/wallet/add-to-wallet');
+      const data = await response.json();
 
-    // This would integrate with Google Wallet or Apple Wallet APIs
-    console.log('Adding to wallet:', walletData);
-    alert('Wallet integration will be implemented here');
+      if (data.success) {
+        // Open wallet URL based on detected device
+        window.open(data.buttonData.url, '_blank');
+      } else {
+        alert('Failed to add to wallet: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Wallet integration error:', error);
+      alert('Failed to add to wallet. Please try again.');
+    }
   };
 
-  const handleDownload = () => {
-    // Create downloadable membership card
-    const cardElement = document.getElementById('membership-card');
-    if (cardElement) {
-      // Use html2canvas or similar library to convert to image
-      console.log('Downloading membership card');
-      alert('Download functionality will be implemented');
+  const handleDownload = async () => {
+    try {
+      // Download the QR code as an image
+      const response = await fetch('/api/membership/qr-image?format=image');
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `ekhaya-membership-qr-${membershipData?.qrCode || 'card'}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } else {
+        alert('Failed to download QR code');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download QR code');
     }
   };
 
