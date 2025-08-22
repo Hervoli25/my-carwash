@@ -400,6 +400,9 @@ model Waitlist {
   notificationsSent Int           @default(0)
   notifiedAt        DateTime?
   bookedAt          DateTime?
+  cancelledAt       DateTime?
+  contactedAt       DateTime?
+  expiredAt         DateTime?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
