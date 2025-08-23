@@ -10,6 +10,8 @@ import { RecentBookings } from '@/components/dashboard/recent-bookings';
 import { NotificationsPanel } from '@/components/dashboard/notifications-panel';
 import { MembershipBenefits } from '@/components/dashboard/membership-benefits';
 import { QuickActions } from '@/components/dashboard/quick-actions';
+import { DigitalMembershipCard } from '@/components/membership/digital-membership-card';
+import { SophisticatedMembershipCard } from '@/components/dashboard/sophisticated-membership-card';
 import { Button } from '@/components/ui/button';
 
 interface DashboardData {
@@ -112,6 +114,18 @@ export function DashboardClient() {
                 Here's an overview of your car wash services and account
               </p>
             </div>
+
+            {/* Digital Membership Card */}
+            {data.user.membership && (
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Your Digital Membership Card
+                  </span>
+                </h2>
+                <SophisticatedMembershipCard />
+              </div>
+            )}
 
             {/* Quick Stats */}
             <DashboardStats stats={data.stats} />

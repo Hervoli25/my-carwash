@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { DigitalMembershipCard } from '@/components/membership/digital-membership-card';
+import { SophisticatedMembershipCard } from '@/components/dashboard/sophisticated-membership-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -130,8 +131,21 @@ export default function MembershipDashboard() {
         {/* Digital Membership Card */}
         <div className="lg:col-span-1">
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Digital Membership Card</h2>
-            <DigitalMembershipCard />
+            <h2 className="text-xl font-semibold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Digital Membership Card
+            </h2>
+            <div className="max-w-md">
+              <SophisticatedMembershipCard />
+            </div>
+            
+            {/* Alternative view toggle */}
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Alternative View</h3>
+              <p className="text-xs text-gray-600 mb-3">
+                You can also use the compact version of your membership card
+              </p>
+              <DigitalMembershipCard />
+            </div>
           </div>
         </div>
 
