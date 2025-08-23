@@ -26,7 +26,11 @@ export async function GET(request: NextRequest) {
       where: { email: session.user.email },
       include: {
         vehicles: true,
-        membership: true,
+        membership: {
+          include: {
+            membershipPlan: true
+          }
+        },
       }
     });
 
@@ -110,8 +114,8 @@ export async function GET(request: NextRequest) {
     
     // Calculate money saved based on membership tier and bulk bookings
     let moneySaved = 0;
-    const membershipDiscount = user.membership?.plan === 'PREMIUM' ? 0.20 : 
-                              user.membership?.plan === 'BASIC' ? 0.10 : 0.05;
+    const membershipDiscount = user.membership?.membershipPlan ? 
+      user.membership.membershipPlan.discountRate : 0;
     const bulkBookingDiscount = totalBookings >= 10 ? 0.05 : totalBookings >= 5 ? 0.03 : 0;
     moneySaved = Math.round(totalSpent * (membershipDiscount + bulkBookingDiscount));
     
@@ -145,11 +149,14 @@ export async function GET(request: NextRequest) {
         email: user.email,
         loyaltyPoints: user.loyaltyPoints,
         membership: membershipData ? {
-          plan: membershipData.plan,
+          plan: membershipData.membershipPlan.name,
+          planDisplayName: membershipData.membershipPlan.displayName,
           isActive: membershipData.isActive,
           startDate: membershipData.startDate,
           endDate: membershipData.endDate,
-          price: membershipData.price,
+          price: membershipData.membershipPlan.price,
+          discountRate: membershipData.membershipPlan.discountRate,
+          qrCode: membershipData.qrCode,
           autoRenew: membershipData.autoRenew
         } : null
       },

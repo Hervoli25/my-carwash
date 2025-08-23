@@ -279,7 +279,11 @@ async function getWaitlistPriority(userId: string): Promise<number> {
     where: { id: userId },
     include: {
       bookings: { where: { status: { not: 'CANCELLED' } } },
-      membership: true
+      membership: {
+        include: {
+          membershipPlan: true
+        }
+      }
     }
   });
 
@@ -288,7 +292,7 @@ async function getWaitlistPriority(userId: string): Promise<number> {
   let priority = 1;
   
   // Premium members get higher priority
-  if (user.membership?.plan === 'PREMIUM') priority += 3;
+  if (user.membership?.membershipPlan.name === 'PREMIUM') priority += 3;
   
   // Loyal customers (5+ bookings) get priority
   if (user.bookings.length >= 5) priority += 2;
