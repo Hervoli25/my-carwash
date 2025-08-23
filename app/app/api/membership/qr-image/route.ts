@@ -30,26 +30,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No active membership found' }, { status: 404 });
     }
 
-    // QR code data that will be encoded
-    const qrData = {
-      membershipId: user.membership.id,
-      qrCode: user.membership.qrCode,
-      userId: user.id,
-      memberName: user.name,
-      email: user.email,
-      phone: user.phone,
-      membershipPlan: user.membership.membershipPlan.name,
-      planDisplayName: user.membership.membershipPlan.displayName,
-      discountRate: user.membership.membershipPlan.discountRate,
-      loyaltyPoints: user.loyaltyPoints,
-      memberSince: user.membership.startDate,
-      isActive: user.membership.isActive,
-      validUntil: user.membership.endDate,
-      generatedAt: new Date().toISOString()
-    };
+    // QR code data in readable format
+    const validFrom = new Date(user.membership.startDate).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+    const validTo = user.membership.endDate 
+      ? new Date(user.membership.endDate).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        })
+      : 'Lifetime';
+
+    const qrDataString = `${user.membership.qrCode}
+${user.name} | ${user.membership.membershipPlan.displayName}
+Valid: ${validFrom} - ${validTo}
+Discount: ${(user.membership.membershipPlan.discountRate * 100)}% | Points: ${user.loyaltyPoints}
+${user.phone || 'No phone'} | ${user.email}
+Status: ${user.membership.isActive ? 'ACTIVE' : 'INACTIVE'}`;
 
     // Generate QR code as base64 data URL
-    const qrCodeDataURL = await QRCode.toDataURL(JSON.stringify(qrData), {
+    const qrCodeDataURL = await QRCode.toDataURL(qrDataString, {
       width: 200,
       margin: 2,
       color: {
@@ -60,7 +63,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Also generate as buffer for download
-    const qrCodeBuffer = await QRCode.toBuffer(JSON.stringify(qrData), {
+    const qrCodeBuffer = await QRCode.toBuffer(qrDataString, {
       width: 400,
       margin: 3,
       color: {

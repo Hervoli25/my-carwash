@@ -528,7 +528,7 @@ export function BookingWorkflow() {
     };
   };
 
-  // Generate available time slots for a specific date and service (with holiday support)
+  // Generate available time slots for a specific date and service (with same-day booking intelligence)
   const generateTimeSlots = (date: Date, serviceId: string) => {
     const selectedService = services.find(s => s.id === serviceId);
     if (!selectedService) return [];
@@ -559,12 +559,28 @@ export function BookingWorkflow() {
     const [openHour, openMinute] = businessHour.open.split(':').map(Number);
     const [closeHour, closeMinute] = businessHour.close.split(':').map(Number);
     
-    const openTime = openHour * 60 + openMinute;
+    let startTime = openHour * 60 + openMinute;
     const closeTime = closeHour * 60 + closeMinute;
     const serviceDuration = selectedService.duration;
     
+    // For same-day bookings, adjust start time to current time + buffer
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    
+    if (isToday) {
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      const bufferTime = 30; // 30-minute minimum buffer for same-day bookings
+      const earliestSlot = currentTime + bufferTime;
+      
+      // Round up to next 30-minute interval
+      const roundedEarliestSlot = Math.ceil(earliestSlot / 30) * 30;
+      
+      // Use the later of: business opening time or current time + buffer
+      startTime = Math.max(startTime, roundedEarliestSlot);
+    }
+    
     // Generate 30-minute intervals that allow service to complete before closing
-    for (let time = openTime; time + serviceDuration <= closeTime; time += 30) {
+    for (let time = startTime; time + serviceDuration <= closeTime; time += 30) {
       const hours = Math.floor(time / 60);
       const minutes = time % 60;
       const timeSlot = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
@@ -1513,8 +1529,16 @@ export function BookingWorkflow() {
                           setValue('preferredDate', date?.toISOString() || '');
                         }}
                         disabled={(date) => {
-                          // Disable past dates
-                          if (date < new Date()) return true;
+                          // Create today's date at midnight for proper comparison
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          
+                          // Create selected date at midnight for comparison
+                          const selectedDateMidnight = new Date(date);
+                          selectedDateMidnight.setHours(0, 0, 0, 0);
+                          
+                          // Disable past dates (before today)
+                          if (selectedDateMidnight < today) return true;
                           
                           // Check for holidays
                           const holidayStatus = checkHolidayStatus(date);
@@ -1639,6 +1663,19 @@ export function BookingWorkflow() {
                             </div>
                           )}
                           
+                          {/* Same-day booking notification */}
+                          {selectedDate && selectedDate.toDateString() === new Date().toDateString() && availableTimeSlots.length > 0 && (
+                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Clock className="w-4 h-4 text-blue-600" />
+                                <span className="font-medium text-blue-800 text-sm">Same-Day Booking</span>
+                              </div>
+                              <p className="text-blue-700 text-sm">
+                                Available times are automatically filtered to allow at least 30 minutes preparation time and ensure your service completes before closing.
+                              </p>
+                            </div>
+                          )}
+
                           {/* Enhanced Capacity Information Display */}
                           {availableTimeSlots.length > 0 && (
                             <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
@@ -1650,6 +1687,11 @@ export function BookingWorkflow() {
                                   <Badge variant="outline" className="text-xs">
                                     3-5 cars per slot
                                   </Badge>
+                                  {selectedDate && selectedDate.toDateString() === new Date().toDateString() && (
+                                    <Badge className="bg-blue-100 text-blue-800 text-xs">
+                                      Same-day
+                                    </Badge>
+                                  )}
                                 </div>
                                 <Button
                                   type="button"

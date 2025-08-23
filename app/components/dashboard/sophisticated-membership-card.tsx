@@ -42,9 +42,7 @@ export function SophisticatedMembershipCard() {
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isFlipped, setIsFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<'card' | 'benefits' | 'stats'>('card');
 
   useEffect(() => {
     fetchMembershipData();
@@ -130,7 +128,46 @@ export function SophisticatedMembershipCard() {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownloadCard = async () => {
+    try {
+      // Get the membership card element
+      const cardElement = document.querySelector('.membership-card-container') as HTMLElement;
+      if (!cardElement) {
+        alert('Card not found for download');
+        return;
+      }
+
+      // Use html2canvas to capture the card
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(cardElement, {
+        backgroundColor: '#ffffff',
+        scale: 2, // Higher quality
+        useCORS: true,
+        allowTaint: true,
+        width: cardElement.offsetWidth,
+        height: cardElement.offsetHeight,
+      });
+
+      // Convert to blob and download
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `ekhaya-membership-card-${membershipData?.qrCode || 'card'}.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }
+      }, 'image/jpeg', 0.95);
+    } catch (error) {
+      console.error('Card download error:', error);
+      alert('Failed to download card. Please try again.');
+    }
+  };
+
+  const handleDownloadQR = async () => {
     try {
       const response = await fetch('/api/membership/qr-image?format=image');
       if (response.ok) {
@@ -138,21 +175,21 @@ export function SophisticatedMembershipCard() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `ekhaya-membership-${membershipData?.qrCode}.png`;
+        link.download = `ekhaya-qr-code-${membershipData?.qrCode}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
       }
     } catch (error) {
-      console.error('Download error:', error);
+      console.error('QR download error:', error);
     }
   };
 
   if (loading) {
     return (
       <div className="w-full">
-        <Card className="h-80">
+        <Card className="h-56">
           <CardContent className="flex items-center justify-center h-full">
             <motion.div
               animate={{ rotate: 360 }}
@@ -191,164 +228,134 @@ export function SophisticatedMembershipCard() {
   const PlanIcon = planConfig.icon;
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-sm mx-auto">
       {/* Main Membership Card */}
-      <div className="relative perspective-1000">
+      <div className="relative">
         <motion.div
-          className="relative w-full h-80 preserve-3d cursor-pointer"
-          animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-          onClick={() => setIsFlipped(!isFlipped)}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="membership-card-container bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
         >
-          {/* Front of Card */}
-          <div className={`absolute inset-0 backface-hidden rounded-2xl bg-gradient-to-br ${planConfig.gradient} text-white shadow-2xl overflow-hidden`}>
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-8 right-8 w-24 h-24 border border-white/20 rounded-full"></div>
-              <div className="absolute bottom-8 left-8 w-16 h-16 border border-white/20 rounded-full"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white/10 rounded-full"></div>
-            </div>
-
-            {/* Card Content */}
-            <div className="relative z-10 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
-                    <PlanIcon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Ekhaya Car Wash</h3>
-                    <p className="text-white/80 text-xs">Premium Services</p>
-                  </div>
+          {/* Header Section */}
+          <div className={`bg-gradient-to-r ${planConfig.gradient} px-6 py-4 relative`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                  <PlanIcon className="w-6 h-6 text-gray-700" />
                 </div>
-                <Badge className="bg-green-500/20 text-green-100 border-green-400/30 text-xs">
-                  {membershipData.isActive ? 'ACTIVE' : 'INACTIVE'}
-                </Badge>
-              </div>
-
-              {/* Member Info */}
-              <div className="space-y-4">
                 <div>
-                  <h4 className="font-bold text-2xl mb-1">{membershipData.memberName}</h4>
-                  <p className="text-white/80 text-sm font-medium">{planConfig.tier}</p>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <Coins className="w-4 h-4 text-yellow-300" />
-                    <span className="font-semibold">{membershipData.loyaltyPoints}</span>
-                    <span className="text-white/70 text-sm">pts</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Sparkles className="w-4 h-4 text-purple-300" />
-                    <span className="font-semibold">{membershipData.discountRate}</span>
-                    <span className="text-white/70 text-sm">off</span>
-                  </div>
-                </div>
-
-                {/* QR Code Section */}
-                <div className="flex items-end justify-between">
-                  <div className="text-xs text-white/70">
-                    <p>Member since: {formatDate(new Date(membershipData.memberSince))}</p>
-                    <p className="font-mono mt-1 text-xs">{membershipData.qrCode}</p>
-                  </div>
-                  {qrDataUrl && (
-                    <div className="bg-white p-1 rounded">
-                      <img src={qrDataUrl} alt="QR Code" className="w-12 h-12" />
-                    </div>
-                  )}
+                  <h3 className="font-bold text-white text-lg">EKHAYA CAR WASH</h3>
+                  <p className="text-white/90 text-sm">Digital Membership</p>
                 </div>
               </div>
-            </div>
-
-            {/* Chip Icon */}
-            <div className="absolute top-6 right-6">
-              <div className="w-8 h-6 bg-white/20 rounded border border-white/30 backdrop-blur-sm"></div>
+              <Badge className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                {membershipData.isActive ? 'ACTIVE' : 'INACTIVE'}
+              </Badge>
             </div>
           </div>
 
-          {/* Back of Card */}
-          <div className="absolute inset-0 backface-hidden rounded-2xl bg-gray-900 text-white shadow-2xl overflow-hidden transform rotateY-180">
-            <div className="p-6 h-full flex flex-col">
-              <h3 className="text-lg font-bold mb-4">Membership Benefits</h3>
-              
-              {/* Benefits */}
-              <div className="flex-1 space-y-3 mb-4">
-                {planConfig.perks.map((perk, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center space-x-3 bg-white/10 rounded-lg p-2"
-                  >
-                    <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
-                    <span className="text-sm">{perk}</span>
-                  </motion.div>
-                ))}
-              </div>
+          {/* Member ID Section */}
+          <div className="px-6 py-3 bg-gray-50 border-b">
+            <div className="text-xs text-gray-600 mb-1">Member ID</div>
+            <div className="font-mono text-sm text-gray-800 bg-white px-3 py-2 rounded border">
+              {membershipData.qrCode}
+            </div>
+          </div>
 
-              {/* QR Instructions */}
-              <div className="bg-white/5 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-sm mb-1">Show at Checkout</h4>
-                    <p className="text-xs text-gray-300">
-                      Present QR code for discount
-                    </p>
-                    <button
-                      onClick={handleCopyQR}
-                      className="mt-1 flex items-center space-x-1 text-xs text-blue-400 hover:text-blue-300"
-                    >
-                      {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                      <span>{copied ? 'Copied!' : 'Copy Code'}</span>
-                    </button>
-                  </div>
-                  {qrDataUrl && (
-                    <div className="bg-white p-1 rounded ml-2">
-                      <img src={qrDataUrl} alt="QR Code" className="w-12 h-12" />
-                    </div>
-                  )}
+          {/* Member Info */}
+          <div className="px-6 py-4">
+            <h4 className="font-bold text-2xl text-gray-900 mb-2">{membershipData.memberName}</h4>
+            <div className="inline-block">
+              <Badge variant="outline" className="text-sm px-3 py-1 border-2 border-blue-200 text-blue-700">
+                {planConfig.tier}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Stats Section */}
+          <div className="px-6 pb-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="border-2 border-orange-200 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-orange-600">{membershipData.discountRate}</div>
+                <div className="text-xs text-orange-600 font-medium">DISCOUNT</div>
+              </div>
+              <div className="border-2 border-purple-200 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-purple-600">{membershipData.loyaltyPoints}</div>
+                <div className="text-xs text-purple-600 font-medium">POINTS</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Info */}
+          <div className="px-6 pb-4 space-y-2">
+            <div className="bg-gray-50 px-3 py-2 rounded border text-sm text-gray-700">
+              <span className="text-gray-500">Phone:</span> +27776026788
+            </div>
+            <div className="bg-gray-50 px-3 py-2 rounded border text-sm text-gray-700">
+              <span className="text-gray-500">Email:</span> {membershipData.memberName?.toLowerCase().replace(' ', '')}@gmail.com
+            </div>
+          </div>
+
+          {/* Validity Section */}
+          <div className="px-6 pb-4">
+            <div className="bg-teal-50 border-2 border-teal-200 rounded-lg p-3">
+              <div className="text-teal-700 font-medium text-sm">✓ Valid Until</div>
+              <div className="text-teal-800 font-bold">Aug 23, 2026</div>
+              <div className="text-teal-600 text-xs">Member since {formatDate(new Date(membershipData.memberSince))}</div>
+            </div>
+          </div>
+
+          {/* QR Code Section */}
+          <div className="px-6 pb-6">
+            <div className="text-center">
+              {qrDataUrl && (
+                <div className="inline-block bg-white p-3 rounded-lg border-2 border-gray-200">
+                  <img src={qrDataUrl} alt="QR Code" className="w-24 h-24 mx-auto" />
                 </div>
-              </div>
-
-              <p className="text-xs text-gray-400 text-center mt-2">
-                Tap card to flip
-              </p>
+              )}
+              <div className="mt-2 font-mono text-xs text-gray-500">{membershipData.qrCode}</div>
             </div>
           </div>
         </motion.div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="grid grid-cols-3 gap-3 mt-4">
-        <Button
-          onClick={handleAddToWallet}
-          className="bg-black hover:bg-gray-800 text-white"
-          size="sm"
-        >
-          <Smartphone className="w-4 h-4 mr-1" />
-          <span className="hidden sm:inline">Add to Wallet</span>
-          <span className="sm:hidden">Wallet</span>
-        </Button>
-        <Button
-          onClick={handleDownload}
-          variant="outline"
-          size="sm"
-        >
-          <Download className="w-4 h-4 mr-1" />
-          <span className="hidden sm:inline">Download</span>
-          <span className="sm:hidden">Save</span>
-        </Button>
-        <Button
-          onClick={() => window.open('/dashboard/membership', '_blank')}
-          variant="outline"
-          size="sm"
-        >
-          <QrCode className="w-4 h-4 mr-1" />
-          <span className="hidden sm:inline">Full View</span>
-          <span className="sm:hidden">View</span>
-        </Button>
+        {/* Action Buttons */}
+        <div className="space-y-2 mt-4">
+          <div className="grid grid-cols-3 gap-2">
+            <Button
+              onClick={handleAddToWallet}
+              className="bg-black hover:bg-gray-800 text-white"
+              size="sm"
+            >
+              <Smartphone className="w-4 h-4 mr-1" />
+              <span className="text-xs">Wallet</span>
+            </Button>
+            <Button
+              onClick={handleCopyQR}
+              variant="outline"
+              size="sm"
+            >
+              {copied ? <Check className="w-4 h-4 mr-1" /> : <Copy className="w-4 h-4 mr-1" />}
+              <span className="text-xs">{copied ? 'Copied!' : 'Copy'}</span>
+            </Button>
+            <Button
+              onClick={handleDownloadQR}
+              variant="outline"
+              size="sm"
+            >
+              <QrCode className="w-4 h-4 mr-1" />
+              <span className="text-xs">QR</span>
+            </Button>
+          </div>
+          <Button
+            onClick={handleDownloadCard}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            size="sm"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Download Full Card as JPG
+          </Button>
+        </div>
       </div>
     </div>
   );
