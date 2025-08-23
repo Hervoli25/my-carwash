@@ -130,6 +130,12 @@ export function SophisticatedMembershipCard() {
 
   const handleDownloadCard = async () => {
     try {
+      // Check if we're in a browser environment
+      if (typeof window === 'undefined' || typeof document === 'undefined') {
+        alert('Download feature is not available in this environment');
+        return;
+      }
+
       // Get the membership card element
       const cardElement = document.querySelector('.membership-card-container') as HTMLElement;
       if (!cardElement) {
@@ -137,8 +143,10 @@ export function SophisticatedMembershipCard() {
         return;
       }
 
-      // Use html2canvas to capture the card
-      const html2canvas = (await import('html2canvas')).default;
+      // Dynamically import html2canvas only in browser environment
+      const html2canvasModule = await import('html2canvas');
+      const html2canvas = html2canvasModule.default;
+
       const canvas = await html2canvas(cardElement, {
         backgroundColor: '#ffffff',
         scale: 2, // Higher quality
