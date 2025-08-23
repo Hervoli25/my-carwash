@@ -25,9 +25,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# local env files - CRITICAL SECURITY
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+.env.staging
+*.env
 
 # vercel
 .vercel
@@ -104,3 +110,34 @@ Thumbs.db
 
 # Windows null device file
 nul
+
+# SECURITY: Sensitive documentation and setup files
+**/SETUP_GUIDE.md
+**/SETUP-INSTRUCTIONS.md
+**/CRM_INTEGRATION_EXAMPLE.md
+**/STRIPE_INTEGRATION.md
+**/DATABASE_SCHEMA.md
+**/ADMIN_ACCESS_GUIDE.md
+**/CRM_API_DOCUMENTATION.md
+**/CRM_DASHBOARD_IMPLEMENTATION_PROMPT.md
+**/CRM_INTEGRATION_PROMPT.md
+**/SETUP-INSTRUCTIONS.pdf
+
+# SECURITY: Any files with credentials or sensitive info
+*credentials*
+*secrets*
+*config.local*
+*production.config*
+
+# SECURITY: IDE configuration files that may contain sensitive info
+.windsurfrules
+.cursor/
+.superdesign/
+.claude/
+
+# SECURITY: Documentation files that expose system architecture
+**/CLAUDE.md
+**/POINTS_SYSTEM_*.md
+**/crm_integration_*.md
+**/database_*_schema.sql
+**/points_system_*.md

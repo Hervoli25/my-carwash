@@ -4,11 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 export function authenticateApiKey(request: NextRequest): boolean {
   const apiKey = request.headers.get('X-API-Key') || request.headers.get('Authorization')?.replace('Bearer ', '');
   
-  // Get API key from environment variable (fallback to multiple possible keys)
+  // Get API key from environment variable only
   const validApiKeys = [
     process.env.CRM_API_KEY,
-    process.env.NEXTAUTH_SECRET, // Allow NextAuth secret as backup
-    'ekhaya-car-wash-secret-key-2024' // Hardcoded fallback for testing
+    process.env.NEXTAUTH_SECRET // Allow NextAuth secret as backup
   ].filter(Boolean);
   
   if (validApiKeys.length === 0) {
