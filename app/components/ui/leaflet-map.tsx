@@ -17,11 +17,11 @@ interface LeafletMapProps {
   showControls?: boolean;
 }
 
-// Car wash location coordinates (Wynberg, Cape Town)
+// Car wash location coordinates (1 Piers Road, Cape Town)
 const CAR_WASH_LOCATION = {
   lat: -34.0055,
   lng: 18.4241,
-  address: '30 Lower Piers Road, Wynberg, Cape Town'
+  address: '1 Piers Road, Cape Town, Western Cape, 7800, South Africa'
 };
 
 // Custom marker icon

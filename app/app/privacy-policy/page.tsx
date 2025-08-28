@@ -216,7 +216,7 @@ export default function PrivacyPolicyPage() {
             <CardContent>
               <div className="space-y-2 text-gray-700">
                 <p><strong>PRESTIGE Car Wash BY: EKHAYA INTEL. TRADING</strong></p>
-                <p>30 Lower Piers Road, Wynberg, Cape Town</p>
+                <p>1 Piers Road, Cape Town, Western Cape, 7800, South Africa</p>
                 <p>Phone: +27 78 613 2969</p>
                 <p>Email: info@prestigecarwash.co.za</p>
                 <p>Data Protection Officer: privacy@prestigecarwash.co.za</p>
